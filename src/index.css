@@ -1,0 +1,107 @@
+@import "tailwindcss";
+
+@layer base {
+  * {
+    font-family: 'Vazirmatn', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  }
+}
+
+:root {
+  --bg-main: #F5F7FC;
+  --bg-card: #FFFFFF;
+  --accent-purple: #8B5CF6;
+  --accent-sky: #38BDF8;
+  --accent-indigo: #6366F1;
+  --text-dark: #1E293B;
+  --text-muted: #64748B;
+}
+
+body {
+  background-color: #F5F7FC;
+  color: #1E293B;
+  -webkit-font-smoothing: antialiased;
+}
+
+.dark body {
+  background-color: #0B0F19;
+  color: #F1F5F9;
+}
+
+/* Custom scrollbar styling for slick mobile-feel */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(148, 163, 184, 0.25);
+  border-radius: 9999px;
+}
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+/* Modern soft shadows matching reference image */
+.shadow-soft-card {
+  box-shadow: 0 10px 30px -8px rgba(100, 116, 139, 0.08), 0 2px 8px -2px rgba(100, 116, 139, 0.04);
+}
+
+.shadow-soft-elevated {
+  box-shadow: 0 16px 40px -10px rgba(99, 102, 241, 0.16), 0 4px 12px -2px rgba(99, 102, 241, 0.06);
+}
+
+.shadow-soft-dock {
+  box-shadow: 0 20px 45px -10px rgba(79, 70, 229, 0.18), 0 6px 16px -4px rgba(79, 70, 229, 0.08);
+}
+
+/* Smooth tap transitions */
+button, a {
+  -webkit-tap-highlight-color: transparent;
+}
+
+@keyframes slideLeft {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slide-left {
+  animation: slideLeft 250ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 200ms ease-out forwards;
+}
+
+
+
+body { margin: 0; min-width: 320px; min-height: 100vh; min-height: 100dvh; }
+button, input, textarea { font: inherit; }
+:focus-visible { outline: 3px solid oklch(64% 0.17 18); outline-offset: 2px; }
+.yar-splash { position: fixed; inset: 0; min-height: 100dvh; display: grid; place-content: center; justify-items: center; gap: 24px; overflow: hidden; background: oklch(97% 0.018 68); color: oklch(31% 0.055 181); }
+.yar-splash::before, .yar-splash::after { content: ""; position: absolute; width: 360px; height: 360px; border-radius: 999px; opacity: .22; }
+.yar-splash::before { background: oklch(73% 0.15 28); transform: translate(48%, -64%); }
+.yar-splash::after { background: oklch(54% 0.09 181); transform: translate(-55%, 68%); }
+.yar-splash-icon { z-index: 1; border-radius: 34px; box-shadow: 0 24px 60px oklch(32% 0.05 180 / .16); animation: splashReveal 700ms cubic-bezier(.16, 1, .3, 1) both; }
+.yar-splash-copy { z-index: 1; text-align: center; animation: splashCopy 650ms 180ms cubic-bezier(.16, 1, .3, 1) both; }
+.yar-splash-copy h1 { margin: 0; font-size: 2rem; line-height: 1.2; font-weight: 900; }
+.yar-splash-copy p { margin: 8px 0 0; color: oklch(52% 0.035 181); font-size: .875rem; font-weight: 600; }
+@keyframes splashReveal { from { opacity: 0; transform: translateY(16px) scale(.9); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes splashCopy { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: 1ms !important; animation-iteration-count: 1 !important; scroll-behavior: auto !important; } }

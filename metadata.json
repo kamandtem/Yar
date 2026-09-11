@@ -1,0 +1,6 @@
+{
+  "name": "یار | همراه رابطه",
+  "description": "اپلیکیشن همراه، آموزشی و تمرینی برای زوج‌ها، نامزدها و روابط آگاهانه مبتنی بر علم رابطه و روانشناسی بالینی",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

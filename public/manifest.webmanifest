@@ -1,0 +1,14 @@
+{
+  "name": "یار، همراه رابطه",
+  "short_name": "یار",
+  "lang": "fa",
+  "dir": "rtl",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f7efe6",
+  "theme_color": "#f7efe6",
+  "icons": [
+    { "src": "/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

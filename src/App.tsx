@@ -38,7 +38,7 @@ import { PerspectiveModal } from './components/exercises/PerspectiveModal';
 import { AppIcon } from './components/common/AppIcon';
 
 export default function App() {
-  const [onboardingStep, setOnboardingStep] = useState<'flow' | 'modal' | 'done'>(() => !preferences.hasCompletedOnboarding ? 'flow' : 'done');
+  const [onboardingStep, setOnboardingStep] = useState<'flow' | 'modal' | 'done'>('done');
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
   const [cycleConfig, setCycleConfig] = useState<MenstrualCycleConfig>(() => ({
@@ -50,8 +50,8 @@ export default function App() {
   const [preferences, setPreferences] = useState<UserPreferences>(() =>
     StorageService.getPreferences()
   );
-  const [darkMode, setDarkMode] = useState<boolean>(() => preferences.darkMode || false);
-  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(() => !preferences.hasCompletedOnboarding);
+  const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(true);
   const [isSOSOpen, setIsSOSOpen] = useState<boolean>(false);
   const [isMenuExpanded, setIsMenuExpanded] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);

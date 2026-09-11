@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { MenstrualCycleConfig,  CycleAdviceCard } from '../home/CycleAdviceCard';
+import { CycleAdviceCard } from './CycleAdviceCard';
+import { MenstrualCycleConfig } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserPreferences, Article, Exercise, Journey, DailyQuestion, WeeklyDate } from '../../types';
 import { toPersianDigits, getTodayPersianDateString } from '../../utils/persianDate';

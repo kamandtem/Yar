@@ -1,66 +1,80 @@
-/**
- * Post-`cap add`/`cap sync` tweaks for the generated Android project.
- * The android/ folder is regenerated on every CI run, so this runs each build.
- * Every step is optional: if a pattern is missing we log and move on, never fail.
- */
-import { readFileSync, writeFileSync, existsSync } from 'node:fs';
+import fs from 'fs';
+import path from 'path';
 
-const APP_NAME = 'یار';          // Persian launcher label
-const LIGHT_BG = '#F5F7FC';      // status bar + window background (light theme)
+const appResDir = 'android/app/src/main/res';
 
-const read = (p) => (existsSync(p) ? readFileSync(p, 'utf8') : null);
-const write = (p, s) => {
-  writeFileSync(p, s, 'utf8');
-  console.log(`[patch-android] updated ${p}`);
-};
+// Ensure directories exist
+const valuesDirs = [
+  path.join(appResDir, 'values'),
+  path.join(appResDir, 'values-night')
+];
 
-/* 1. Persian app name -------------------------------------------------- */
-const stringsPath = 'android/app/src/main/res/values/strings.xml';
-const strings = read(stringsPath);
-if (!strings) {
-  console.log(`[patch-android] ${stringsPath} not found, skipping.`);
-} else {
-  let out = strings;
-  for (const key of ['app_name', 'title_activity_main']) {
-    out = out.replace(new RegExp(`(<string name="${key}">)[\\s\\S]*?(</string>)`), `$1${APP_NAME}$2`);
+for (const dir of valuesDirs) {
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
   }
-  write(stringsPath, out);
 }
 
-/* 2. Light status bar colour ------------------------------------------- */
-const colorsPath = 'android/app/src/main/res/values/colors.xml';
-const colors = read(colorsPath);
-if (colors) {
-  let out = colors;
-  if (/<color name="colorPrimaryDark">/.test(out)) {
-    out = out.replace(/(<color name="colorPrimaryDark">)[^<]*(<\/color>)/, `$1${LIGHT_BG}$2`);
+// Patch strings.xml for app name
+const stringsPath = path.join(appResDir, 'values', 'strings.xml');
+let stringsContent = fs.existsSync(stringsPath) ? fs.readFileSync(stringsPath, 'utf-8') : '';
+
+if (!stringsContent.includes('<string name="app_name">Yar</string>')) {
+  if (stringsContent.includes('</resources>')) {
+    stringsContent = stringsContent.replace(
+      '</resources>',
+      '  <string name="app_name">Yar</string>\n</resources>'
+    );
   } else {
-    out = out.replace('</resources>', `    <color name="colorPrimaryDark">${LIGHT_BG}</color>\n</resources>`);
+    stringsContent = `<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="app_name">Yar</string>
+</resources>`;
   }
-  if (!/name="yarWindowBackground"/.test(out)) {
-    out = out.replace('</resources>', `    <color name="yarWindowBackground">${LIGHT_BG}</color>\n</resources>`);
-  }
-  write(colorsPath, out);
-} else {
-  console.log(`[patch-android] ${colorsPath} not found, skipping.`);
+  fs.writeFileSync(stringsPath, stringsContent);
+  console.log('✓ Updated app_name to "Yar"');
 }
 
-/* 3. Dark status-bar icons + matching window background ---------------- */
-const stylesPath = 'android/app/src/main/res/values/styles.xml';
-const styles = read(stylesPath);
-if (styles) {
-  const themeStart = /(<style name="AppTheme\.NoActionBar"[^>]*>)/;
-  if (themeStart.test(styles) && !styles.includes('windowLightStatusBar')) {
-    const injected =
-      '$1\n' +
-      '        <item name="android:windowLightStatusBar">true</item>\n' +
-      '        <item name="android:windowBackground">@color/yarWindowBackground</item>';
-    write(stylesPath, styles.replace(themeStart, injected));
+// Patch styles.xml for light mode - use HEX COLOR DIRECTLY (no resource reference)
+const stylesPath = path.join(appResDir, 'values', 'styles.xml');
+let stylesContent = fs.existsSync(stylesPath) ? fs.readFileSync(stylesPath, 'utf-8') : '';
+
+if (!stylesContent.includes('android:windowBackground')) {
+  if (stylesContent.includes('</style>')) {
+    stylesContent = stylesContent.replace(
+      '</style>',
+      '    <item name="android:windowBackground">#F5F7FC</item>\n  </style>'
+    );
   } else {
-    console.log('[patch-android] styles.xml already patched or theme not found, skipping.');
+    stylesContent = `<resources>
+  <style name="AppTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <item name="android:windowBackground">#F5F7FC</item>
+  </style>
+</resources>`;
   }
-} else {
-  console.log(`[patch-android] ${stylesPath} not found, skipping.`);
+  fs.writeFileSync(stylesPath, stylesContent);
+  console.log('✓ Set light mode window background to #F5F7FC');
 }
 
-console.log('[patch-android] done.');
+// Patch styles.xml for dark mode
+const stylesDarkPath = path.join(appResDir, 'values-night', 'styles.xml');
+let stylesDarkContent = fs.existsSync(stylesDarkPath) ? fs.readFileSync(stylesDarkPath, 'utf-8') : '';
+
+if (!stylesDarkContent.includes('android:windowBackground')) {
+  if (stylesDarkContent.includes('</style>')) {
+    stylesDarkContent = stylesDarkContent.replace(
+      '</style>',
+      '    <item name="android:windowBackground">#1A1A1A</item>\n  </style>'
+    );
+  } else {
+    stylesDarkContent = `<resources>
+  <style name="AppTheme" parent="Theme.AppCompat">
+    <item name="android:windowBackground">#1A1A1A</item>
+  </style>
+</resources>`;
+  }
+  fs.writeFileSync(stylesDarkPath, stylesDarkContent);
+  console.log('✓ Set dark mode window background to #1A1A1A');
+}
+
+console.log('✓ Android resources patched successfully');

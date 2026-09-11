@@ -98,7 +98,7 @@ export default function App() {
       setIsOnboardingOpen(false);
     } else {
       setOnboardingStep('flow');
-      setIsOnboardingOpen(true);
+      setIsOnboardingOpen(false);
     }
   }, [preferences.hasCompletedOnboarding]);
 
@@ -333,12 +333,17 @@ export default function App() {
 
       {/* Onboarding Flow */}
       {onboardingStep === 'flow' && (
-        <OnboardingFlow onComplete={() => setOnboardingStep('modal')} />
+        <OnboardingFlow
+          onComplete={() => {
+            setOnboardingStep('modal');
+            setIsOnboardingOpen(true);
+          }}
+        />
       )}
 
       {/* Modals and Flows */}
       <OnboardingModal
-        isOpen={isOnboardingOpen}
+        isOpen={onboardingStep === 'modal' && isOnboardingOpen}
         onComplete={handleOnboardingComplete}
       />
 

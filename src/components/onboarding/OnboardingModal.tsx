@@ -266,7 +266,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
           )}
 
           {/* Slide 4: Priority Topics */}
-          {step === 5 && (
+          {step === 4 && (
             <motion.div
               key="step-4"
               initial={{ opacity: 0, y: 15 }}

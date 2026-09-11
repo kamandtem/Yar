@@ -28,9 +28,15 @@ jobs:
       - name: Setup Java
         uses: actions/setup-java@v4
         with:
+<<<<<<< HEAD
           distribution: 'temurin'
           java-version: '17'
           cache: 'gradle'
+=======
+          distribution: temurin
+          java-version: '21'
+          cache: gradle
+>>>>>>> ea8e7b581afb0a419217b29f3a02ca15ccc4da31
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3

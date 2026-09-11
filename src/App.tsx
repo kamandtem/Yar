@@ -36,9 +36,10 @@ import { ExerciseModal } from './components/exercises/ExerciseModal';
 import { JourneyModal } from './components/journeys/JourneyModal';
 import { PerspectiveModal } from './components/exercises/PerspectiveModal';
 import { AppIcon } from './components/common/AppIcon';
+import { SplashScreen } from './components/common/SplashScreen';
 
 export default function App() {
-  const [onboardingStep, setOnboardingStep] = useState<'flow' | 'modal' | 'done'>('done');
+  const [onboardingStep, setOnboardingStep] = useState<'flow' | 'modal' | 'done'>('flow');
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
   const [cycleConfig, setCycleConfig] = useState<MenstrualCycleConfig>(() => ({
@@ -78,6 +79,36 @@ export default function App() {
     return map;
   });
   const [streak, setStreak] = useState(() => StorageService.getStreak());
+
+  // Initialize app state and handle onboarding flow
+  useEffect(() => {
+    // Show splash screen for 2 seconds
+    const splashTimer = setTimeout(() => setShowSplash(false), 2000);
+    
+    // Apply system bars for mobile
+    applySystemBars(darkMode);
+    
+    return () => clearTimeout(splashTimer);
+  }, [darkMode]);
+
+  // Handle onboarding completion
+  useEffect(() => {
+    if (preferences.hasCompletedOnboarding) {
+      setOnboardingStep('done');
+      setIsOnboardingOpen(false);
+    } else {
+      setOnboardingStep('flow');
+      setIsOnboardingOpen(true);
+    }
+  }, [preferences.hasCompletedOnboarding]);
+
+  // Handle dark mode and preferences sync
+  useEffect(() => {
+    const newPrefs = { ...preferences, darkMode };
+    setPreferences(StorageService.savePreferences(newPrefs));
+    document.documentElement.classList.toggle('dark', darkMode);
+  }, [darkMode]);
+
 
   // Dark mode class sync on document element
   useEffect(() => {
@@ -160,7 +191,10 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-[#F5F7FC] dark:bg-[#0B0F19] text-[#1E293B] dark:text-[#F1F5F9] transition-colors duration-200 antialiased font-sans selection:bg-rose-100 selection:text-rose-600">
+    <>
+      <SplashScreen isVisible={showSplash} />
+
+      <div className="min-h-[100dvh] bg-[#F5F7FC] dark:bg-[#0B0F19] text-[#1E293B] dark:text-[#F1F5F9] transition-colors duration-200 antialiased font-sans selection:bg-rose-100 selection:text-rose-600">
       {/* Top Fixed Header */}
       <Navbar
         streakCount={streak.count}

@@ -63,11 +63,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
 
   const handleFinish = () => {
     if (!stage || selectedTopics.length === 0) return;
-    if (step === 4) {
-    onNext();
-    return;
-  }
-  onComplete({
+    onComplete({
       hasCompletedOnboarding: true,
       relationshipStage: stage,
       priorityTopics: selectedTopics,

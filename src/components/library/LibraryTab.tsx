@@ -120,10 +120,10 @@ export const LibraryTab: React.FC<LibraryTabProps> = ({
       </div>
 
       {/* Segmented Filter Control */}
-      <div className="flex p-1 bg-slate-100 dark:bg-slate-800/60 rounded-2xl gap-1">
+      <div className="grid grid-cols-4 p-1 bg-[oklch(93%_0.018_265)] dark:bg-slate-800/70 rounded-2xl gap-1">
         <button
           onClick={() => setActiveSubSection('all')}
-          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`min-h-9 px-2 py-1.5 rounded-xl text-[10px] font-black transition-all ${
             activeSubSection === 'all'
               ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
@@ -133,7 +133,7 @@ export const LibraryTab: React.FC<LibraryTabProps> = ({
         </button>
         <button
           onClick={() => setActiveSubSection('alain')}
-          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1 ${
+          className={`min-h-9 px-2 py-1.5 rounded-xl text-[10px] font-black transition-all flex items-center justify-center gap-1 ${
             activeSubSection === 'alain'
               ? 'bg-gradient-to-r from-purple-500 to-indigo-600 text-white shadow-sm'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
@@ -144,7 +144,7 @@ export const LibraryTab: React.FC<LibraryTabProps> = ({
         </button>
         <button
           onClick={() => setActiveSubSection('books')}
-          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`min-h-9 px-2 py-1.5 rounded-xl text-[10px] font-black transition-all ${
             activeSubSection === 'books'
               ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
@@ -154,7 +154,7 @@ export const LibraryTab: React.FC<LibraryTabProps> = ({
         </button>
         <button
           onClick={() => setActiveSubSection('articles')}
-          className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
+          className={`min-h-9 px-2 py-1.5 rounded-xl text-[10px] font-black transition-all ${
             activeSubSection === 'articles'
               ? 'bg-white dark:bg-slate-700 text-indigo-600 dark:text-indigo-300 shadow-sm'
               : 'text-slate-600 dark:text-slate-400 hover:text-slate-900'
@@ -308,10 +308,10 @@ export const LibraryTab: React.FC<LibraryTabProps> = ({
               <button
                 key={cat}
                 onClick={() => setSelectedCategory(cat)}
-                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`shrink-0 px-2.5 py-1 rounded-xl text-[10px] font-black whitespace-nowrap transition-all ${
                   selectedCategory === cat
-                    ? 'bg-indigo-600 text-white shadow-sm'
-                    : 'bg-white dark:bg-slate-800 text-slate-600 dark:text-slate-400 border border-slate-200/60 dark:border-slate-700/60'
+                    ? 'bg-indigo-600 text-white shadow-[0_4px_10px_oklch(45%_0.14_265_/_0.2)]'
+                    : 'bg-[oklch(99%_0.006_265)] dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-[oklch(84%_0.025_265)] dark:border-slate-700'
                 }`}
               >
                 {cat === 'all' ? 'همه موضوعات' : cat}

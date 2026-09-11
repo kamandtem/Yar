@@ -8,6 +8,7 @@ import { IntimacyDial } from '../common/IntimacyDial';
 import { StorageService } from '../../services/storage';
 import { computeRelationshipCycle, RELATIONSHIP_GUIDANCE } from '../../services/relationshipCycle';
 import { learnMoodPattern } from '../../services/personalization';
+import { getPrivateSuggestions } from '../../services/dailySuggestions';
 import { getTodayIsoDate } from '../../services/jalali';
 import {
   Sparkles,
@@ -113,28 +114,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
     <div className="pt-1 px-4 max-w-md mx-auto space-y-6">
       <PageIntroAccordion kind="home" />
       <QuoteOfTheDay />
-      {/* 1. Modern Top Greeting (matching left screen in reference image: "Good Morning John") */}
-      <div className="flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-slate-400 block mb-0.5">
-            روز بخیر، {todayDateStr}
-          </span>
-          <h1 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white tracking-tight">
-            {preferences.userName || 'همراه گرامی'}
-          </h1>
-        </div>
-
-        {preferences.partnerName && (
-          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-white dark:bg-slate-800/80 border border-slate-100 dark:border-slate-700/60 shadow-soft-card">
-            <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-            <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
-              با {preferences.partnerName}
-            </span>
-          </div>
-        )}
-      </div>
-
-      {/* 2. Hero Weather/Climate Card (matching the top gradient weather card in Screen 1) */}
+      {/* Hero Weather/Climate Card */}
       <div className="relative overflow-hidden rounded-[30px] p-6 bg-linear-to-br from-[#818CF8] via-[#A78BFA] to-[#60A5FA] text-white shadow-soft-elevated">
         {/* Glowing Sun / Heart Orb */}
         <div className="absolute top-4 left-6 w-20 h-20 rounded-full bg-linear-to-tr from-amber-400 to-amber-200 blur-xs shadow-[0_0_40px_rgba(251,191,36,0.8)] opacity-90" />
@@ -271,7 +251,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               onChange={(val) => { setIntimacyScore(val); StorageService.saveRelationTemperature(val); }}
             />
 
-            <TemperatureAdvice score={intimacyScore} cycleState={cycleState} moodInsight={moodInsight} onNavigateToTab={onNavigateToTab} onOpenArticle={onOpenArticle} articles={articles} />
+            <TemperatureAdvice score={intimacyScore} cycleState={cycleState} moodInsight={moodInsight} onNavigateToTab={onNavigateToTab} />
           </motion.div>
         )}
 
@@ -551,12 +531,21 @@ const CycleCareCard = ({ cycleState, onOpenSOS, onNavigateToTab, onOpenArticle, 
   </motion.section>;
 };
 
-const TemperatureAdvice = ({ score, cycleState, moodInsight, onNavigateToTab, onOpenArticle, articles }: any) => {
+const TemperatureAdvice = ({ score, cycleState, moodInsight, onNavigateToTab }: any) => {
+  const [open, setOpen] = useState(false);
+  const [round, setRound] = useState(0);
   const low = score <= 2; const high = score >= 4;
-  const phase = cycleState?.phase ? RELATIONSHIP_GUIDANCE[cycleState.phase] : null;
-  const article = articles.find((item: Article) => low ? /تعارض|گفت|تنش|شنیدن/.test(item.title) : /صمیم|قدرد|نزدیک|محبت/.test(item.title)) || articles[0];
   const title = low ? 'رابطه الان به مراقبت نیاز دارد' : high ? 'این گرما را حفظ کنید' : 'یک قدم کوچک برای نزدیک‌ترشدن';
-  const body = low ? 'امروز به‌جای حل همه‌چیز، یک درخواست روشن و یک مکث کوتاه را امتحان کنید.' : high ? 'یک تشکر مشخص یا قرار کوتاه، این حال خوب را به یک الگو تبدیل می‌کند.' : 'یک چک‌این کوتاه بگیرید و فقط درباره نیاز امروز حرف بزنید.';
-  const learned = moodInsight?.count >= 3 ? ` بر اساس ${toPersianDigits(moodInsight.count)} ثبت اخیر، ${moodInsight.insightFa}` : '';
-  return <div className={`rounded-[1.6rem] p-4 border ${low?'bg-rose-50 dark:bg-rose-950/25 border-rose-200 dark:border-rose-900/40':high?'bg-emerald-50 dark:bg-emerald-950/25 border-emerald-200 dark:border-emerald-900/40':'bg-amber-50 dark:bg-amber-950/25 border-amber-200 dark:border-amber-900/40'}`}><div className="flex items-center gap-2"><span className={`w-8 h-8 rounded-xl flex items-center justify-center ${low?'bg-rose-500':high?'bg-emerald-500':'bg-amber-500'} text-white`}><Heart size={15} className="fill-current"/></span><div><b className="block text-sm text-slate-900 dark:text-white">{title}</b><small className="text-[11px] text-slate-500">بر اساس ثبت امروز: {toPersianDigits(score)} از ۵</small></div></div><p className="mt-3 text-xs leading-6 text-slate-700 dark:text-slate-300">{body}{learned}</p>{phase && cycleState.inPmsWindow && <div className="mt-3 rounded-xl bg-white/60 dark:bg-slate-900/50 p-3 text-[11px] leading-5 text-slate-700 dark:text-slate-300"><b>نکته PMS:</b> {phase.partnerTip}</div>}<div className="mt-3 flex gap-2"><button onClick={()=>onOpenArticle(article)} className="flex-1 min-h-10 rounded-xl bg-white dark:bg-slate-900 text-xs font-black text-slate-700 dark:text-slate-200">خواندن پیشنهاد</button><button onClick={()=>onNavigateToTab('couple')} className="min-h-10 px-3 rounded-xl bg-[oklch(35%_0.04_330)] text-white text-xs font-black">ثبت اقدام</button></div></div>;
+  const body = low ? 'امروز فقط یک حرکت امن.' : high ? 'این حال خوب را ماندگار کنید.' : 'یک کار کوچک، بدون فشار.';
+  const suggestions = getPrivateSuggestions(score, moodInsight, Boolean(cycleState?.inPmsWindow), round);
+  return <div className={`rounded-[1.6rem] p-4 ${low?'bg-rose-50 dark:bg-rose-950/25':high?'bg-emerald-50 dark:bg-emerald-950/25':'bg-amber-50 dark:bg-amber-950/25'}`}>
+    <div className="flex items-center gap-2"><span className={`flex h-8 w-8 items-center justify-center rounded-xl ${low?'bg-rose-500':high?'bg-emerald-500':'bg-amber-500'} text-white`}><Heart size={15} className="fill-current"/></span><div><b className="block text-sm text-slate-900 dark:text-white">{title}</b><small className="text-[11px] text-slate-500">دمای امروز: {toPersianDigits(score)} از ۵</small></div></div>
+    <p className="mt-3 text-xs font-bold text-slate-700 dark:text-slate-300">{body}</p>
+    {!open ? <button onClick={()=>setOpen(true)} className="mt-3 min-h-11 w-full rounded-xl bg-[oklch(35%_0.04_330)] text-xs font-black text-white">خواندن پیشنهاد</button> : <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="mt-4 space-y-3">
+      <div className="flex items-center justify-between"><b className="text-xs text-slate-800 dark:text-white">پیشنهادهای مخصوص همین لحظه</b><button onClick={()=>setRound(v=>v+1)} className="min-h-10 rounded-xl px-3 text-[11px] font-black text-slate-600 dark:text-slate-300">پیشنهادهای دیگر</button></div>
+      {suggestions.map((item:any,index:number)=><div key={item.id} className="flex gap-3 rounded-2xl bg-[oklch(99%_0.006_80)] p-3 dark:bg-slate-900"><span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-black ${low?'bg-rose-100 text-rose-700':high?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}`}>{toPersianDigits(index+1)}</span><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><b className="text-xs text-slate-900 dark:text-white">{item.title}</b><small className="flex shrink-0 items-center gap-1 text-[9px] text-slate-400"><Clock size={10}/>{item.time}</small></div><p className="mt-1 text-[11px] leading-5 text-slate-600 dark:text-slate-300">{item.action}</p></div></div>)}
+      {moodInsight?.count >= 3 && <p className="text-[10px] leading-5 text-slate-500">این پیشنهادها با الگوی خلق، انرژی، نیاز پرتکرار و دمای رابطه تو انتخاب شده‌اند.</p>}
+      <button onClick={()=>onNavigateToTab('couple')} className="min-h-10 w-full rounded-xl bg-white text-xs font-black text-slate-700 dark:bg-slate-900 dark:text-slate-200">ثبت اقدام در اتاق ما</button>
+    </motion.div>}
+  </div>;
 };

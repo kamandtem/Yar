@@ -25,6 +25,7 @@ import { CoupleTab } from './components/couple/CoupleTab';
 import { SettingsTab } from './components/profile/SettingsTab';
 import { ProfileTab } from './components/profile/ProfileTab';
 import { ArticlesTimelineTab } from './components/library/ArticlesTimelineTab';
+import { BookLibraryTab } from './components/library/BookLibraryTab';
 import { LibraryTab } from './components/library/LibraryTab';
 
 // Modals
@@ -292,13 +293,7 @@ export default function App() {
         )}
 
         {activeTab === 'library' && (
-          <ArticlesTimelineTab
-            articles={ALL_50_ARTICLES}
-            completedArticles={completedArticles}
-            favorites={favorites}
-            onOpenArticle={(art) => setActiveArticle(art)}
-            onToggleFavorite={handleToggleFavorite}
-          />
+          <BookLibraryTab />
         )}
 
         {activeTab === 'library-old' && (

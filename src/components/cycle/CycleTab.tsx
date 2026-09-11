@@ -1,19 +1,26 @@
 import { PageIntroAccordion } from '../common/PageIntroAccordion';
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Activity, CalendarDays, Check, ChevronDown, HeartHandshake, Info, Plus, ShieldCheck, Sparkles, Trash2, Settings2, X, SlidersHorizontal } from 'lucide-react';
+import { Activity, Brain, CalendarDays, Check, ChevronDown, HeartHandshake, Info, Plus, ShieldCheck, Sparkles, Trash2, Settings2, X, SlidersHorizontal } from 'lucide-react';
 import { CycleDailyCheckin, MenstrualCycleConfig, MenstrualPhase, PeriodLog } from '../../types';
 import { StorageService } from '../../services/storage';
-import { computeRelationshipCycle, getPersonalPattern, getPhaseForDay, RELATIONSHIP_GUIDANCE } from '../../services/relationshipCycle';
+import { computeRelationshipCycle, getPhaseForDay, RELATIONSHIP_GUIDANCE } from '../../services/relationshipCycle';
 import { addDays, formatJalaliDate, getTodayIsoDate, toPersianDigits } from '../../services/jalali';
 import { JalaliDatePicker } from '../common/JalaliDatePicker';
 import { CycleWheel } from './CycleWheel';
+import { learnMoodPattern } from '../../services/personalization';
 
 interface Props { cycleConfig: MenstrualCycleConfig; onUpdateCycleConfig: (config: MenstrualCycleConfig) => void; }
 const NEEDS: { value: CycleDailyCheckin['need']; label: string }[] = [
   { value: 'connection', label: 'نزدیکی' }, { value: 'space', label: 'کمی فضا' }, { value: 'support', label: 'حمایت' }, { value: 'rest', label: 'استراحت' }, { value: 'talk', label: 'گفت‌وگو' },
 ];
 const PHASE_LABEL: Record<MenstrualPhase, string> = { menstrual: 'قاعدگی', follicular: 'فولیکولار', ovulation: 'تخمک‌گذاری تقریبی', luteal: 'لوتئال' };
+const PHASE_STYLE: Record<MenstrualPhase, { active: string; idle: string }> = {
+  menstrual: { active: 'bg-[oklch(62%_0.16_20)] text-white border-transparent', idle: 'bg-[oklch(96%_0.025_20)] text-[oklch(48%_0.13_20)] border-[oklch(88%_0.06_20)]' },
+  follicular: { active: 'bg-[oklch(59%_0.10_175)] text-white border-transparent', idle: 'bg-[oklch(96%_0.025_175)] text-[oklch(43%_0.09_175)] border-[oklch(87%_0.045_175)]' },
+  ovulation: { active: 'bg-[oklch(68%_0.13_78)] text-[oklch(30%_0.06_78)] border-transparent', idle: 'bg-[oklch(97%_0.03_78)] text-[oklch(47%_0.10_78)] border-[oklch(89%_0.06_78)]' },
+  luteal: { active: 'bg-[oklch(58%_0.13_300)] text-white border-transparent', idle: 'bg-[oklch(96%_0.025_300)] text-[oklch(47%_0.11_300)] border-[oklch(88%_0.05_300)]' },
+};
 const CONFIDENCE = { none: 'تقریبی', low: 'اطمینان کم', medium: 'اطمینان متوسط', high: 'اطمینان بالا' } as const;
 
 export const CycleTab: React.FC<Props> = ({ cycleConfig, onUpdateCycleConfig }) => {
@@ -35,6 +42,7 @@ export const CycleTab: React.FC<Props> = ({ cycleConfig, onUpdateCycleConfig }) 
   const [need, setNeed] = useState<CycleDailyCheckin['need']>('connection');
   const [note, setNote] = useState('');
   const state = useMemo(() => computeRelationshipCycle(cycleConfig, logs, today), [cycleConfig, logs, today]);
+  const moodPattern = useMemo(() => learnMoodPattern(checkins, state.phase), [checkins, state.phase]);
   React.useEffect(() => { if (state.cycleDay) setSelectedDay(state.cycleDay); }, [state.cycleDay]);
 
   const selectedPhase = state.available ? getPhaseForDay(selectedDay, state.cycleLength, state.periodLength) : null;
@@ -93,9 +101,9 @@ export const CycleTab: React.FC<Props> = ({ cycleConfig, onUpdateCycleConfig }) 
 
       {state.inPmsWindow && <div className="rounded-2xl bg-[oklch(95%_0.035_300)] dark:bg-violet-950/25 border border-[oklch(87%_0.05_300)] dark:border-violet-900/40 p-4 text-xs leading-6 text-slate-700 dark:text-slate-200"><b className="text-violet-700 dark:text-violet-300">بازه PMS فعال است.</b> امروز ظرفیت حل بحث‌های سنگین ممکن است پایین‌تر باشد؛ مکث، خواب و درخواست روشن از شریک کمک‌کننده‌تر از نیت‌خوانی است.</div>}
 
-      <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+      <div className="grid grid-cols-4 gap-1.5 px-0.5">
         {(['menstrual','follicular','ovulation','luteal'] as MenstrualPhase[]).map((phase) => (
-          <button key={phase} onClick={() => { const d = Array.from({length: state.cycleLength}, (_,i)=>i+1).find(day => getPhaseForDay(day,state.cycleLength,state.periodLength)===phase); if(d) setSelectedDay(d); }} className={`shrink-0 min-h-10 px-4 rounded-full text-xs font-black border ${selectedPhase === phase ? 'bg-[oklch(35%_0.04_330)] text-white border-transparent' : 'bg-transparent text-slate-500 border-slate-200 dark:border-slate-700'}`}>{PHASE_LABEL[phase]}</button>
+          <button key={phase} onClick={() => { const d = Array.from({length: state.cycleLength}, (_,i)=>i+1).find(day => getPhaseForDay(day,state.cycleLength,state.periodLength)===phase); if(d) setSelectedDay(d); }} className={`min-w-0 min-h-8 rounded-full border px-1 text-[9px] font-black leading-tight ${selectedPhase === phase ? PHASE_STYLE[phase].active : PHASE_STYLE[phase].idle}`}>{phase === 'ovulation' ? 'تخمک‌گذاری' : PHASE_LABEL[phase]}</button>
         ))}
       </div>
 
@@ -115,7 +123,13 @@ export const CycleTab: React.FC<Props> = ({ cycleConfig, onUpdateCycleConfig }) 
         </motion.div>}</AnimatePresence>
       </section>
 
-      {getPersonalPattern(checkins) && <p className="rounded-2xl bg-[oklch(95%_0.025_80)] dark:bg-amber-950/30 p-4 text-xs leading-6 text-slate-700 dark:text-slate-200"><Info size={16} className="inline ml-2 text-amber-600"/>{getPersonalPattern(checkins)}</p>}
+      <section className="rounded-[1.75rem] bg-[oklch(96%_0.025_265)] p-5 dark:bg-slate-900">
+        <div className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[oklch(90%_0.06_265)] text-[oklch(46%_0.14_265)]"><Brain size={19}/></span><div><h2 className="text-sm font-black text-slate-900 dark:text-white">شناخت الگوی روحی من</h2><p className="text-[10px] text-slate-500">بر پایه {toPersianDigits(moodPattern.count)} ثبت اخیر</p></div><span className="mr-auto rounded-full bg-white px-2.5 py-1 text-[9px] font-black text-[oklch(46%_0.12_265)] dark:bg-slate-800">{moodPattern.trendFa}</span></div>
+        {moodPattern.count < 3 ? <div className="mt-4"><p className="text-xs leading-6 text-slate-600 dark:text-slate-300">{moodPattern.insightFa}</p><div className="mt-3 grid grid-cols-3 gap-2">{[1,2,3].map(i=><span key={i} className={`h-2 rounded-full ${i<=moodPattern.count?'bg-[oklch(58%_0.15_265)]':'bg-[oklch(89%_0.025_265)] dark:bg-slate-800'}`}/>)}</div></div> : <>
+          <div className="mt-4 grid grid-cols-3 gap-2 text-center"><div><b className="block text-lg font-black text-[oklch(44%_0.13_265)]">{toPersianDigits(moodPattern.averageMood)}</b><small className="text-[9px] text-slate-500">میانگین خلق</small></div><div><b className="block text-lg font-black text-[oklch(44%_0.13_265)]">{toPersianDigits(moodPattern.averageEnergy)}</b><small className="text-[9px] text-slate-500">میانگین انرژی</small></div><div><b className="block text-lg font-black text-[oklch(44%_0.13_265)]">{toPersianDigits(moodPattern.averageIrritability)}</b><small className="text-[9px] text-slate-500">تحریک‌پذیری</small></div></div>
+          <p className="mt-4 text-xs leading-6 text-slate-700 dark:text-slate-200">{moodPattern.insightFa}</p><p className="mt-2 rounded-xl bg-white p-3 text-[10px] leading-5 text-slate-600 dark:bg-slate-800 dark:text-slate-300">{moodPattern.actionFa}</p>
+        </>}
+      </section>
 
       <section className="px-1"><div className="flex items-center justify-between mb-3"><h2 className="text-sm font-black text-slate-900 dark:text-white">دقت پیش‌بینی</h2><span className="text-[11px] font-bold text-slate-500">{CONFIDENCE[state.confidence]}</span></div><div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-full rounded-full bg-[oklch(59%_0.10_175)]" style={{width:`${state.confidence==='high'?100:state.confidence==='medium'?70:state.confidence==='low'?40:18}%`}}/></div><p className="mt-2 text-[11px] leading-5 text-slate-500">با ثبت حداقل ۳ تا ۶ شروع قاعدگی، پیش‌بینی بر اساس میانه چرخه‌های خودت تنظیم می‌شود.{state.irregular?' پراکندگی ثبت‌ها بالاست، بنابراین بازه پیش‌بینی مهم‌تر از یک روز دقیق است.':''}</p></section>
 

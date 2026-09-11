@@ -132,12 +132,12 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
       <PageIntroAccordion kind="couple" />
 
       {/* Sub-Tabs Selector (like the pills in Screen 3) */}
-      <div className="grid grid-cols-4 gap-1.5 rounded-[1.35rem] bg-[oklch(94%_0.018_300)] p-1.5 text-[10px] font-black dark:bg-slate-800/80">
+      <div className="grid grid-cols-4 gap-1.5 rounded-[1.35rem] bg-[oklch(92%_0.025_300)] shadow-[inset_0_1px_2px_oklch(40%_0.04_300_/_0.08)] p-1.5 text-[10px] font-black dark:bg-slate-800/80">
         <button
           onClick={() => setActiveSubTab('checkin')}
           className={`py-2 rounded-xl transition-all active:scale-[.97] ${
             activeSubTab === 'checkin'
-              ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-violet-400 shadow-soft-card'
+              ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-violet-400 shadow-[0_5px_14px_oklch(40%_0.08_300_/_0.16)] ring-1 ring-violet-200/80 dark:ring-violet-800/60'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
@@ -203,10 +203,10 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                     <button
                       key={score}
                       onClick={() => setIntimacyRating(score)}
-                      className={`flex-1 py-2.5 px-1 rounded-2xl flex flex-col items-center gap-1 border transition-all cursor-pointer ${
+                      className={`flex-1 min-h-16 py-2.5 px-1 rounded-2xl flex flex-col items-center gap-1 border transition-all cursor-pointer shadow-[0_3px_8px_oklch(35%_0.03_300_/_0.04)] ${
                         isSelected
-                          ? 'border-violet-500 bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-400 font-bold shadow-soft-card scale-105'
-                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400'
+                          ? 'border-violet-500 bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-400 font-bold shadow-[0_6px_14px_oklch(45%_0.12_300_/_0.18)] scale-[1.03]'
+                          : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400 shadow-[0_3px_8px_oklch(35%_0.03_300_/_0.05)]'
                       }`}
                     >
                       {[HeartHandshake, MessageCircleHeart, Smile, HandHeart, Heart][score - 1] && React.createElement([HeartHandshake, MessageCircleHeart, Smile, HandHeart, Heart][score - 1], { size: 17, className: isSelected ? 'text-violet-600' : 'text-slate-300' })}
@@ -236,7 +236,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                       onClick={() => setEnergyLevel(item.id as 'high' | 'medium' | 'low')}
                       className={`p-2.5 rounded-2xl text-center border text-xs font-bold transition-all flex items-center justify-center gap-1.5 cursor-pointer ${
                         isSelected
-                          ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shadow-soft-card'
+                          ? 'border-emerald-500 bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-400 shadow-[0_6px_14px_oklch(55%_0.10_160_/_0.18)] scale-[1.02]'
                           : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-500'
                       }`}
                     >
@@ -265,9 +265,9 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                   <button
                     key={need}
                     onClick={() => setCurrentNeed(need)}
-                    className={`px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
+                    className={`min-h-10 px-3.5 py-1.5 rounded-xl text-[11px] font-bold border transition-all cursor-pointer shadow-[0_3px_8px_oklch(35%_0.03_300_/_0.05)] ${
                       currentNeed === need
-                        ? 'bg-violet-600 text-white border-violet-600 shadow-soft-card'
+                        ? 'bg-violet-600 text-white border-violet-600 shadow-[0_6px_14px_oklch(45%_0.16_300_/_0.22)] scale-[1.02]'
                         : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
                     }`}
                   >
@@ -303,7 +303,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                   id="submit-checkin-btn"
                   onClick={handleSaveCheckin}
                   disabled={!intimacyRating || !energyLevel || !currentNeed}
-                  className="w-full py-3 px-5 rounded-2xl bg-[oklch(52%_0.16_300)] disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-xs hover:bg-[oklch(45%_0.16_300)] transition-all shadow-soft-elevated flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full min-h-13 py-3 px-5 rounded-2xl bg-[oklch(52%_0.16_300)] disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-black text-xs hover:bg-[oklch(45%_0.16_300)] transition-all shadow-[0_8px_18px_oklch(45%_0.14_300_/_0.25)] active:translate-y-px active:shadow-[0_3px_8px_oklch(45%_0.14_300_/_0.18)] flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Send size={14} />
                   <span>ثبت در اتاق ما</span>

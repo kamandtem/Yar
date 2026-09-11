@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Compass, BookOpen, Sparkles, HeartHandshake } from 'lucide-react';
+import { Home, Compass, Sparkles, HeartHandshake } from 'lucide-react';
 import { motion } from 'motion/react';
 import { ActiveTab } from '../../types';
 
@@ -11,7 +11,6 @@ interface BottomNavProps {
 
 const TABS: { tab: ActiveTab; label: string; icon: React.ComponentType<{ size?: number; className?: string }> }[] = [
   { tab: 'home', label: 'خانه', icon: Home },
-  { tab: 'library', label: 'کتابخانه', icon: BookOpen },
   { tab: 'journeys', label: 'مسیرها', icon: Compass },
   { tab: 'exercises', label: 'تمرین‌ها', icon: Sparkles }
 ];

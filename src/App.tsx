@@ -383,6 +383,6 @@ export default function App() {
         isOpen={!!activePerspective}
         onClose={() => setActivePerspective(null)}
       />
-    </div>
+    </>
   );
 }

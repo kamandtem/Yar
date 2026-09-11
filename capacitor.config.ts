@@ -5,8 +5,11 @@ const config: CapacitorConfig = {
   appName: 'Yar',
   webDir: 'dist',
   android: {
-    backgroundColor: '#f7efe6',
+    backgroundColor: '#f5f7fc',
     allowMixedContent: true,
+    // Keeps the WebView below the status bar and above the navigation/gesture bar
+    // so the clock, battery and signal icons are never covered by the app UI.
+    adjustMarginsForEdgeToEdge: 'force',
   },
 };
 

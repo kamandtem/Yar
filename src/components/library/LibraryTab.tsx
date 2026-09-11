@@ -76,7 +76,7 @@ export const LibraryTab: React.FC<LibraryTabProps> = ({
   const articleCategories = ['all', ...Array.from(new Set(articles.map(a => a.category)))];
 
   return (
-    <div className="pb-28 pt-2 px-4 max-w-lg mx-auto space-y-6 animate-fade-in">
+    <div className="pt-1 px-4 max-w-lg mx-auto space-y-6 animate-fade-in">
       {/* Header Banner */}
       <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 p-6 text-white shadow-xl shadow-indigo-500/20">
         <div className="absolute top-0 right-0 -mr-8 -mt-8 w-36 h-36 bg-white/10 rounded-full blur-xl pointer-events-none" />

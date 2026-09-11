@@ -1,0 +1,27 @@
+<svg viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="skyGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#e8f4f8;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#d0e8f0;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  <rect width="400" height="400" fill="url(#skyGradient)"/>
+  <!-- میز -->
+  <rect x="80" y="200" width="240" height="20" rx="10" fill="#c4a582" opacity="0.7"/>
+  <!-- صندلی چپ -->
+  <rect x="100" y="180" width="60" height="30" rx="5" fill="#8b7355"/>
+  <!-- صندلی راست -->
+  <rect x="240" y="180" width="60" height="30" rx="5" fill="#8b7355"/>
+  <!-- فرد اول (سمت چپ) -->
+  <circle cx="130" cy="100" r="25" fill="#6b9ac1"/>
+  <path d="M 110 130 Q 110 145 130 150 Q 150 145 150 130 Z" fill="#6b9ac1"/>
+  <!-- فرد دوم (سمت راست) -->
+  <circle cx="270" cy="100" r="25" fill="#f4a9a1"/>
+  <path d="M 250 130 Q 250 145 270 150 Q 290 145 290 130 Z" fill="#f4a9a1"/>
+  <!-- دست‌های گره شده -->
+  <path d="M 150 140 Q 200 135 250 140" stroke="#6b9ac1" stroke-width="8" fill="none" stroke-linecap="round"/>
+  <circle cx="200" cy="138" r="6" fill="#f4a9a1"/>
+  <!-- ابر -->
+  <ellipse cx="80" cy="50" rx="30" ry="20" fill="white" opacity="0.6"/>
+  <ellipse cx="320" cy="60" rx="35" ry="25" fill="white" opacity="0.5"/>
+</svg>

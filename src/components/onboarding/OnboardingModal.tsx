@@ -63,7 +63,11 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
 
   const handleFinish = () => {
     if (!stage || selectedTopics.length === 0) return;
-    onComplete({
+    if (step === 4) {
+    onNext();
+    return;
+  }
+  onComplete({
       hasCompletedOnboarding: true,
       relationshipStage: stage,
       priorityTopics: selectedTopics,
@@ -266,7 +270,7 @@ export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComp
           )}
 
           {/* Slide 4: Priority Topics */}
-          {step === 4 && (
+          {step === 5 && (
             <motion.div
               key="step-4"
               initial={{ opacity: 0, y: 15 }}

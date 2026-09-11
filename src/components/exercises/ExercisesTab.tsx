@@ -49,7 +49,7 @@ export const ExercisesTab: React.FC<ExercisesTabProps> = ({
   const featuredPerspective = perspectives[0];
 
   return (
-    <div className="pb-28 pt-4 px-4 max-w-md mx-auto space-y-5">
+    <div className="pt-1 px-4 max-w-md mx-auto space-y-5">
       {/* Title */}
       <div>
         <span className="text-xs font-semibold text-slate-400 dark:text-slate-400 block mb-0.5">

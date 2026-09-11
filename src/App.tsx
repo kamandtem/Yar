@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { ActiveTab, UserPreferences, Article, Exercise, Journey, PerspectiveCase } from './types';
+import { MenstrualCycleConfig,  ActiveTab, UserPreferences, Article, Exercise, Journey, PerspectiveCase } from './types';
 import { StorageService } from './services/storage';
+import { applySystemBars } from './native/systemBars';
 import {
   SEED_ARTICLES,
   SEED_EXERCISES,
@@ -14,15 +15,20 @@ import { ALAIN_DE_BOTTON_BOOKS } from './data/libraryBooks';
 import { ALL_50_ARTICLES } from './data/allArticles';
 import { Navbar } from './components/layout/Navbar';
 import { BottomNav } from './components/layout/BottomNav';
+import { ExpandedMenu } from './components/layout/ExpandedMenu';
 import { SideDrawerMenu } from './components/layout/SideDrawerMenu';
 import { HomeTab } from './components/home/HomeTab';
 import { JourneysTab } from './components/journeys/JourneysTab';
+import { CycleTab } from './components/cycle/CycleTab';
 import { ExercisesTab } from './components/exercises/ExercisesTab';
 import { CoupleTab } from './components/couple/CoupleTab';
+import { SettingsTab } from './components/profile/SettingsTab';
 import { ProfileTab } from './components/profile/ProfileTab';
+import { ArticlesTimelineTab } from './components/library/ArticlesTimelineTab';
 import { LibraryTab } from './components/library/LibraryTab';
 
 // Modals
+import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
 import { OnboardingModal } from './components/onboarding/OnboardingModal';
 import { ConflictSOSModal } from './components/conflict/ConflictSOSModal';
 import { ArticleModal } from './components/article/ArticleModal';
@@ -32,14 +38,22 @@ import { PerspectiveModal } from './components/exercises/PerspectiveModal';
 import { AppIcon } from './components/common/AppIcon';
 
 export default function App() {
+  const [onboardingStep, setOnboardingStep] = useState<'flow' | 'modal' | 'done'>(() => !preferences.hasCompletedOnboarding ? 'flow' : 'done');
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
+  const [cycleConfig, setCycleConfig] = useState<MenstrualCycleConfig>(() => ({
+    enabled: false,
+    cycleLengthDays: 28,
+    periodLengthDays: 5,
+  }));
+
   const [preferences, setPreferences] = useState<UserPreferences>(() =>
     StorageService.getPreferences()
   );
   const [darkMode, setDarkMode] = useState<boolean>(() => preferences.darkMode || false);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(() => !preferences.hasCompletedOnboarding);
   const [isSOSOpen, setIsSOSOpen] = useState<boolean>(false);
+  const [isMenuExpanded, setIsMenuExpanded] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
 
   // Active modal targets
@@ -72,6 +86,8 @@ export default function App() {
     } else {
       document.documentElement.classList.remove('dark');
     }
+    document.documentElement.style.colorScheme = darkMode ? 'dark' : 'light';
+    void applySystemBars(darkMode);
   }, [darkMode]);
 
   useEffect(() => {
@@ -144,17 +160,24 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-[#F5F7FC] dark:bg-[#0B0F19] text-[#1E293B] dark:text-[#F1F5F9] transition-colors duration-200 antialiased font-sans selection:bg-rose-100 selection:text-rose-600">
+    <div className="min-h-[100dvh] bg-[#F5F7FC] dark:bg-[#0B0F19] text-[#1E293B] dark:text-[#F1F5F9] transition-colors duration-200 antialiased font-sans selection:bg-rose-100 selection:text-rose-600">
       {/* Top Fixed Header */}
       <Navbar
         streakCount={streak.count}
         darkMode={darkMode}
         onToggleDarkMode={handleToggleDarkMode}
         onOpenSOS={() => setIsSOSOpen(true)}
-        onOpenMenu={() => setIsDrawerOpen(true)}
+        onOpenMenu={() => setIsMenuExpanded(true)}
       />
 
       {/* Side Drawer Menu */}
+      <ExpandedMenu
+        isOpen={isMenuExpanded}
+        onClose={() => setIsMenuExpanded(false)}
+        activeTab={activeTab}
+        onSelectTab={setActiveTab}
+      />
+
       <SideDrawerMenu
         isOpen={isDrawerOpen}
         onClose={() => setIsDrawerOpen(false)}
@@ -167,7 +190,7 @@ export default function App() {
       />
 
       {/* Main Screen Content */}
-      <main className="min-h-[calc(100vh-8rem)]">
+      <main className="yar-main">
         {activeTab === 'home' && (
           <HomeTab
             preferences={preferences}
@@ -196,6 +219,16 @@ export default function App() {
         )}
 
         {activeTab === 'library' && (
+          <ArticlesTimelineTab
+            articles={ALL_50_ARTICLES}
+            completedArticles={completedArticles}
+            favorites={favorites}
+            onOpenArticle={(art) => setActiveArticle(art)}
+            onToggleFavorite={handleToggleFavorite}
+          />
+        )}
+
+        {activeTab === 'library-old' && (
           <LibraryTab
             books={ALAIN_DE_BOTTON_BOOKS}
             articles={ALL_50_ARTICLES}
@@ -203,6 +236,13 @@ export default function App() {
             completedArticles={completedArticles}
             onOpenArticle={(art) => setActiveArticle(art)}
             onToggleFavorite={handleToggleFavorite}
+          />
+        )}
+
+        {activeTab === 'cycle' && (
+          <CycleTab
+            cycleConfig={cycleConfig}
+            onUpdateCycleConfig={setCycleConfig}
           />
         )}
 
@@ -225,6 +265,19 @@ export default function App() {
         )}
 
         {activeTab === 'profile' && (
+          <SettingsTab
+            preferences={preferences}
+            darkMode={darkMode}
+            onToggleDarkMode={handleToggleDarkMode}
+            onUpdatePreferences={(prefs) => setPreferences(StorageService.savePreferences(prefs))}
+            onResetAll={() => {
+              localStorage.clear();
+              location.reload();
+            }}
+          />
+        )}
+
+        {activeTab === 'profile-old' && (
           <ProfileTab
             preferences={preferences}
             articles={SEED_ARTICLES}
@@ -243,6 +296,11 @@ export default function App() {
 
       {/* Bottom Sticky Navigation */}
       <BottomNav activeTab={activeTab} onChangeTab={setActiveTab} />
+
+      {/* Onboarding Flow */}
+      {onboardingStep === 'flow' && (
+        <OnboardingFlow onComplete={() => setOnboardingStep('modal')} />
+      )}
 
       {/* Modals and Flows */}
       <OnboardingModal

@@ -17,9 +17,9 @@
 npm install
 npm run build
 npx cap add android      # فقط بار اول
-node scripts/set-app-name.mjs
 npx cap sync android
 npx capacitor-assets generate --android
+node scripts/patch-android.mjs
 cd android && ./gradlew assembleDebug
 ```
 

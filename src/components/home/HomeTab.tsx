@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { MenstrualCycleConfig,  CycleAdviceCard } from '../home/CycleAdviceCard';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserPreferences, Article, Exercise, Journey, DailyQuestion, WeeklyDate } from '../../types';
 import { toPersianDigits, getTodayPersianDateString } from '../../utils/persianDate';
@@ -100,7 +101,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   const currentWeeklyDate = weeklyDates[0];
 
   return (
-    <div className="pb-28 pt-4 px-4 max-w-md mx-auto space-y-6">
+    <div className="pt-1 px-4 max-w-md mx-auto space-y-6">
       {/* 1. Modern Top Greeting (matching left screen in reference image: "Good Morning John") */}
       <div className="flex items-center justify-between">
         <div>

@@ -1,6 +1,6 @@
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Activity, CalendarDays, Check, ChevronDown, HeartHandshake, Info, Plus, ShieldCheck, Sparkles, Trash2 } from 'lucide-react';
+import { Activity, CalendarDays, Check, ChevronDown, HeartHandshake, Info, Plus, ShieldCheck, Sparkles, Trash2, Settings2, X, SlidersHorizontal } from 'lucide-react';
 import { CycleDailyCheckin, MenstrualCycleConfig, MenstrualPhase, PeriodLog } from '../../types';
 import { StorageService } from '../../services/storage';
 import { computeRelationshipCycle, getPersonalPattern, getPhaseForDay, RELATIONSHIP_GUIDANCE } from '../../services/relationshipCycle';
@@ -21,6 +21,12 @@ export const CycleTab: React.FC<Props> = ({ cycleConfig, onUpdateCycleConfig }) 
   const [checkins, setCheckins] = useState<CycleDailyCheckin[]>(() => StorageService.getCycleCheckins());
   const [selectedDate, setSelectedDate] = useState(today);
   const [showLog, setShowLog] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [editLength, setEditLength] = useState(cycleConfig.cycleLengthDays || 28);
+  const [editPeriod, setEditPeriod] = useState(cycleConfig.periodLengthDays || 5);
+  const [editPms, setEditPms] = useState(cycleConfig.pmsStartDaysBefore ?? 7);
+  const [editDate, setEditDate] = useState(() => logs[0]?.startIso || today);
   const [selectedDay, setSelectedDay] = useState(1);
   const [showCheckin, setShowCheckin] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -33,6 +39,14 @@ export const CycleTab: React.FC<Props> = ({ cycleConfig, onUpdateCycleConfig }) 
   const selectedPhase = state.available ? getPhaseForDay(selectedDay, state.cycleLength, state.periodLength) : null;
   const guidance = selectedPhase ? RELATIONSHIP_GUIDANCE[selectedPhase] : null;
   const selectedIso = state.cycleDay ? addDays(today, selectedDay - state.cycleDay) : today;
+
+  const openEdit = () => { setEditLength(cycleConfig.cycleLengthDays || 28); setEditPeriod(cycleConfig.periodLengthDays || 5); setEditPms(cycleConfig.pmsStartDaysBefore ?? 7); setEditDate(logs[0]?.startIso || today); setShowEdit(true); };
+  const saveEdit = () => {
+    const next = StorageService.saveCycleConfig({ ...cycleConfig, enabled: true, lastPeriodStartIso: editDate, cycleLengthDays: editLength, periodLengthDays: editPeriod, pmsStartDaysBefore: editPms });
+    onUpdateCycleConfig(next);
+    if (editDate) { const nextLogs = StorageService.logPeriodStart(editDate); setLogs(nextLogs); }
+    setShowEdit(false);
+  };
 
   const logPeriod = () => {
     const next = StorageService.logPeriodStart(selectedDate); setLogs(next);
@@ -75,6 +89,8 @@ export const CycleTab: React.FC<Props> = ({ cycleConfig, onUpdateCycleConfig }) 
         </div>
       </section>
 
+      {state.inPmsWindow && <div className="rounded-2xl bg-[oklch(95%_0.035_300)] dark:bg-violet-950/25 border border-[oklch(87%_0.05_300)] dark:border-violet-900/40 p-4 text-xs leading-6 text-slate-700 dark:text-slate-200"><b className="text-violet-700 dark:text-violet-300">بازه PMS فعال است.</b> امروز ظرفیت حل بحث‌های سنگین ممکن است پایین‌تر باشد؛ مکث، خواب و درخواست روشن از شریک کمک‌کننده‌تر از نیت‌خوانی است.</div>}
+
       <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
         {(['menstrual','follicular','ovulation','luteal'] as MenstrualPhase[]).map((phase) => (
           <button key={phase} onClick={() => { const d = Array.from({length: state.cycleLength}, (_,i)=>i+1).find(day => getPhaseForDay(day,state.cycleLength,state.periodLength)===phase); if(d) setSelectedDay(d); }} className={`shrink-0 min-h-10 px-4 rounded-full text-xs font-black border ${selectedPhase === phase ? 'bg-[oklch(35%_0.04_330)] text-white border-transparent' : 'bg-transparent text-slate-500 border-slate-200 dark:border-slate-700'}`}>{PHASE_LABEL[phase]}</button>
@@ -101,9 +117,14 @@ export const CycleTab: React.FC<Props> = ({ cycleConfig, onUpdateCycleConfig }) 
 
       <section className="px-1"><div className="flex items-center justify-between mb-3"><h2 className="text-sm font-black text-slate-900 dark:text-white">دقت پیش‌بینی</h2><span className="text-[11px] font-bold text-slate-500">{CONFIDENCE[state.confidence]}</span></div><div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-full rounded-full bg-[oklch(59%_0.10_175)]" style={{width:`${state.confidence==='high'?100:state.confidence==='medium'?70:state.confidence==='low'?40:18}%`}}/></div><p className="mt-2 text-[11px] leading-5 text-slate-500">با ثبت حداقل ۳ تا ۶ شروع قاعدگی، پیش‌بینی بر اساس میانه چرخه‌های خودت تنظیم می‌شود.{state.irregular?' پراکندگی ثبت‌ها بالاست، بنابراین بازه پیش‌بینی مهم‌تر از یک روز دقیق است.':''}</p></section>
 
+      <section className="rounded-[1.6rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden"><button onClick={()=>setShowSettings(v=>!v)} className="w-full min-h-16 px-4 flex items-center justify-between text-right"><span className="flex items-center gap-3"><span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-[oklch(94%_0.04_330)] text-[oklch(50%_0.13_330)]"><Settings2 size={18}/></span><span><b className="block text-sm font-black text-slate-900 dark:text-white">ویرایش چرخه و پریود</b><small className="text-[11px] text-slate-500">طول چرخه، روزهای خون‌ریزی، PMS و تاریخ شروع</small></span></span><ChevronDown size={17} className={`text-slate-400 ${showSettings?'rotate-180':''}`}/></button>{showSettings&&<div className="border-t border-slate-100 dark:border-slate-800 p-4"><div className="grid grid-cols-3 gap-2 text-center"><div className="rounded-2xl bg-[oklch(97%_0.015_330)] p-3"><b className="block text-lg font-black text-[oklch(48%_0.13_330)]">{toPersianDigits(cycleConfig.cycleLengthDays)}</b><small className="text-[10px] text-slate-500">روز چرخه</small></div><div className="rounded-2xl bg-[oklch(97%_0.015_330)] p-3"><b className="block text-lg font-black text-[oklch(48%_0.13_330)]">{toPersianDigits(cycleConfig.periodLengthDays)}</b><small className="text-[10px] text-slate-500">روز خون‌ریزی</small></div><div className="rounded-2xl bg-[oklch(97%_0.015_330)] p-3"><b className="block text-lg font-black text-[oklch(48%_0.13_330)]">{toPersianDigits(cycleConfig.pmsStartDaysBefore??7)}</b><small className="text-[10px] text-slate-500">روز قبل PMS</small></div></div><button onClick={openEdit} className="mt-4 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl bg-[oklch(50%_0.15_330)] text-sm font-black text-white"><SlidersHorizontal size={17}/> ویرایش کامل چرخه</button></div>}</section>
+
+      <AnimatePresence>{showEdit&&<motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-[70] flex items-end justify-center bg-slate-950/50 p-0 sm:items-center sm:p-4" onClick={()=>setShowEdit(false)}><motion.div initial={{y:28}} animate={{y:0}} exit={{y:28}} onClick={e=>e.stopPropagation()} className="w-full max-w-md rounded-t-[2rem] bg-[oklch(99%_0.006_330)] p-5 dark:bg-slate-900 sm:rounded-[2rem]"><div className="mb-5 flex items-center justify-between"><div><p className="text-xs font-black text-[oklch(52%_0.13_330)]">تنظیمات شخصی بدن</p><h3 className="mt-1 text-xl font-black">ویرایش چرخه</h3></div><button onClick={()=>setShowEdit(false)} className="flex h-10 w-10 items-center justify-center rounded-xl bg-slate-100 dark:bg-slate-800"><X size={18}/></button></div><div className="space-y-5"><Range label="طول چرخه" value={editLength} min={18} max={60} onChange={setEditLength}/><Range label="مدت خون‌ریزی" value={editPeriod} min={2} max={10} onChange={setEditPeriod}/><Range label="چند روز قبل علائم PMS شروع شود؟" value={editPms} min={0} max={12} onChange={setEditPms}/><div><p className="mb-2 text-xs font-black">روز اول آخرین پریود</p><JalaliDatePicker value={editDate} onChange={setEditDate} allowFuture={false} inline compact/></div><p className="rounded-2xl bg-[oklch(95%_0.025_80)] p-3 text-[11px] leading-5 text-slate-600">پیش‌بینی‌ها با ثبت‌های واقعی تو بهتر می‌شوند. چرخه نامنظم، تشخیص پزشکی نیست و فقط بازه تخمینی را گسترده‌تر می‌کند.</p></div><button onClick={saveEdit} className="mt-5 min-h-13 w-full rounded-2xl bg-[oklch(50%_0.15_330)] text-sm font-black text-white">ذخیره تغییرات</button></motion.div></motion.div>}</AnimatePresence>
       <AnimatePresence>{showLog && <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-[60] bg-slate-950/45 p-4 flex items-end sm:items-center justify-center" onClick={()=>setShowLog(false)}><motion.div initial={{y:30}} animate={{y:0}} exit={{y:30}} onClick={e=>e.stopPropagation()} className="w-full max-w-sm rounded-[2rem] bg-[oklch(98%_0.008_330)] dark:bg-slate-900 p-5"><h3 className="text-lg font-black text-slate-900 dark:text-white mb-1">شروع قاعدگی</h3><p className="text-xs text-slate-500 mb-5">تاریخ واقعی شروع خون‌ریزی را انتخاب کن.</p><JalaliDatePicker value={selectedDate} onChange={setSelectedDate} allowFuture={false} inline/><button onClick={logPeriod} className="mt-4 w-full min-h-12 rounded-2xl bg-[oklch(50%_0.15_330)] text-white font-black">ثبت در تاریخچه</button>{logs.length>0&&<div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 space-y-2">{logs.slice(0,4).map(log=><div key={log.id} className="flex items-center justify-between text-xs"><span>{formatJalaliDate(log.startIso)}</span><button onClick={()=>setLogs(StorageService.deletePeriodLog(log.id))} className="w-9 h-9 rounded-xl text-slate-400 hover:text-rose-500"><Trash2 size={15}/></button></div>)}</div>}</motion.div></motion.div>}</AnimatePresence>
     </div>
   );
 };
 
 const Scale = ({label,value,onChange}:{label:string;value:number;onChange:(value:number)=>void}) => <div><div className="flex justify-between mb-2"><span className="text-xs font-black text-slate-700 dark:text-slate-200">{label}</span><span className="text-xs text-slate-400">{toPersianDigits(value)} از ۵</span></div><div className="grid grid-cols-5 gap-2">{[1,2,3,4,5].map(item=><button key={item} onClick={()=>onChange(item)} className={`aspect-square rounded-xl text-xs font-black ${item<=value?'bg-[oklch(65%_0.11_330)] text-white':'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>{toPersianDigits(item)}</button>)}</div></div>;
+
+const Range=({label,value,min,max,onChange}:{label:string;value:number;min:number;max:number;onChange:(value:number)=>void})=><label className="block"><span className="flex items-center justify-between text-sm font-black"><span>{label}</span><b className="text-[oklch(52%_0.13_330)]">{toPersianDigits(value)} روز</b></span><input type="range" min={min} max={max} value={value} onChange={e=>onChange(Number(e.target.value))} className="mt-2 w-full accent-pink-500"/></label>;

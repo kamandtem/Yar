@@ -37,6 +37,9 @@ import { JourneyModal } from './components/journeys/JourneyModal';
 import { PerspectiveModal } from './components/exercises/PerspectiveModal';
 import { AppIcon } from './components/common/AppIcon';
 import { SplashScreen } from './components/common/SplashScreen';
+import { BreathingModal } from './components/common/BreathingModal';
+import { buildPersonalNotifications, learnMoodPattern } from './services/personalization';
+import { computeRelationshipCycle } from './services/relationshipCycle';
 
 export default function App() {
   const [onboardingStep, setOnboardingStep] = useState<'flow' | 'modal' | 'done'>('flow');
@@ -47,11 +50,12 @@ export default function App() {
   const [preferences, setPreferences] = useState<UserPreferences>(() =>
     StorageService.getPreferences()
   );
-  const [darkMode, setDarkMode] = useState<boolean>(false);
+  const [darkMode, setDarkMode] = useState<boolean>(() => StorageService.getPreferences().darkMode);
   const [isOnboardingOpen, setIsOnboardingOpen] = useState<boolean>(true);
   const [isSOSOpen, setIsSOSOpen] = useState<boolean>(false);
   const [isMenuExpanded, setIsMenuExpanded] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
+  const [isBreathingOpen, setIsBreathingOpen] = useState(false);
 
   // Active modal targets
   const [activeArticle, setActiveArticle] = useState<Article | null>(null);
@@ -75,6 +79,10 @@ export default function App() {
     return map;
   });
   const [streak, setStreak] = useState(() => StorageService.getStreak());
+
+  const liveCycleState = computeRelationshipCycle(cycleConfig, StorageService.getPeriodLogs());
+  const moodInsight = learnMoodPattern(StorageService.getCycleCheckins(), liveCycleState.phase);
+  const notifications = buildPersonalNotifications({ phase: liveCycleState.phase, inPms: liveCycleState.inPmsWindow, temperature: StorageService.getRelationTemperature(), moodInsight });
 
   // Initialize app state and handle onboarding flow
   useEffect(() => {
@@ -224,10 +232,9 @@ export default function App() {
       {/* Top Fixed Header */}
       <Navbar
         streakCount={streak.count}
-        darkMode={darkMode}
-        onToggleDarkMode={handleToggleDarkMode}
         onOpenSOS={() => setIsSOSOpen(true)}
         onOpenMenu={() => setIsMenuExpanded(true)}
+        notifications={notifications}
       />
 
       {/* Side Drawer Menu */}
@@ -236,6 +243,10 @@ export default function App() {
         onClose={() => setIsMenuExpanded(false)}
         activeTab={activeTab}
         onSelectTab={setActiveTab}
+        darkMode={darkMode}
+        onToggleDarkMode={handleToggleDarkMode}
+        streakCount={streak.count}
+        userName={preferences.userName}
       />
 
       <SideDrawerMenu
@@ -330,6 +341,7 @@ export default function App() {
             darkMode={darkMode}
             onToggleDarkMode={handleToggleDarkMode}
             onUpdatePreferences={(prefs) => setPreferences(StorageService.savePreferences(prefs))}
+            onOpenBreathing={() => setIsBreathingOpen(true)}
             onResetAll={() => {
               localStorage.clear();
               location.reload();
@@ -412,6 +424,8 @@ export default function App() {
         onOpenArticleById={handleOpenArticleById}
         onOpenExerciseById={handleOpenExerciseById}
       />
+
+      <BreathingModal isOpen={isBreathingOpen} onClose={() => setIsBreathingOpen(false)} />
 
       <PerspectiveModal
         perspectiveCase={activePerspective}

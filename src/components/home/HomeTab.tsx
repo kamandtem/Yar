@@ -3,6 +3,10 @@ import { motion, AnimatePresence } from 'motion/react';
 import { UserPreferences, Article, Exercise, Journey, DailyQuestion, WeeklyDate } from '../../types';
 import { toPersianDigits, getTodayPersianDateString } from '../../utils/persianDate';
 import { IntimacyDial } from '../common/IntimacyDial';
+import { StorageService } from '../../services/storage';
+import { computeRelationshipCycle, RELATIONSHIP_GUIDANCE } from '../../services/relationshipCycle';
+import { learnMoodPattern } from '../../services/personalization';
+import { getTodayIsoDate } from '../../services/jalali';
 import {
   Sparkles,
   ArrowLeft,
@@ -62,7 +66,9 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   const [questionIndex, setQuestionIndex] = useState(0);
   const [isQuestionAnswered, setIsQuestionAnswered] = useState(false);
   const [questionNote, setQuestionNote] = useState('');
-  const [intimacyScore, setIntimacyScore] = useState(4);
+  const [intimacyScore, setIntimacyScore] = useState(() => StorageService.getRelationTemperature() ?? 3);
+  const cycleState = computeRelationshipCycle(StorageService.getCycleConfig(), StorageService.getPeriodLogs(), getTodayIsoDate());
+  const moodInsight = learnMoodPattern(StorageService.getCycleCheckins(), cycleState.phase);
   const [activeQuickTab, setActiveQuickTab] = useState<'temp' | 'question' | 'sos' | 'media'>('temp');
   const [isPlayingAudio, setIsPlayingAudio] = useState(false);
 
@@ -176,6 +182,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
         </button>
       )}
 
+      {preferences.gender === 'female' && <CycleCareCard cycleState={cycleState} onOpenSOS={onOpenSOS} onNavigateToTab={onNavigateToTab} onOpenArticle={onOpenArticle} onOpenExercise={onOpenExercise} articles={articles} exercises={exercises} />}
+
       {/* 3. Horizontal Squircle Selector (matching Lights, TV, Temp, Window in Screen 2) */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-xs font-bold text-slate-400 dark:text-slate-400 px-1">
@@ -255,28 +263,10 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             {/* Central Radial Dial Component matching Screen 2 */}
             <IntimacyDial
               value={intimacyScore}
-              onChange={(val) => setIntimacyScore(val)}
+              onChange={(val) => { setIntimacyScore(val); StorageService.saveRelationTemperature(val); }}
             />
 
-            {/* Sleek Toggle / Connection Card matching Screen 2 bottom AC switch */}
-            <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-900/60 border border-slate-100 dark:border-slate-800 flex items-center justify-between">
-              <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-xl bg-indigo-100 dark:bg-indigo-950 text-indigo-600 flex items-center justify-center">
-                  <Heart size={16} className="fill-indigo-500 text-indigo-500" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-slate-800 dark:text-slate-200 block">
-                    کانال گفت‌وگوی امن
-                  </span>
-                  <span className="text-[10px] text-slate-400">متصل و فعال</span>
-                </div>
-              </div>
-
-              {/* Modern Pill Switch */}
-              <div className="w-12 h-6 rounded-full bg-indigo-600 p-1 flex items-center justify-end cursor-pointer">
-                <div className="w-4 h-4 rounded-full bg-white shadow-xs" />
-              </div>
-            </div>
+            <TemperatureAdvice score={intimacyScore} cycleState={cycleState} moodInsight={moodInsight} onNavigateToTab={onNavigateToTab} onOpenArticle={onOpenArticle} articles={articles} />
           </motion.div>
         )}
 
@@ -539,4 +529,29 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       </div>
     </div>
   );
+};
+
+
+const CycleCareCard = ({ cycleState, onOpenSOS, onNavigateToTab, onOpenArticle, onOpenExercise, articles, exercises }: any) => {
+  const checkins = StorageService.getCycleCheckins();
+  const latest = checkins[0];
+  if (!cycleState?.available || !latest || (!cycleState.inPmsWindow && cycleState.phase !== 'menstrual')) return null;
+  const severe = latest.mood <= 2 || latest.irritability >= 4 || latest.pain >= 4;
+  const article = articles.find((a: Article) => /سکوت|احساس|شروع ملایم|تنفس|تعارض/.test(a.title)) || articles[0];
+  const exercise = exercises.find((e: Exercise) => /تنفس|توقف|آرام/.test(e.title)) || exercises[0];
+  return <motion.section initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className={`rounded-[1.7rem] border p-5 ${severe ? 'border-rose-200 bg-rose-50 dark:border-rose-900/50 dark:bg-rose-950/25' : 'border-violet-200 bg-violet-50 dark:border-violet-900/40 dark:bg-violet-950/25'}`} dir="rtl">
+    <div className="flex items-start gap-3"><span className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl text-white ${severe ? 'bg-rose-500' : 'bg-violet-500'}`}><MoonStar size={20}/></span><div><p className={`text-xs font-black ${severe ? 'text-rose-700 dark:text-rose-300' : 'text-violet-700 dark:text-violet-300'}`}>{cycleState.inPmsWindow ? 'پیشنهاد شخصی برای روزهای PMS' : 'مراقبت از خود در روزهای قاعدگی'}</p><h2 className="mt-1 text-base font-black text-slate-900 dark:text-white">{severe ? 'امروز اول آرام‌سازی، بعد گفت‌وگو' : 'بدنت را جدی بگیر، بدون اینکه رابطه را رها کنی'}</h2></div></div>
+    <p className="mt-3 text-sm leading-7 text-slate-700 dark:text-slate-200">{severe ? 'خلق پایین یا تحریک‌پذیری شدید ثبت شده. بحث سنگین را عقب بینداز، یک مکث کوتاه انجام بده و اگر حس می‌کنی از کنترل خارج می‌شود، از SOS کمک بگیر.' : 'یک مقاله کوتاه بخوان یا یک تمرین آرام‌سازی انجام بده تا داده‌ای که ثبت کرده‌ای به یک اقدام کوچک تبدیل شود.'}</p>
+    <div className="mt-4 flex flex-wrap gap-2"><button onClick={()=>onOpenArticle(article)} className="min-h-10 rounded-xl bg-white px-3 text-xs font-black text-slate-700 dark:bg-slate-900 dark:text-slate-200">خواندن پیشنهاد</button><button onClick={()=>onOpenExercise(exercise)} className="min-h-10 rounded-xl bg-slate-900 px-3 text-xs font-black text-white">شروع تمرین</button>{severe&&<button onClick={onOpenSOS} className="min-h-10 rounded-xl bg-rose-500 px-3 text-xs font-black text-white">آرام‌سازی فوری</button>}</div>
+  </motion.section>;
+};
+
+const TemperatureAdvice = ({ score, cycleState, moodInsight, onNavigateToTab, onOpenArticle, articles }: any) => {
+  const low = score <= 2; const high = score >= 4;
+  const phase = cycleState?.phase ? RELATIONSHIP_GUIDANCE[cycleState.phase] : null;
+  const article = articles.find((item: Article) => low ? /تعارض|گفت|تنش|شنیدن/.test(item.title) : /صمیم|قدرد|نزدیک|محبت/.test(item.title)) || articles[0];
+  const title = low ? 'رابطه الان به مراقبت نیاز دارد' : high ? 'این گرما را حفظ کنید' : 'یک قدم کوچک برای نزدیک‌ترشدن';
+  const body = low ? 'امروز به‌جای حل همه‌چیز، یک درخواست روشن و یک مکث کوتاه را امتحان کنید.' : high ? 'یک تشکر مشخص یا قرار کوتاه، این حال خوب را به یک الگو تبدیل می‌کند.' : 'یک چک‌این کوتاه بگیرید و فقط درباره نیاز امروز حرف بزنید.';
+  const learned = moodInsight?.count >= 3 ? ` بر اساس ${toPersianDigits(moodInsight.count)} ثبت اخیر، ${moodInsight.insightFa}` : '';
+  return <div className={`rounded-[1.6rem] p-4 border ${low?'bg-rose-50 dark:bg-rose-950/25 border-rose-200 dark:border-rose-900/40':high?'bg-emerald-50 dark:bg-emerald-950/25 border-emerald-200 dark:border-emerald-900/40':'bg-amber-50 dark:bg-amber-950/25 border-amber-200 dark:border-amber-900/40'}`}><div className="flex items-center gap-2"><span className={`w-8 h-8 rounded-xl flex items-center justify-center ${low?'bg-rose-500':high?'bg-emerald-500':'bg-amber-500'} text-white`}><Heart size={15} className="fill-current"/></span><div><b className="block text-sm text-slate-900 dark:text-white">{title}</b><small className="text-[11px] text-slate-500">بر اساس ثبت امروز: {toPersianDigits(score)} از ۵</small></div></div><p className="mt-3 text-xs leading-6 text-slate-700 dark:text-slate-300">{body}{learned}</p>{phase && cycleState.inPmsWindow && <div className="mt-3 rounded-xl bg-white/60 dark:bg-slate-900/50 p-3 text-[11px] leading-5 text-slate-700 dark:text-slate-300"><b>نکته PMS:</b> {phase.partnerTip}</div>}<div className="mt-3 flex gap-2"><button onClick={()=>onOpenArticle(article)} className="flex-1 min-h-10 rounded-xl bg-white dark:bg-slate-900 text-xs font-black text-slate-700 dark:text-slate-200">خواندن پیشنهاد</button><button onClick={()=>onNavigateToTab('couple')} className="min-h-10 px-3 rounded-xl bg-[oklch(35%_0.04_330)] text-white text-xs font-black">ثبت اقدام</button></div></div>;
 };

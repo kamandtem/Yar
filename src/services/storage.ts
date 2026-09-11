@@ -1,4 +1,5 @@
 import { UserPreferences, CheckinResult, RelationshipMemory, MenstrualCycleConfig, PeriodLog, CycleDailyCheckin } from '../types';
+import { addDays, getDaysDifference } from './jalali';
 
 const STORAGE_KEYS = {
   PREFERENCES: 'yar_preferences',
@@ -14,7 +15,8 @@ const STORAGE_KEYS = {
   NOTES: 'yar_exercise_notes',
   CYCLE_CONFIG: 'yar_cycle_config',
   PERIOD_LOGS: 'yar_period_logs',
-  CYCLE_CHECKINS: 'yar_cycle_checkins'
+  CYCLE_CHECKINS: 'yar_cycle_checkins',
+  RELATION_TEMPERATURE: 'yar_relation_temperature'
 };
 
 const DEFAULT_PREFERENCES: UserPreferences = {
@@ -257,12 +259,21 @@ export const StorageService = {
   },
 
   logPeriodStart(startIso: string): PeriodLog[] {
-    const logs = this.getPeriodLogs();
+    const logs = [...this.getPeriodLogs()].sort((a, b) => b.startIso.localeCompare(a.startIso));
     const same = logs.find((item) => item.startIso === startIso);
-    const next = same ? logs : [{ id: `period-${Date.now()}`, startIso }, ...logs];
-    next.sort((a, b) => b.startIso.localeCompare(a.startIso));
-    localStorage.setItem(STORAGE_KEYS.PERIOD_LOGS, JSON.stringify(next));
-    return next;
+    if (same) return logs;
+    const latest = logs[0];
+    // نزدیک به آخرین شروع، ویرایش همان رکورد است، نه یک پریود تازه و جعلی.
+    if (latest && Math.abs(getDaysDifference(latest.startIso, startIso)) < 15) {
+      latest.startIso = startIso;
+      if (latest.endIso && getDaysDifference(latest.startIso, latest.endIso) < 0) delete latest.endIso;
+    } else {
+      if (latest && !latest.endIso && getDaysDifference(latest.startIso, startIso) > 0) latest.endIso = addDays(startIso, -1);
+      logs.unshift({ id: `period-${Date.now()}`, startIso });
+    }
+    logs.sort((a, b) => b.startIso.localeCompare(a.startIso));
+    localStorage.setItem(STORAGE_KEYS.PERIOD_LOGS, JSON.stringify(logs));
+    return logs;
   },
 
   deletePeriodLog(id: string): PeriodLog[] {
@@ -283,5 +294,18 @@ export const StorageService = {
     localStorage.setItem(STORAGE_KEYS.CYCLE_CHECKINS, JSON.stringify(next));
     return next;
   },
+
+  getRelationTemperature(): number | null {
+    try {
+      const raw = localStorage.getItem(STORAGE_KEYS.RELATION_TEMPERATURE);
+      return raw === null ? null : Number(raw);
+    } catch { return null; }
+  },
+
+  saveRelationTemperature(value: number): number {
+    localStorage.setItem(STORAGE_KEYS.RELATION_TEMPERATURE, String(value));
+    this.updateStreak();
+    return value;
+  }
 
 };

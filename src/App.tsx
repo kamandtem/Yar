@@ -247,6 +247,7 @@ export default function App() {
         onToggleDarkMode={handleToggleDarkMode}
         streakCount={streak.count}
         userName={preferences.userName}
+        onOpenSOS={() => setIsSOSOpen(true)}
       />
 
       <SideDrawerMenu
@@ -277,6 +278,7 @@ export default function App() {
             onOpenExercise={(ex) => setActiveExercise(ex)}
             onOpenJourney={(j) => setActiveJourney(j)}
             onOpenSOS={() => setIsSOSOpen(true)}
+            onOpenBreathing={() => setIsBreathingOpen(true)}
             onNavigateToTab={(tab) => setActiveTab(tab)}
           />
         )}
@@ -341,11 +343,12 @@ export default function App() {
             darkMode={darkMode}
             onToggleDarkMode={handleToggleDarkMode}
             onUpdatePreferences={(prefs) => setPreferences(StorageService.savePreferences(prefs))}
-            onOpenBreathing={() => setIsBreathingOpen(true)}
             onResetAll={() => {
               localStorage.clear();
               location.reload();
             }}
+            cycleConfig={cycleConfig}
+            onUpdateCycleConfig={(config) => setCycleConfig(StorageService.saveCycleConfig(config))}
           />
         )}
 

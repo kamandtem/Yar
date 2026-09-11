@@ -1,3 +1,4 @@
+import { PageIntroAccordion } from '../common/PageIntroAccordion';
 import React, { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { UserPreferences, CheckinResult, RelationshipMemory, WeeklyDate } from '../../types';
@@ -14,7 +15,20 @@ import {
   Clock,
   Send,
   Sliders,
-  Inbox
+  Inbox,
+  Activity,
+  Smile,
+  Coffee,
+  Armchair,
+  MessageCircleHeart,
+  Camera,
+  CalendarDays,
+  BarChart3,
+  Sparkles,
+  HeartHandshake,
+  HandHeart,
+  UserRound,
+  Zap
 } from 'lucide-react';
 
 interface CoupleTabProps {
@@ -115,75 +129,61 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
 
   return (
     <div className="pt-1 px-4 max-w-md mx-auto space-y-5">
-      {/* Title Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <span className="text-xs font-semibold text-slate-400 dark:text-slate-400 block mb-0.5">
-            فضای اختصاصی «ما»
-          </span>
-          <h1 className="text-2xl font-black text-slate-900 dark:text-white tracking-tight">
-            کارنامه و حریم مشترک
-          </h1>
-        </div>
-
-        {preferences.partnerName && (
-          <div className="px-3 py-1.5 rounded-2xl bg-indigo-50 dark:bg-indigo-950/70 text-indigo-600 dark:text-indigo-400 text-xs font-bold shadow-soft-card">
-            {preferences.userName || 'شما'} & {preferences.partnerName}
-          </div>
-        )}
-      </div>
+      <PageIntroAccordion kind="couple" />
 
       {/* Sub-Tabs Selector (like the pills in Screen 3) */}
-      <div className="grid grid-cols-4 gap-1.5 p-1 bg-slate-100 dark:bg-slate-800/80 rounded-2xl text-xs font-bold">
+      <div className="grid grid-cols-4 gap-1.5 rounded-[1.35rem] bg-[oklch(94%_0.018_300)] p-1.5 text-[10px] font-black dark:bg-slate-800/80">
         <button
           onClick={() => setActiveSubTab('checkin')}
-          className={`py-2 rounded-xl transition-all ${
+          className={`py-2 rounded-xl transition-all active:scale-[.97] ${
             activeSubTab === 'checkin'
-              ? 'bg-white dark:bg-slate-900 text-indigo-600 dark:text-indigo-400 shadow-soft-card'
+              ? 'bg-white dark:bg-slate-900 text-violet-600 dark:text-violet-400 shadow-soft-card'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          چک‌این
+          <span className="flex items-center justify-center gap-1.5"><Activity size={14}/>چک‌این امروز</span>
         </button>
         <button
           onClick={() => setActiveSubTab('telemetry')}
-          className={`py-2 rounded-xl transition-all ${
+          className={`py-2 rounded-xl transition-all active:scale-[.97] ${
             activeSubTab === 'telemetry'
               ? 'bg-white dark:bg-slate-900 text-purple-600 dark:text-purple-400 shadow-soft-card'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          شاخص‌ها
+          <span className="flex items-center justify-center gap-1.5"><BarChart3 size={14}/>روند ما</span>
         </button>
         <button
           onClick={() => setActiveSubTab('memories')}
-          className={`py-2 rounded-xl transition-all ${
+          className={`py-2 rounded-xl transition-all active:scale-[.97] ${
             activeSubTab === 'memories'
               ? 'bg-white dark:bg-slate-900 text-emerald-600 dark:text-emerald-400 shadow-soft-card'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          خاطرات
+          <span className="flex items-center justify-center gap-1.5"><Camera size={14}/>خاطرات ما</span>
         </button>
         <button
           onClick={() => setActiveSubTab('dates')}
-          className={`py-2 rounded-xl transition-all ${
+          className={`py-2 rounded-xl transition-all active:scale-[.97] ${
             activeSubTab === 'dates'
               ? 'bg-white dark:bg-slate-900 text-amber-600 dark:text-amber-400 shadow-soft-card'
               : 'text-slate-500 hover:text-slate-800'
           }`}
         >
-          قرارها
+          <span className="flex items-center justify-center gap-1.5"><CalendarDays size={14}/>قرارهای ما</span>
         </button>
       </div>
 
       {/* SUB-TAB 1: CHECK-IN */}
       {activeSubTab === 'checkin' && (
         <div className="space-y-4">
-          <div className="p-5 rounded-[28px] bg-white dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700/60 shadow-soft-card space-y-4">
+          <div className="relative overflow-hidden rounded-[2rem] border border-[oklch(88%_0.045_300)] bg-[oklch(97%_0.025_300)] p-5 shadow-[0_16px_40px_oklch(45%_0.08_300_/_0.08)] dark:border-violet-900/40 dark:bg-violet-950/20 space-y-5">
+            <div className="pointer-events-none absolute -left-12 -top-14 h-36 w-36 rounded-full bg-[oklch(82%_0.12_300_/_0.35)]" />
             <div className="flex items-center justify-between">
-              <span className="text-xs font-black text-slate-800 dark:text-white">
-                ثبت حال و هوای امروز (Daily Check-in)
+              <span className="flex items-center gap-2 text-sm font-black text-slate-900 dark:text-white">
+                <span className="flex h-9 w-9 items-center justify-center rounded-2xl bg-violet-600 text-white shadow-[0_8px_18px_oklch(45%_0.16_300_/_0.2)]"><Activity size={17}/></span>
+                <span><b className="block">حال امروز ما</b><small className="mt-0.5 block text-[10px] font-medium text-slate-500">یک دقیقه برای فهمیدن حال هم</small></span>
               </span>
               <span className="text-[10px] text-slate-400 font-medium">
                 {getTodayPersianDateString()}
@@ -205,14 +205,11 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                       onClick={() => setIntimacyRating(score)}
                       className={`flex-1 py-2.5 px-1 rounded-2xl flex flex-col items-center gap-1 border transition-all cursor-pointer ${
                         isSelected
-                          ? 'border-indigo-500 bg-indigo-50 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 font-bold shadow-soft-card scale-105'
+                          ? 'border-violet-500 bg-violet-100 dark:bg-violet-950/60 text-violet-700 dark:text-violet-400 font-bold shadow-soft-card scale-105'
                           : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-400'
                       }`}
                     >
-                      <Heart
-                        size={16}
-                        className={isSelected ? 'fill-indigo-600 text-indigo-600' : 'text-slate-300'}
-                      />
+                      {[HeartHandshake, MessageCircleHeart, Smile, HandHeart, Heart][score - 1] && React.createElement([HeartHandshake, MessageCircleHeart, Smile, HandHeart, Heart][score - 1], { size: 17, className: isSelected ? 'text-violet-600' : 'text-slate-300' })}
                       <span className="text-[10px] font-semibold">{toPersianDigits(score)}</span>
                       <span className="text-[9px]">{labels[score - 1]}</span>
                     </button>
@@ -228,9 +225,9 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
               </label>
               <div className="grid grid-cols-3 gap-2">
                 {[
-                  { id: 'high', label: 'پرانرژی و سرحال', icon: '⚡' },
-                  { id: 'medium', label: 'متوسط و آرام', icon: '☕' },
-                  { id: 'low', label: 'خسته یا بی‌حوصله', icon: '🛋️' }
+                  { id: 'high', label: 'پرانرژی و سرحال', icon: <Zap size={16}/> },
+                  { id: 'medium', label: 'متوسط و آرام', icon: <Coffee size={16}/> },
+                  { id: 'low', label: 'خسته یا بی‌حوصله', icon: <Armchair size={16}/> }
                 ].map((item) => {
                   const isSelected = energyLevel === item.id;
                   return (
@@ -270,7 +267,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                     onClick={() => setCurrentNeed(need)}
                     className={`px-3 py-1.5 rounded-xl text-[11px] font-bold border transition-all cursor-pointer ${
                       currentNeed === need
-                        ? 'bg-indigo-600 text-white border-indigo-600 shadow-soft-card'
+                        ? 'bg-violet-600 text-white border-violet-600 shadow-soft-card'
                         : 'bg-slate-50 dark:bg-slate-900 border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300'
                     }`}
                   >
@@ -283,14 +280,14 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
             {/* 4. Gratitude Note */}
             <div className="space-y-1.5 pt-2">
               <label className="text-xs font-bold text-slate-600 dark:text-slate-300 block">
-                ۴. بانک پس‌انداز عاطفی (یک سپاسگزاری از همسرت):
+                ۴. یک خط محبت برای امروز
               </label>
               <textarea
                 value={gratitudeNote}
                 onChange={(e) => setGratitudeNote(e.target.value)}
                 placeholder="مثلاً: بابت چای صبح، صبوری حین صحبت یا خنده‌ای که به من هدیه دادی ممنونم..."
                 rows={2}
-                className="w-full p-3 text-xs rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-indigo-500 resize-none"
+                className="w-full p-3 text-xs rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 text-slate-800 dark:text-slate-100 focus:outline-hidden focus:border-violet-500 resize-none"
               />
             </div>
 
@@ -299,17 +296,17 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
               {checkinSaved ? (
                 <div className="p-3 rounded-2xl bg-emerald-50 dark:bg-emerald-950/60 text-emerald-700 dark:text-emerald-300 text-xs font-bold text-center flex items-center justify-center gap-1.5">
                   <CheckCircle2 size={16} />
-                  <span>چک‌این امروز با موفقیت در کارنامه مشترک ذخیره شد!</span>
+                  <span>حال امروزت در اتاق ما ثبت شد</span>
                 </div>
               ) : (
                 <button
                   id="submit-checkin-btn"
                   onClick={handleSaveCheckin}
                   disabled={!intimacyRating || !energyLevel || !currentNeed}
-                  className="w-full py-3 px-5 rounded-2xl bg-indigo-600 disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-xs hover:bg-indigo-700 transition-all shadow-soft-elevated flex items-center justify-center gap-1.5 cursor-pointer"
+                  className="w-full py-3 px-5 rounded-2xl bg-[oklch(52%_0.16_300)] disabled:bg-slate-300 disabled:cursor-not-allowed text-white font-bold text-xs hover:bg-[oklch(45%_0.16_300)] transition-all shadow-soft-elevated flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                   <Send size={14} />
-                  <span>ثبت چک‌این در کارنامه مشترک</span>
+                  <span>ثبت در اتاق ما</span>
                 </button>
               )}
             </div>
@@ -319,7 +316,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
           {checkinHistory.length > 0 && (
             <div className="space-y-2 pt-2">
               <h3 className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                تاریخچه چک‌این‌های اخیر
+                ثبت‌های اخیر ما
               </h3>
               <div className="space-y-2">
                 {checkinHistory.slice(0, 3).map((item, idx) => (
@@ -332,7 +329,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                         <span className="font-bold text-slate-900 dark:text-white">
                           {item.date}
                         </span>
-                        <span className="text-[10px] text-indigo-600 font-semibold bg-indigo-50 dark:bg-indigo-950/70 px-2 py-0.5 rounded-full">
+                        <span className="text-[10px] text-violet-600 font-semibold bg-violet-50 dark:bg-violet-950/70 px-2 py-0.5 rounded-full">
                           صمیمیت: {toPersianDigits(item.intimacyScore || 0)} از ۵
                         </span>
                       </div>
@@ -361,7 +358,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                   شاخص هماهنگی عاطفی
                 </h3>
               </div>
-              <span className="text-xs font-extrabold text-indigo-600 bg-indigo-50 dark:bg-indigo-950/70 px-2.5 py-1 rounded-full">
+              <span className="text-xs font-extrabold text-violet-600 bg-violet-50 dark:bg-violet-950/70 px-2.5 py-1 rounded-full">
                 {toPersianDigits(averageScore)}٪ میانگین
               </span>
             </div>
@@ -378,14 +375,14 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                       initial={{ height: 0 }}
                       animate={{ height: `${item.value}%` }}
                       transition={{ duration: 0.6, delay: idx * 0.08 }}
-                      className={`w-full rounded-xl transition-all ${
+                      className={`w-full rounded-xl transition-all active:scale-[.97] ${
                         item.active
-                          ? 'bg-linear-to-t from-indigo-600 via-purple-500 to-sky-400 shadow-[0_4px_12px_rgba(99,102,241,0.4)]'
-                          : 'bg-linear-to-t from-slate-300 to-slate-200 dark:from-slate-600 dark:to-slate-500 group-hover:from-indigo-400 group-hover:to-sky-300'
+                          ? 'bg-linear-to-t from-violet-600 via-purple-500 to-sky-400 shadow-[0_4px_12px_rgba(99,102,241,0.4)]'
+                          : 'bg-linear-to-t from-slate-300 to-slate-200 dark:from-slate-600 dark:to-slate-500 group-hover:from-violet-400 group-hover:to-sky-300'
                       }`}
                     />
                   </div>
-                  <span className={`text-[9px] font-bold truncate max-w-12 ${item.active ? 'text-indigo-600 font-black' : 'text-slate-400'}`}>
+                  <span className={`text-[9px] font-bold truncate max-w-12 ${item.active ? 'text-violet-600 font-black' : 'text-slate-400'}`}>
                     {item.label}
                   </span>
                 </div>
@@ -406,7 +403,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
               <span className="text-xs font-black text-slate-800 dark:text-white">
                 آخرین وضعیت ثبت‌شده
               </span>
-              <Sliders size={15} className="text-indigo-500" />
+              <Sliders size={15} className="text-violet-500" />
             </div>
 
             {checkinHistory[0] ? (
@@ -429,7 +426,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
             </span>
             <button
               onClick={() => setShowAddMemory(!showAddMemory)}
-              className="py-1.5 px-3 rounded-2xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 transition-all flex items-center gap-1 shadow-soft-card cursor-pointer"
+              className="py-1.5 px-3 rounded-2xl bg-violet-600 text-white text-xs font-bold hover:bg-[oklch(45%_0.16_300)] transition-all flex items-center gap-1 shadow-soft-card cursor-pointer"
             >
               <Plus size={14} />
               <span>ثبت خاطره</span>
@@ -455,7 +452,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                   value={newMemTitle}
                   onChange={(e) => setNewMemTitle(e.target.value)}
                   placeholder="عنوان خاطره (مثلاً: اولین سفر شمال دو نفره)"
-                  className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:border-indigo-500"
+                  className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:border-violet-500"
                 />
                 <div className="grid grid-cols-1 gap-3">
                   <JalaliDatePicker value={newMemDate} onChange={setNewMemDate} labelFa="تاریخ خاطره" allowFuture={false} />
@@ -464,7 +461,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                     value={newMemFeeling}
                     onChange={(e) => setNewMemFeeling(e.target.value)}
                     placeholder="حس غالب (مثلاً: شوق و آرامش)"
-                    className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:border-indigo-500"
+                    className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:border-violet-500"
                   />
                 </div>
                 <textarea
@@ -472,7 +469,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                   onChange={(e) => setNewMemNotes(e.target.value)}
                   placeholder="یادداشت یا جزئیات کوتاهی که دوست داری یادت بماند..."
                   rows={2}
-                  className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:border-indigo-500 resize-none"
+                  className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:border-violet-500 resize-none"
                 />
               </div>
 
@@ -486,7 +483,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                 </button>
                 <button
                   type="submit"
-                  className="py-1.5 px-4 rounded-xl bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-700 cursor-pointer"
+                  className="py-1.5 px-4 rounded-xl bg-violet-600 text-white text-xs font-bold hover:bg-[oklch(45%_0.16_300)] cursor-pointer"
                 >
                   ذخیره خاطره
                 </button>
@@ -546,7 +543,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
       {activeSubTab === 'dates' && (
         <div className="space-y-4">
           <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200/60 dark:border-amber-900/60 text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-            💡 <strong className="font-bold">پیشنهاد پژوهش‌های بالینی گاتمن:</strong> زوج‌هایی که دو هفته یک‌بار یک قرار اختصاصی بدون تلفن همراه دارند، ۸۰٪ کمتر دچار فرسودگی عاطفی می‌شوند.
+            <Sparkles size={15} className="inline ml-1 text-amber-500" /> <strong className="font-bold">پیشنهاد پژوهش‌های بالینی گاتمن:</strong> زوج‌هایی که دو هفته یک‌بار یک قرار اختصاصی بدون تلفن همراه دارند، ۸۰٪ کمتر دچار فرسودگی عاطفی می‌شوند.
           </div>
 
           <div className="space-y-3">
@@ -584,7 +581,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                   </div>
 
                   <div className="p-3 rounded-2xl bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-800 text-[11px] text-slate-700 dark:text-slate-300">
-                    🗣️ <strong className="font-bold text-slate-900 dark:text-white">پرسش ویژه حین قرار:</strong> «{dateItem.reflectionPrompt}»
+                    <MessageCircleHeart size={15} className="inline ml-1 text-violet-500" /> <strong className="font-bold text-slate-900 dark:text-white">پرسش ویژه حین قرار:</strong> «{dateItem.reflectionPrompt}»
                   </div>
 
                   <div className="flex items-center justify-end pt-1">

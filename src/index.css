@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* YAR uses an explicit app theme toggle, not the OS preference. */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* ---------------------------------------------------------
    Dana font (bundled locally, works fully offline in the APK)
    --------------------------------------------------------- */
@@ -36,13 +39,19 @@
 }
 
 :root {
-  --bg-main: #F5F7FC;
-  --bg-card: #FFFFFF;
+  --bg-main: oklch(97% 0.012 280);
+  --bg-card: oklch(99% 0.004 280);
+  color-scheme: light;
   --accent-purple: #8B5CF6;
   --accent-sky: #38BDF8;
   --accent-indigo: #6366F1;
   --text-dark: #1E293B;
-  --text-muted: #64748B;
+  --text-muted: oklch(53% 0.035 280);
+  --surface-0: oklch(97% 0.012 280);
+  --surface-1: oklch(99% 0.004 280);
+  --surface-2: oklch(94% 0.018 280);
+  --text-main: oklch(27% 0.035 280);
+  --text-secondary: oklch(53% 0.035 280);
 
   /* Safe areas: keeps the UI clear of the status bar / notch / gesture bar */
   --yar-safe-top: env(safe-area-inset-top, 0px);
@@ -76,10 +85,34 @@ body {
   overscroll-behavior-y: none;
 }
 
-.dark body {
-  background-color: #0B0F19;
-  color: #F1F5F9;
+.dark, .dark body {
+  color-scheme: dark;
 }
+
+.dark body {
+  background-color: oklch(16% 0.025 280);
+  color: oklch(94% 0.018 280);
+}
+
+#root {
+  min-height: 100dvh;
+  background: var(--surface-0);
+  color: var(--text-main);
+  transition: background-color 200ms ease, color 200ms ease;
+}
+.dark #root {
+  background: oklch(16% 0.025 280);
+  color: oklch(94% 0.018 280);
+}
+
+/* Covers legacy surfaces that predate the explicit class-based theme. */
+.dark .bg-white { background-color: oklch(22% 0.028 280) !important; }
+.dark .bg-slate-50 { background-color: oklch(19% 0.025 280) !important; }
+.dark .bg-slate-100 { background-color: oklch(24% 0.028 280) !important; }
+.dark .text-slate-900, .dark .text-slate-800 { color: oklch(94% 0.018 280) !important; }
+.dark .text-slate-700, .dark .text-slate-600 { color: oklch(82% 0.025 280) !important; }
+.dark .text-slate-500, .dark .text-slate-400 { color: oklch(67% 0.025 280) !important; }
+.dark .border-slate-200, .dark .border-slate-100 { border-color: oklch(31% 0.03 280) !important; }
 
 /* Main scroll area: leaves room for the floating header and the floating dock */
 .yar-main {

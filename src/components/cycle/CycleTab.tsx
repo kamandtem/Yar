@@ -1,3 +1,4 @@
+import { PageIntroAccordion } from '../common/PageIntroAccordion';
 import React, { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Activity, CalendarDays, Check, ChevronDown, HeartHandshake, Info, Plus, ShieldCheck, Sparkles, Trash2, Settings2, X, SlidersHorizontal } from 'lucide-react';
@@ -76,13 +77,14 @@ export const CycleTab: React.FC<Props> = ({ cycleConfig, onUpdateCycleConfig }) 
 
   return (
     <div className="max-w-md mx-auto px-4 pt-2 pb-32 space-y-5" dir="rtl">
+      <PageIntroAccordion kind="cycle" />
       <header className="pt-2 px-1 flex items-end justify-between gap-4">
         <div><p className="text-xs font-black text-[oklch(52%_0.13_330)] mb-1">بدن، خلق، رابطه</p><h1 className="text-2xl font-black text-slate-900 dark:text-white">سیکل قاعدگی</h1></div>
         <button onClick={() => setShowLog(true)} className="min-h-11 px-4 rounded-2xl bg-[oklch(92%_0.04_330)] dark:bg-slate-800 text-[oklch(48%_0.13_330)] dark:text-pink-300 text-xs font-black flex items-center gap-2"><Plus size={16}/> ثبت شروع</button>
       </header>
 
       <section className="rounded-[2rem] bg-[oklch(97%_0.012_330)] dark:bg-slate-900 border border-[oklch(91%_0.02_330)] dark:border-slate-800 px-3 pt-2 pb-5 overflow-hidden">
-        <CycleWheel currentDay={state.cycleDay!} selectedDay={selectedDay} cycleLength={state.cycleLength} periodLength={state.periodLength} onSelectDay={setSelectedDay} />
+        <CycleWheel currentDay={state.cycleDay!} selectedDay={selectedDay} cycleLength={state.cycleLength} periodLength={state.periodLength} daysUntilNextPeriod={state.daysUntilNextPeriod} onSelectDay={setSelectedDay} onEditPeriod={openEdit} />
         <div className="px-3 -mt-3 flex items-center justify-between gap-3">
           <div><p className="text-xs text-slate-500 dark:text-slate-400">{formatJalaliDate(selectedIso)}</p><p className="font-black text-slate-900 dark:text-white mt-1">{selectedPhase ? PHASE_LABEL[selectedPhase] : ''}</p></div>
           <div className="text-left"><p className="text-[11px] text-slate-400">پریود بعدی</p><p className="text-xs font-black text-slate-700 dark:text-slate-200">{state.daysUntilNextPeriod ? `${toPersianDigits(state.daysUntilNextPeriod)} روز دیگر` : 'نامشخص'}</p></div>

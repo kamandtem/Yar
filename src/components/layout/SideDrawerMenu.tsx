@@ -7,16 +7,15 @@ import {
   Dumbbell,
   HeartHandshake,
   BookOpen,
+  MoonStar,
   User,
   ShieldAlert,
   Moon,
   Sun,
-  Flame,
   PhoneCall,
   ChevronLeft
 } from 'lucide-react';
 import { ActiveTab } from '../../types';
-import { toPersianDigits } from '../../utils/persianDate';
 
 interface SideDrawerMenuProps {
   isOpen: boolean;
@@ -58,12 +57,13 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
   }, [isOpen, onClose]);
 
   const navLinks: { tab: ActiveTab; label: string; icon: React.ReactNode; badge?: string }[] = [
-    { tab: 'home', label: 'خانه و داشبورد امروز', icon: <Home size={18} /> },
-    { tab: 'library', label: 'کتابخانه و مقالات', icon: <BookOpen size={18} />, badge: '۵۰+ مقاله' },
-    { tab: 'journeys', label: 'مسیرهای گام‌به‌گام', icon: <Compass size={18} /> },
-    { tab: 'exercises', label: 'تمرین‌ها و چالش‌ها', icon: <Dumbbell size={18} /> },
-    { tab: 'couple', label: 'فضای صمیمیت دونفره', icon: <HeartHandshake size={18} /> },
-    { tab: 'profile', label: 'حساب و تنظیمات من', icon: <User size={18} /> }
+    { tab: 'home', label: 'خانه و پیشنهادهای امروز', icon: <Home size={18} /> },
+    { tab: 'library', label: 'کتابخانه و مقاله‌ها', icon: <BookOpen size={18} />, badge: '۵۰+ مقاله' },
+    { tab: 'journeys', label: 'مسیرها', icon: <Compass size={18} /> },
+    { tab: 'exercises', label: 'تمرین‌ها', icon: <Dumbbell size={18} /> },
+    { tab: 'couple', label: 'فضای دونفره', icon: <HeartHandshake size={18} /> },
+    { tab: 'cycle', label: 'چرخه قاعدگی و PMS', icon: <MoonStar size={18} /> },
+    { tab: 'profile', label: 'تنظیمات', icon: <User size={18} /> }
   ];
 
   return (
@@ -129,13 +129,6 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
                 </button>
               </div>
 
-              <div className="text-[10px] text-slate-400 bg-slate-50 dark:bg-slate-800/60 py-1.5 px-3 rounded-xl flex items-center justify-between">
-                <span>👉 منو را به سمت راست بکشید تا بسته شود</span>
-                <span className="text-amber-500 font-bold flex items-center gap-1">
-                  <Flame size={12} className="fill-amber-400" />
-                  {toPersianDigits(streakCount)} روز
-                </span>
-              </div>
 
               <div className="space-y-1">
                 <span className="text-[11px] font-bold text-slate-400 px-3 tracking-wider">

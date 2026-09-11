@@ -1,3 +1,5 @@
+import { QuoteOfTheDay } from '../common/QuoteOfTheDay';
+import { PageIntroAccordion } from '../common/PageIntroAccordion';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserPreferences, Article, Exercise, Journey, DailyQuestion, WeeklyDate } from '../../types';
@@ -14,7 +16,6 @@ import {
   CheckCircle2,
   Heart,
   ShieldAlert,
-  Flame,
   Calendar,
   Share2,
   MessageCircle,
@@ -44,6 +45,7 @@ interface HomeTabProps {
   onOpenExercise: (exercise: Exercise) => void;
   onOpenJourney: (journey: Journey) => void;
   onOpenSOS: () => void;
+  onOpenBreathing: () => void;
   onNavigateToTab: (tab: any) => void;
 }
 
@@ -61,6 +63,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   onOpenExercise,
   onOpenJourney,
   onOpenSOS,
+  onOpenBreathing,
   onNavigateToTab
 }) => {
   const [questionIndex, setQuestionIndex] = useState(0);
@@ -108,6 +111,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
   return (
     <div className="pt-1 px-4 max-w-md mx-auto space-y-6">
+      <PageIntroAccordion kind="home" />
+      <QuoteOfTheDay />
       {/* 1. Modern Top Greeting (matching left screen in reference image: "Good Morning John") */}
       <div className="flex items-center justify-between">
         <div>
@@ -437,7 +442,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       </div>
 
       {/* 6. Now Playing / Active Practice Mini Controller (matching "Demons - Alec Benjamin" in Screen 1) */}
-      <div className="p-3.5 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700/60 shadow-soft-card flex items-center justify-between">
+      <button onClick={onOpenBreathing} className="w-full text-right p-3.5 rounded-3xl bg-white dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700/60 shadow-soft-card flex items-center justify-between active:scale-[.98] transition-transform">
         <div className="flex items-center gap-3">
           <div className="w-12 h-12 rounded-2xl bg-linear-to-tr from-purple-500 to-indigo-500 text-white flex items-center justify-center shadow-sm">
             <Volume2 size={20} className={isPlayingAudio ? 'animate-bounce' : ''} />
@@ -459,7 +464,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
         >
           <Play size={18} className={`stroke-[2.4] ${isPlayingAudio ? 'fill-indigo-600' : ''}`} />
         </button>
-      </div>
+      </button>
 
       {/* 7. Today's Scientific Reading Card */}
       <div

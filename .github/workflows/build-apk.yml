@@ -10,6 +10,10 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: build-apk-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -29,69 +33,67 @@ jobs:
         with:
           distribution: 'temurin'
           java-version: '21'
-          cache: 'gradle'
 
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
         with:
-          api-levels: '35'
-          build-tools: '35.0.0'
-          ndk-version: '27.0.12077973'
+          packages: 'platform-tools platforms;android-35 build-tools;35.0.0'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install --no-audit --no-fund
 
       - name: Build web app
         run: npm run build
 
       - name: Verify dist output
         run: |
-          echo "Checking dist folder..."
+          test -f dist/index.html || { echo "::error::dist/index.html missing - web build failed"; exit 1; }
           ls -lah dist/
-          find dist -type f | wc -l
 
       - name: Add android platform
         run: |
-          echo "Adding Android platform to Capacitor..."
-          npx cap add android --web-dir=dist
+          if [ ! -d android ]; then
+            npx cap add android
+          else
+            echo "android/ already present, skipping add"
+          fi
 
-      - name: Generate capacitor assets
-        run: |
-          echo "Generating app icons and splash screen..."
-          npx capacitor-assets generate --android
+      - name: Set Persian app name
+        run: node scripts/set-app-name.mjs
 
-      - name: Sync capacitor plugins
-        run: |
-          echo "Syncing Capacitor with Android..."
-          npx cap sync android
+      - name: Sync capacitor
+        run: npx cap sync android
 
-      - name: Build APK with gradle
+      - name: Generate app icons and splash
+        continue-on-error: true
+        run: npx capacitor-assets generate --android
+
+      - name: Build debug APK
         run: |
           cd android
           chmod +x gradlew
-          ./gradlew clean
-          ./gradlew assembleDebug --stacktrace
+          ./gradlew assembleDebug --stacktrace --no-daemon
 
-      - name: Check APK
+      - name: Locate APK
         run: |
-          echo "Searching for APK..."
-          find android -name "*.apk" -type f
+          find android -name "*.apk" -type f -print
+          ls -lh android/app/build/outputs/apk/debug/
 
       - name: Upload APK artifact
-        if: always()
         uses: actions/upload-artifact@v4
         with:
           name: yar-debug-apk
           path: android/app/build/outputs/apk/debug/*.apk
-          if-no-files-found: warn
+          if-no-files-found: error
           retention-days: 30
 
-      - name: Build status
-        if: always()
-        run: |
-          if [ -f "android/app/build/outputs/apk/debug/app-debug.apk" ]; then
-            echo "✅ APK BUILT"
-            ls -lh android/app/build/outputs/apk/debug/app-debug.apk
-          else
-            echo "❌ APK NOT FOUND"
-          fi
+      - name: Upload build reports on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: build-reports
+          path: |
+            android/app/build/reports/
+            android/build/reports/
+          if-no-files-found: ignore
+          retention-days: 7

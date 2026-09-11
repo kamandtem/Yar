@@ -1,26 +1,32 @@
-# راهنمای ساخت APK برای Yar
+# ساخت خروجی APK برای اپ «یار»
 
-## مشکل اصلی
-workflow قبلی تمام step ها رو میکرد ولی APK رو نمی ساخت.
+## روش ۱: گیت‌هاب اکشن (پیشنهادی)
 
-## مشکلات حل شده
-1. ✅ Android SDK و NDK proper setup
-2. ✅ Node.js version deprecation fix (20 instead of 24)
-3. ✅ Gradle build logging تفصیلی
-4. ✅ Build directory verification
-5. ✅ APK path detection دقیق
+1. کل پروژه را به یک ریپازیتوری گیت‌هاب پوش کن (برنچ `main`).
+2. در تب **Actions**، ورک‌فلوی **Build Yar APK** را انتخاب کن و **Run workflow** را بزن.
+   (با هر پوش روی `main` هم خودکار اجرا می‌شود.)
+3. بعد از اتمام (حدود ۵ تا ۱۰ دقیقه)، پایین صفحهٔ همان ران، بخش **Artifacts** → فایل `yar-debug-apk` را دانلود کن.
 
-## فایل workflow جدید
-`.github/workflows/build-apk.yml` - فایل workflow کاملا دوباره نوشته شده
+اگر ران قرمز شد، آرتیفکت `build-reports` هم آپلود می‌شود؛ لاگ خطای Gradle داخل آن است.
 
-## اجرا کردن
-1. این workflow رو push کن
-2. GitHub Actions -> Build Yar APK -> Run workflow
-3. منتظر بمان تا workflow کامل شود
+## روش ۲: بیلد روی سیستم خودت
 
-## اگر هنوز fail شد
-آخرین step "Final status" تمام log ها رو print میکند. اونو ببین و بفرست.
+نیازمندی‌ها: Node.js 22، JDK 21، Android SDK (API 35 + Build Tools 35.0.0)
 
-## APK دانلود
-- Artifacts -> yar-debug-apk -> app-debug.apk
+```bash
+npm install
+npm run build
+npx cap add android      # فقط بار اول
+node scripts/set-app-name.mjs
+npx cap sync android
+npx capacitor-assets generate --android
+cd android && ./gradlew assembleDebug
+```
 
+خروجی: `android/app/build/outputs/apk/debug/app-debug.apk`
+
+## نکات
+
+- پوشهٔ `android/` در `.gitignore` است و در هر بیلد از نو ساخته می‌شود. آن را کامیت نکن.
+- برای نسخهٔ Release باید keystore بسازی و امضا کنی؛ نسخهٔ Debug روی گوشی نصب می‌شود ولی برای انتشار در استور مناسب نیست.
+- `appId` فعلی: `com.yar.relationship`

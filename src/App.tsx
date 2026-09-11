@@ -191,7 +191,7 @@ export default function App() {
   };
 
   return (
-    <>
+    <div className="min-h-[100dvh] flex flex-col">
       <SplashScreen isVisible={showSplash} />
 
       <div className="min-h-[100dvh] bg-[#F5F7FC] dark:bg-[#0B0F19] text-[#1E293B] dark:text-[#F1F5F9] transition-colors duration-200 antialiased font-sans selection:bg-rose-100 selection:text-rose-600">
@@ -383,6 +383,7 @@ export default function App() {
         isOpen={!!activePerspective}
         onClose={() => setActivePerspective(null)}
       />
-    </>
+    </div>
+    </div>
   );
 }

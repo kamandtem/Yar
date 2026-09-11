@@ -1,4 +1,4 @@
-import { UserPreferences, CheckinResult, RelationshipMemory } from '../types';
+import { UserPreferences, CheckinResult, RelationshipMemory, MenstrualCycleConfig, PeriodLog, CycleDailyCheckin } from '../types';
 
 const STORAGE_KEYS = {
   PREFERENCES: 'yar_preferences',
@@ -11,7 +11,10 @@ const STORAGE_KEYS = {
   MEMORIES: 'yar_memories',
   WEEKLY_DATES: 'yar_weekly_dates',
   STREAK: 'yar_streak',
-  NOTES: 'yar_exercise_notes'
+  NOTES: 'yar_exercise_notes',
+  CYCLE_CONFIG: 'yar_cycle_config',
+  PERIOD_LOGS: 'yar_period_logs',
+  CYCLE_CHECKINS: 'yar_cycle_checkins'
 };
 
 const DEFAULT_PREFERENCES: UserPreferences = {
@@ -231,5 +234,54 @@ export const StorageService = {
     } catch {
       return '';
     }
-  }
+  },
+
+  getCycleConfig(): MenstrualCycleConfig {
+    const fallback: MenstrualCycleConfig = { enabled: false, cycleLengthDays: 28, periodLengthDays: 5, pmsStartDaysBefore: 7 };
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.CYCLE_CONFIG);
+      return data ? { ...fallback, ...JSON.parse(data) } : fallback;
+    } catch { return fallback; }
+  },
+
+  saveCycleConfig(config: MenstrualCycleConfig): MenstrualCycleConfig {
+    localStorage.setItem(STORAGE_KEYS.CYCLE_CONFIG, JSON.stringify(config));
+    return config;
+  },
+
+  getPeriodLogs(): PeriodLog[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.PERIOD_LOGS);
+      return data ? JSON.parse(data) : [];
+    } catch { return []; }
+  },
+
+  logPeriodStart(startIso: string): PeriodLog[] {
+    const logs = this.getPeriodLogs();
+    const same = logs.find((item) => item.startIso === startIso);
+    const next = same ? logs : [{ id: `period-${Date.now()}`, startIso }, ...logs];
+    next.sort((a, b) => b.startIso.localeCompare(a.startIso));
+    localStorage.setItem(STORAGE_KEYS.PERIOD_LOGS, JSON.stringify(next));
+    return next;
+  },
+
+  deletePeriodLog(id: string): PeriodLog[] {
+    const next = this.getPeriodLogs().filter((item) => item.id !== id);
+    localStorage.setItem(STORAGE_KEYS.PERIOD_LOGS, JSON.stringify(next));
+    return next;
+  },
+
+  getCycleCheckins(): CycleDailyCheckin[] {
+    try {
+      const data = localStorage.getItem(STORAGE_KEYS.CYCLE_CHECKINS);
+      return data ? JSON.parse(data) : [];
+    } catch { return []; }
+  },
+
+  saveCycleCheckin(entry: CycleDailyCheckin): CycleDailyCheckin[] {
+    const next = [entry, ...this.getCycleCheckins().filter((item) => item.dateIso !== entry.dateIso)];
+    localStorage.setItem(STORAGE_KEYS.CYCLE_CHECKINS, JSON.stringify(next));
+    return next;
+  },
+
 };

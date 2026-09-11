@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { CycleAdviceCard } from './CycleAdviceCard';
-import { MenstrualCycleConfig } from '../../types';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserPreferences, Article, Exercise, Journey, DailyQuestion, WeeklyDate } from '../../types';
 import { toPersianDigits, getTodayPersianDateString } from '../../utils/persianDate';
@@ -24,7 +22,8 @@ import {
   Sun,
   Compass,
   Zap,
-  Layers
+  Layers,
+  MoonStar
 } from 'lucide-react';
 
 interface HomeTabProps {
@@ -165,6 +164,17 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </div>
         </div>
       </div>
+
+      {preferences.gender === 'female' && (
+        <button
+          onClick={() => onNavigateToTab('cycle')}
+          className="w-full min-h-[5.2rem] px-4 rounded-[1.6rem] bg-[oklch(94%_0.035_330)] dark:bg-pink-950/20 border border-[oklch(88%_0.04_330)] dark:border-pink-900/30 flex items-center gap-3 text-right active:scale-[.98] transition-transform"
+        >
+          <span className="w-12 h-12 rounded-2xl bg-[oklch(54%_0.14_330)] text-white flex items-center justify-center shrink-0"><MoonStar size={21} /></span>
+          <span className="flex-1"><b className="block text-sm font-black text-slate-900 dark:text-white">سیکل، خلق و رابطه</b><small className="text-[11px] leading-5 text-slate-500 dark:text-slate-400">حال امروز را ثبت کن و الگوی شخصی‌ات را بشناس</small></span>
+          <ChevronLeft size={17} className="text-[oklch(52%_0.13_330)]" />
+        </button>
+      )}
 
       {/* 3. Horizontal Squircle Selector (matching Lights, TV, Temp, Window in Screen 2) */}
       <div className="space-y-2">

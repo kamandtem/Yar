@@ -1,132 +1,18 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
-import { BookOpen, Clock, CheckCircle, ArrowUpRight } from 'lucide-react';
+import { ArrowLeft, BookOpen, CheckCircle2, Clock3, Heart, Search, Sparkles } from 'lucide-react';
 import { Article } from '../../types';
 
-interface ArticlesTimelineTabProps {
-  articles: Article[];
-  completedArticles: string[];
-  favorites: string[];
-  onOpenArticle: (article: Article) => void;
-  onToggleFavorite: (id: string) => void;
-}
-
-export const ArticlesTimelineTab: React.FC<ArticlesTimelineTabProps> = ({
-  articles,
-  completedArticles,
-  favorites,
-  onOpenArticle,
-  onToggleFavorite,
-}) => {
-  const grouped = useMemo(() => {
-    const map = new Map<string, Article[]>();
-    articles.forEach((a) => {
-      const cat = a.category || 'دیگر';
-      if (!map.has(cat)) map.set(cat, []);
-      map.get(cat)!.push(a);
-    });
-    return Array.from(map.entries()).sort((a, b) => b[1].length - a[1].length);
-  }, [articles]);
-
-  if (!articles.length) {
-    return (
-      <div className="pt-8 px-4 text-center">
-        <BookOpen className="mx-auto mb-3 text-slate-400" size={40} />
-        <p className="text-sm text-slate-500 dark:text-slate-400">هنوز مقالهٔ جدیدی نیست</p>
-      </div>
-    );
-  }
-
-  return (
-    <div className="pt-2 px-4 max-w-2xl mx-auto space-y-3">
-      {grouped.map(([category, cats], categoryIdx) => (
-        <motion.div
-          key={category}
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: categoryIdx * 0.05 }}
-        >
-          {/* دسته‌بندی */}
-          <div className="mb-2 flex items-center gap-2">
-            <h3 className="text-xs font-extrabold text-slate-500 dark:text-slate-400 tracking-wider">
-              {category}
-            </h3>
-            <div className="flex-1 h-px bg-gradient-to-l from-slate-200 dark:from-slate-700 to-transparent" />
-            <span className="text-[11px] font-bold text-slate-400 dark:text-slate-500">
-              {cats.length}
-            </span>
-          </div>
-
-          {/* timeline برای هر مقاله */}
-          <div className="space-y-0 relative">
-            {/* خط عمودی */}
-            <div className="absolute left-3.5 top-3 bottom-3 w-px bg-gradient-to-b from-slate-200 via-slate-200 to-transparent dark:from-slate-700 dark:via-slate-700" />
-
-            {cats.map((article, articleIdx) => {
-              const isCompleted = completedArticles.includes(article.id);
-              const isFavorited = favorites.includes(article.id);
-
-              return (
-                <motion.button
-                  key={article.id}
-                  initial={{ opacity: 0, x: -8 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: (categoryIdx * cats.length + articleIdx) * 0.02 }}
-                  onClick={() => onOpenArticle(article)}
-                  className="relative w-full text-right group"
-                >
-                  <div className="flex gap-3 p-3 rounded-xl hover:bg-slate-100/50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer">
-                    {/* دایره‌ی timeline */}
-                    <div className="shrink-0 mt-1">
-                      <motion.div
-                        className={`w-7 h-7 rounded-full border-2 flex items-center justify-center transition-colors ${
-                          isCompleted
-                            ? 'bg-emerald-500 border-emerald-600 text-white'
-                            : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600'
-                        }`}
-                        whileHover={{ scale: 1.1 }}
-                      >
-                        {isCompleted ? <CheckCircle size={16} /> : <Clock size={14} className="text-slate-400" />}
-                      </motion.div>
-                    </div>
-
-                    {/* محتوا */}
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-sm font-extrabold text-slate-900 dark:text-white truncate group-hover:text-indigo-600 dark:group-hover:text-indigo-400 transition-colors">
-                        {article.title}
-                      </h4>
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
-                        {article.summary || article.description}
-                      </p>
-                    </div>
-
-                    {/* دکمه‌ها */}
-                    <div className="flex items-start gap-1 shrink-0">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          onToggleFavorite(article.id);
-                        }}
-                        className="w-8 h-8 rounded-lg text-xl flex items-center justify-center transition-transform hover:scale-110 cursor-pointer"
-                      >
-                        {isFavorited ? '❤️' : '🤍'}
-                      </button>
-                      <div className="w-8 h-8 rounded-lg bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-400 group-hover:text-indigo-600 transition-colors">
-                        <ArrowUpRight size={14} />
-                      </div>
-                    </div>
-                  </div>
-                </motion.button>
-              );
-            })}
-          </div>
-
-          {/* فاصلهٔ دسته‌بندی */}
-          {categoryIdx < grouped.length - 1 && <div className="h-2" />}
-        </motion.div>
-      ))}
-
-      <div className="pb-4" />
-    </div>
-  );
+interface Props { articles: Article[]; completedArticles: string[]; favorites: string[]; onOpenArticle: (article: Article) => void; onToggleFavorite: (id: string) => void; }
+export const ArticlesTimelineTab: React.FC<Props> = ({ articles, completedArticles, favorites, onOpenArticle, onToggleFavorite }) => {
+  const [query, setQuery] = useState(''); const [category, setCategory] = useState('همه');
+  const categories = useMemo(() => ['همه', ...Array.from(new Set(articles.map(a => a.category || 'رابطه')))], [articles]);
+  const filtered = useMemo(() => articles.filter(a => (category === 'همه' || (a.category || 'رابطه') === category) && (!query.trim() || `${a.title} ${a.summary}`.toLowerCase().includes(query.toLowerCase()))), [articles, category, query]);
+  return <div className="max-w-2xl mx-auto px-4 pt-2 pb-28" dir="rtl">
+    <header className="pt-2 pb-5"><div className="flex items-center gap-3"><span className="w-11 h-11 rounded-2xl bg-[oklch(92%_0.045_330)] text-[oklch(48%_0.13_330)] flex items-center justify-center"><BookOpen size={21}/></span><div><p className="text-xs font-black text-[oklch(52%_0.13_330)]">کتابخانه یار</p><h1 className="text-2xl font-black text-slate-900 dark:text-white">چیزی برای فهمیدن</h1></div></div><p className="text-sm text-slate-500 dark:text-slate-400 leading-6 mt-4 max-w-[38rem]">مقاله‌ها را مثل یک مسیر کوتاه بخوان. هر بار فقط یک ایده که در گفت‌وگوی واقعی به کار بیاید.</p></header>
+    <label className="relative block mb-4"><Search size={18} className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400"/><input value={query} onChange={e=>setQuery(e.target.value)} placeholder="جست‌وجوی مقاله یا موضوع" className="w-full min-h-13 pr-11 pl-4 rounded-[1.35rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus-visible:ring-2 focus-visible:ring-pink-400"/></label>
+    <div className="flex gap-2 overflow-x-auto no-scrollbar pb-3">{categories.map(item=><button key={item} onClick={()=>setCategory(item)} className={`shrink-0 min-h-10 px-4 rounded-full text-xs font-black ${category===item?'bg-[oklch(35%_0.04_330)] text-white':'bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-300'}`}>{item}</button>)}</div>
+    <div className="relative mt-2"><div className="absolute right-[1.05rem] top-5 bottom-8 w-px bg-[oklch(88%_0.025_330)] dark:bg-slate-800"/>{filtered.map((article,index)=>{const done=completedArticles.includes(article.id);const fav=favorites.includes(article.id);return <motion.article key={article.id} initial={{opacity:0,y:14}} animate={{opacity:1,y:0}} transition={{delay:Math.min(index*.035,.3)}} className="relative pr-10 pb-5"><span className={`absolute right-0 top-5 w-[2.1rem] h-[2.1rem] rounded-full flex items-center justify-center border-4 border-[oklch(98%_0.008_330)] dark:border-slate-950 ${done?'bg-[oklch(59%_0.10_175)] text-white':'bg-[oklch(52%_0.14_330)] text-white'}`}>{done?<CheckCircle2 size={15}/>:<span className="text-[11px] font-black">{index+1}</span>}</span><button onClick={()=>onOpenArticle(article)} className="w-full text-right rounded-[1.75rem] overflow-hidden bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-[0_10px_30px_oklch(25%_0.03_330_/_0.05)] hover:-translate-y-0.5 transition-transform"><div className="relative h-36 bg-[oklch(94%_0.025_330)] dark:bg-slate-800">{article.heroImage&&<img src={article.heroImage} alt="" className="w-full h-full object-cover" loading="lazy"/>}<div className="absolute top-3 right-3 px-3 py-1 rounded-full bg-[oklch(98%_0.008_330_/_0.88)] text-[11px] font-black text-[oklch(48%_0.13_330)]">{article.category||'رابطه'}</div><button onClick={e=>{e.stopPropagation();onToggleFavorite(article.id)}} className="absolute top-3 left-3 w-10 h-10 rounded-full bg-[oklch(98%_0.008_330_/_0.9)] flex items-center justify-center text-lg">{fav?'♥':'♡'}</button></div><div className="p-4"><div className="flex items-center gap-2 text-[11px] text-slate-400 mb-2"><Clock3 size={13}/><span>{article.readingTime?`${article.readingTime} دقیقه مطالعه`:'خواندن کوتاه'}</span>{done&&<span className="text-[oklch(50%_0.1_175)] font-black">کامل شده</span>}</div><h2 className="text-lg font-black leading-8 text-slate-900 dark:text-white">{article.title}</h2><p className="mt-1 text-sm leading-6 text-slate-500 dark:text-slate-400 line-clamp-2">{article.summary}</p><span className="mt-3 inline-flex items-center gap-1 text-xs font-black text-[oklch(50%_0.13_330)]">خواندن جزئیات <ArrowLeft size={14}/></span></div></button></motion.article>})}</div>
+    {!filtered.length&&<div className="py-16 text-center text-slate-500"><Sparkles className="mx-auto mb-3 text-pink-400"/><p className="text-sm font-bold">مقاله‌ای با این جست‌وجو پیدا نشد.</p></div>}
+  </div>;
 };

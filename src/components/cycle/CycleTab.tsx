@@ -1,237 +1,109 @@
 import React, { useMemo, useState } from 'react';
-import { motion } from 'motion/react';
-import {
-  Droplet,
-  Activity,
-  Calendar,
-  AlertCircle,
-  Plus,
-  Trash2,
-} from 'lucide-react';
-import { MenstrualCycleConfig, PHASE_COLORS, PHASE_NAMES_FA, PHASE_DESCRIPTIONS_FA } from '../../types/cycle';
-import { computeCycleState, getTodayIso } from '../../services/cycleService';
+import { motion, AnimatePresence } from 'motion/react';
+import { Activity, CalendarDays, Check, ChevronDown, HeartHandshake, Info, Plus, ShieldCheck, Sparkles, Trash2 } from 'lucide-react';
+import { CycleDailyCheckin, MenstrualCycleConfig, MenstrualPhase, PeriodLog } from '../../types';
+import { StorageService } from '../../services/storage';
+import { computeRelationshipCycle, getPersonalPattern, getPhaseForDay, RELATIONSHIP_GUIDANCE } from '../../services/relationshipCycle';
+import { addDays, formatJalaliDate, getTodayIsoDate, toPersianDigits } from '../../services/jalali';
+import { JalaliDatePicker } from '../common/JalaliDatePicker';
+import { CycleWheel } from './CycleWheel';
 
-interface CycleTabProps {
-  cycleConfig: MenstrualCycleConfig;
-  onUpdateCycleConfig: (config: MenstrualCycleConfig) => void;
-}
+interface Props { cycleConfig: MenstrualCycleConfig; onUpdateCycleConfig: (config: MenstrualCycleConfig) => void; }
+const NEEDS: { value: CycleDailyCheckin['need']; label: string }[] = [
+  { value: 'connection', label: 'نزدیکی' }, { value: 'space', label: 'کمی فضا' }, { value: 'support', label: 'حمایت' }, { value: 'rest', label: 'استراحت' }, { value: 'talk', label: 'گفت‌وگو' },
+];
+const PHASE_LABEL: Record<MenstrualPhase, string> = { menstrual: 'قاعدگی', follicular: 'فولیکولار', ovulation: 'تخمک‌گذاری تقریبی', luteal: 'لوتئال' };
+const CONFIDENCE = { none: 'تقریبی', low: 'اطمینان کم', medium: 'اطمینان متوسط', high: 'اطمینان بالا' } as const;
 
-const PHASE_ORDER = ['menstrual', 'follicular', 'ovulation', 'luteal'] as const;
-
-export const CycleTab: React.FC<CycleTabProps> = ({ cycleConfig, onUpdateCycleConfig }) => {
-  const today = useMemo(() => getTodayIso(), []);
-  const state = useMemo(() => computeCycleState(cycleConfig, today), [cycleConfig, today]);
-  const [showPeriodForm, setShowPeriodForm] = useState(false);
+export const CycleTab: React.FC<Props> = ({ cycleConfig, onUpdateCycleConfig }) => {
+  const today = useMemo(() => getTodayIsoDate(), []);
+  const [logs, setLogs] = useState<PeriodLog[]>(() => StorageService.getPeriodLogs());
+  const [checkins, setCheckins] = useState<CycleDailyCheckin[]>(() => StorageService.getCycleCheckins());
   const [selectedDate, setSelectedDate] = useState(today);
+  const [showLog, setShowLog] = useState(false);
+  const [selectedDay, setSelectedDay] = useState(1);
+  const [showCheckin, setShowCheckin] = useState(false);
+  const [saved, setSaved] = useState(false);
+  const [mood, setMood] = useState(3); const [energy, setEnergy] = useState(3); const [irritability, setIrritability] = useState(2); const [pain, setPain] = useState(1);
+  const [need, setNeed] = useState<CycleDailyCheckin['need']>('connection');
+  const [note, setNote] = useState('');
+  const state = useMemo(() => computeRelationshipCycle(cycleConfig, logs, today), [cycleConfig, logs, today]);
+  React.useEffect(() => { if (state.cycleDay) setSelectedDay(state.cycleDay); }, [state.cycleDay]);
 
-  const handleLogPeriod = () => {
-    if (selectedDate) {
-      onUpdateCycleConfig({
-        ...cycleConfig,
-        lastPeriodStartIso: selectedDate,
-      });
-      setShowPeriodForm(false);
-    }
+  const selectedPhase = state.available ? getPhaseForDay(selectedDay, state.cycleLength, state.periodLength) : null;
+  const guidance = selectedPhase ? RELATIONSHIP_GUIDANCE[selectedPhase] : null;
+  const selectedIso = state.cycleDay ? addDays(today, selectedDay - state.cycleDay) : today;
+
+  const logPeriod = () => {
+    const next = StorageService.logPeriodStart(selectedDate); setLogs(next);
+    const config = StorageService.saveCycleConfig({ ...cycleConfig, enabled: true, lastPeriodStartIso: selectedDate });
+    onUpdateCycleConfig(config); setShowLog(false);
+  };
+  const saveCheckin = () => {
+    const entry: CycleDailyCheckin = { id: `cycle-checkin-${Date.now()}`, dateIso: today, mood, energy, irritability, pain, need, note: note.trim() || undefined };
+    setCheckins(StorageService.saveCycleCheckin(entry)); setSaved(true); setTimeout(() => setSaved(false), 2200);
   };
 
-  if (!state.available) {
-    return (
-      <div className="pt-1 px-4 max-w-md mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mt-6 p-6 rounded-3xl bg-gradient-to-br from-rose-50 to-pink-50 dark:from-rose-950/40 dark:to-pink-950/30 border border-rose-200/60 dark:border-rose-900/40 text-center"
-        >
-          <Droplet className="mx-auto mb-3 text-rose-500" size={32} />
-          <h3 className="text-lg font-extrabold text-slate-900 dark:text-white mb-2">
-            ردیابی قاعدگی فعال نیست
-          </h3>
-          <p className="text-sm text-slate-600 dark:text-slate-300 mb-4">
-            برای شروع، ابتدای آخرین قاعدگی خود را ثبت کنید.
-          </p>
-        </motion.div>
+  if (!state.available) return (
+    <div className="max-w-md mx-auto px-5 pt-5 pb-28" dir="rtl">
+      <div className="relative overflow-hidden rounded-[2rem] bg-[oklch(95%_0.035_330)] dark:bg-slate-900 px-6 pt-8 pb-7 border border-[oklch(88%_0.04_330)] dark:border-slate-800">
+        <div className="absolute -left-10 -top-12 w-40 h-40 rounded-full bg-[oklch(83%_0.09_330)] opacity-50" />
+        <div className="relative">
+          <span className="inline-flex items-center gap-2 text-xs font-black text-[oklch(50%_0.12_330)] mb-5"><HeartHandshake size={16}/> رابطه آگاهانه‌تر</span>
+          <h1 className="text-3xl font-black text-slate-900 dark:text-white leading-tight mb-3">سیکل قاعدگی</h1>
+          <p className="text-sm leading-7 text-slate-600 dark:text-slate-300 mb-6">چرخه قرار نیست رفتارت را تعریف کند. کمک می‌کند الگوی خلق، انرژی و نیازهای رابطه‌ای خودت را بشناسی.</p>
+          <JalaliDatePicker value={selectedDate} onChange={setSelectedDate} labelFa="شروع آخرین قاعدگی" allowFuture={false} />
+          <button onClick={logPeriod} className="mt-4 w-full min-h-12 rounded-2xl bg-[oklch(50%_0.15_330)] hover:bg-[oklch(45%_0.15_330)] text-white font-black text-sm flex items-center justify-center gap-2 active:scale-[.98] transition-transform"><Sparkles size={17}/> شروع ردیابی</button>
+          <p className="mt-4 text-[11px] leading-5 text-slate-500 dark:text-slate-400 flex gap-2"><ShieldCheck size={15} className="shrink-0 mt-0.5"/>اطلاعات روی همین دستگاه ذخیره می‌شود. پیش‌بینی، جای تشخیص پزشکی نیست.</p>
+        </div>
       </div>
-    );
-  }
-
-  const currentPhaseColor = state.phase ? PHASE_COLORS[state.phase] : PHASE_COLORS.follicular;
+    </div>
+  );
 
   return (
-    <div className="pt-1 px-4 max-w-md mx-auto space-y-5">
-      {/* چرخهٔ رنگی */}
-      <motion.div
-        initial={{ opacity: 0, scale: 0.92 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="relative w-64 h-64 mx-auto"
-      >
-        <svg viewBox="0 0 200 200" className="w-full h-full drop-shadow-lg">
-          {PHASE_ORDER.map((phase, idx) => {
-            const startAngle = (idx * 360) / PHASE_ORDER.length;
-            const endAngle = startAngle + 360 / PHASE_ORDER.length;
-            const isCurrentPhase = phase === state.phase;
-            const phaseColor = PHASE_COLORS[phase];
-            const phaseColorValue = phaseColor.bg.replace('bg-', '').replace('dark:', '');
+    <div className="max-w-md mx-auto px-4 pt-2 pb-32 space-y-5" dir="rtl">
+      <header className="pt-2 px-1 flex items-end justify-between gap-4">
+        <div><p className="text-xs font-black text-[oklch(52%_0.13_330)] mb-1">بدن، خلق، رابطه</p><h1 className="text-2xl font-black text-slate-900 dark:text-white">سیکل قاعدگی</h1></div>
+        <button onClick={() => setShowLog(true)} className="min-h-11 px-4 rounded-2xl bg-[oklch(92%_0.04_330)] dark:bg-slate-800 text-[oklch(48%_0.13_330)] dark:text-pink-300 text-xs font-black flex items-center gap-2"><Plus size={16}/> ثبت شروع</button>
+      </header>
 
-            const start = polarToCartesian(100, 100, 85, endAngle);
-            const end = polarToCartesian(100, 100, 85, startAngle);
-            const largeArcFlag = 360 / PHASE_ORDER.length > 180 ? 1 : 0;
-            const pathData = [
-              `M ${start.x} ${start.y}`,
-              `A 85 85 0 ${largeArcFlag} 0 ${end.x} ${end.y}`,
-              `L 100 100`,
-            ].join(' ');
-
-            const colorMap: Record<string, string> = {
-              'red-600': '#dc2626',
-              'emerald-600': '#16a34a',
-              'amber-600': '#d97706',
-              'violet-600': '#7c3aed',
-            };
-
-            return (
-              <g key={phase}>
-                <path
-                  d={pathData}
-                  fill={colorMap[phaseColorValue] || '#ccc'}
-                  opacity={isCurrentPhase ? 1 : 0.6}
-                />
-                <text
-                  x={polarToCartesian(100, 100, 115, (startAngle + endAngle) / 2).x}
-                  y={polarToCartesian(100, 100, 115, (startAngle + endAngle) / 2).y}
-                  textAnchor="middle"
-                  dominantBaseline="middle"
-                  className="text-xs font-bold pointer-events-none"
-                  fill="#333"
-                >
-                  {PHASE_NAMES_FA[phase as keyof typeof PHASE_NAMES_FA].split(' ')[0]}
-                </text>
-              </g>
-            );
-          })}
-
-          <circle cx="100" cy="100" r="35" fill="white" />
-          <text x="100" y="90" textAnchor="middle" className="text-2xl font-black" fill="#000">
-            {state.cycleDay}
-          </text>
-          <text x="100" y="115" textAnchor="middle" className="text-xs" fill="#999">
-            روز
-          </text>
-        </svg>
-      </motion.div>
-
-      {/* معلومات فاز */}
-      <motion.div
-        initial={{ opacity: 0, y: 8 }}
-        animate={{ opacity: 1, y: 0 }}
-        className={`p-5 rounded-2xl border-2 ${currentPhaseColor.light} ${currentPhaseColor.text}`}
-      >
-        <div className="flex items-center gap-2 mb-2">
-          <Activity size={18} className="fill-current" />
-          <h3 className="text-lg font-extrabold">{state.phaseNameFa}</h3>
+      <section className="rounded-[2rem] bg-[oklch(97%_0.012_330)] dark:bg-slate-900 border border-[oklch(91%_0.02_330)] dark:border-slate-800 px-3 pt-2 pb-5 overflow-hidden">
+        <CycleWheel currentDay={state.cycleDay!} selectedDay={selectedDay} cycleLength={state.cycleLength} periodLength={state.periodLength} onSelectDay={setSelectedDay} />
+        <div className="px-3 -mt-3 flex items-center justify-between gap-3">
+          <div><p className="text-xs text-slate-500 dark:text-slate-400">{formatJalaliDate(selectedIso)}</p><p className="font-black text-slate-900 dark:text-white mt-1">{selectedPhase ? PHASE_LABEL[selectedPhase] : ''}</p></div>
+          <div className="text-left"><p className="text-[11px] text-slate-400">پریود بعدی</p><p className="text-xs font-black text-slate-700 dark:text-slate-200">{state.daysUntilNextPeriod ? `${toPersianDigits(state.daysUntilNextPeriod)} روز دیگر` : 'نامشخص'}</p></div>
         </div>
-        <p className="text-sm opacity-90 leading-relaxed mb-3">
-          {state.phase ? PHASE_DESCRIPTIONS_FA[state.phase] : ''}
-        </p>
-        {state.inPeriod && (
-          <div className="text-xs font-bold p-2 rounded-lg bg-white/40 dark:bg-black/20">
-            🩸 قاعدگی فعال است
-          </div>
-        )}
-        {state.inLuteal && (
-          <div className="text-xs font-bold p-2 rounded-lg bg-white/40 dark:bg-black/20">
-            ⚠️ فاز PMS
-          </div>
-        )}
-      </motion.div>
+      </section>
 
-      {/* پیش‌بینی */}
-      {state.nextPeriodDate && (
-        <motion.div
-          initial={{ opacity: 0, y: 8 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-2xl bg-slate-100/60 dark:bg-slate-800/60 border border-slate-200/60 dark:border-slate-700/60"
-        >
-          <div className="flex items-center gap-2 mb-1">
-            <Calendar size={16} className="text-amber-600 dark:text-amber-400" />
-            <span className="text-xs font-bold text-slate-600 dark:text-slate-300">پیش‌بینی</span>
-          </div>
-          <div className="text-sm font-extrabold text-slate-900 dark:text-white">
-            {state.nextPeriodDate}
-          </div>
-          <div className="text-xs text-slate-500 dark:text-slate-400">
-            {state.daysUntilPeriod} روز باقی‌مانده
-          </div>
-        </motion.div>
-      )}
+      <div className="flex gap-2 overflow-x-auto pb-1 no-scrollbar">
+        {(['menstrual','follicular','ovulation','luteal'] as MenstrualPhase[]).map((phase) => (
+          <button key={phase} onClick={() => { const d = Array.from({length: state.cycleLength}, (_,i)=>i+1).find(day => getPhaseForDay(day,state.cycleLength,state.periodLength)===phase); if(d) setSelectedDay(d); }} className={`shrink-0 min-h-10 px-4 rounded-full text-xs font-black border ${selectedPhase === phase ? 'bg-[oklch(35%_0.04_330)] text-white border-transparent' : 'bg-transparent text-slate-500 border-slate-200 dark:border-slate-700'}`}>{PHASE_LABEL[phase]}</button>
+        ))}
+      </div>
 
-      {/* فرم */}
-      {showPeriodForm && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-4 rounded-2xl bg-white dark:bg-slate-900 border-2 border-rose-200 dark:border-rose-900/60"
-        >
-          <label className="block text-xs font-bold text-slate-700 dark:text-slate-200 mb-2">
-            تاریخ شروع قاعدگی (YYYY-MM-DD):
-          </label>
-          <input
-            type="date"
-            value={selectedDate}
-            onChange={(e) => setSelectedDate(e.target.value)}
-            className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-600 dark:bg-slate-800 text-slate-900 dark:text-white text-sm mb-3"
-          />
-          <div className="flex gap-2">
-            <button
-              onClick={handleLogPeriod}
-              className="flex-1 px-3 py-2 rounded-xl bg-rose-600 dark:bg-rose-700 text-white text-xs font-bold transition-all active:scale-95 cursor-pointer"
-            >
-              ثبت
-            </button>
-            <button
-              onClick={() => setShowPeriodForm(false)}
-              className="flex-1 px-3 py-2 rounded-xl border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-300 text-xs font-bold transition-all active:scale-95 cursor-pointer"
-            >
-              انصراف
-            </button>
-          </div>
-        </motion.div>
-      )}
+      {guidance && <motion.section key={selectedPhase} initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="rounded-[1.75rem] p-5 text-white" style={{backgroundColor: guidance.color}}>
+        <div className="flex items-center gap-2 mb-3"><HeartHandshake size={19}/><h2 className="text-lg font-black">{guidance.headline}</h2></div>
+        <p className="text-sm leading-6 text-white/90 mb-5">{guidance.body}</p>
+        <div className="space-y-3 border-t border-white/20 pt-4"><p className="text-xs leading-6"><b>برای شریک:</b> {guidance.partnerTip}</p><p className="text-xs leading-6"><b>برای خودت:</b> {guidance.selfTip}</p></div>
+      </motion.section>}
 
-      {/* دکمه‌ها */}
-      {!showPeriodForm && (
-        <button
-          onClick={() => setShowPeriodForm(true)}
-          className="w-full py-3 rounded-2xl bg-rose-50 dark:bg-rose-950/40 border-2 border-rose-200 dark:border-rose-900/60 text-rose-600 dark:text-rose-400 font-bold flex items-center justify-center gap-2 transition-all active:scale-95 cursor-pointer text-sm"
-        >
-          <Plus size={18} />
-          ثبت قاعدگی
-        </button>
-      )}
+      <section className="rounded-[1.75rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 overflow-hidden">
+        <button onClick={() => setShowCheckin(!showCheckin)} className="w-full min-h-16 px-5 flex items-center gap-3 text-right"><span className="w-10 h-10 rounded-2xl bg-[oklch(93%_0.04_175)] text-[oklch(48%_0.1_175)] flex items-center justify-center"><Activity size={19}/></span><span className="flex-1"><b className="block text-sm text-slate-900 dark:text-white">حال امروزت را ثبت کن</b><small className="text-xs text-slate-500">الگوی شخصی از ثبت‌ها ساخته می‌شود</small></span><ChevronDown size={18} className={`text-slate-400 transition-transform ${showCheckin?'rotate-180':''}`}/></button>
+        <AnimatePresence>{showCheckin && <motion.div initial={{opacity:0,y:-8}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-8}} className="px-5 pb-5 space-y-5 border-t border-slate-100 dark:border-slate-800 pt-5">
+          <Scale label="خلق" value={mood} onChange={setMood}/><Scale label="انرژی" value={energy} onChange={setEnergy}/><Scale label="تحریک‌پذیری" value={irritability} onChange={setIrritability}/><Scale label="درد یا ناراحتی" value={pain} onChange={setPain}/>
+          <div><p className="text-xs font-black text-slate-700 dark:text-slate-200 mb-2">امروز بیشتر چه نیازی داری؟</p><div className="flex flex-wrap gap-2">{NEEDS.map(item=><button key={item.value} onClick={()=>setNeed(item.value)} className={`min-h-10 px-3 rounded-xl text-xs font-bold ${need===item.value?'bg-[oklch(50%_0.13_330)] text-white':'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300'}`}>{item.label}</button>)}</div></div>
+          <textarea value={note} onChange={e=>setNote(e.target.value)} rows={2} placeholder="یادداشت کوتاه، اختیاری" className="w-full rounded-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 p-3 text-sm focus-visible:ring-2 focus-visible:ring-pink-400"/>
+          <button onClick={saveCheckin} className="w-full min-h-12 rounded-2xl bg-[oklch(35%_0.04_330)] text-white font-black text-sm flex items-center justify-center gap-2">{saved?<><Check size={18}/> ثبت شد</>:<>ثبت حال امروز</>}</button>
+        </motion.div>}</AnimatePresence>
+      </section>
 
-      {cycleConfig.lastPeriodStartIso && (
-        <button
-          onClick={() => {
-            onUpdateCycleConfig({ ...cycleConfig, enabled: false, lastPeriodStartIso: undefined });
-          }}
-          className="w-full py-2 rounded-xl text-slate-500 dark:text-slate-400 text-xs font-bold flex items-center justify-center gap-1 hover:text-red-500 transition-colors cursor-pointer"
-        >
-          <Trash2 size={14} />
-          حذف ردیابی
-        </button>
-      )}
+      {getPersonalPattern(checkins) && <p className="rounded-2xl bg-[oklch(95%_0.025_80)] dark:bg-amber-950/30 p-4 text-xs leading-6 text-slate-700 dark:text-slate-200"><Info size={16} className="inline ml-2 text-amber-600"/>{getPersonalPattern(checkins)}</p>}
+
+      <section className="px-1"><div className="flex items-center justify-between mb-3"><h2 className="text-sm font-black text-slate-900 dark:text-white">دقت پیش‌بینی</h2><span className="text-[11px] font-bold text-slate-500">{CONFIDENCE[state.confidence]}</span></div><div className="h-2 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden"><div className="h-full rounded-full bg-[oklch(59%_0.10_175)]" style={{width:`${state.confidence==='high'?100:state.confidence==='medium'?70:state.confidence==='low'?40:18}%`}}/></div><p className="mt-2 text-[11px] leading-5 text-slate-500">با ثبت حداقل ۳ تا ۶ شروع قاعدگی، پیش‌بینی بر اساس میانه چرخه‌های خودت تنظیم می‌شود.{state.irregular?' پراکندگی ثبت‌ها بالاست، بنابراین بازه پیش‌بینی مهم‌تر از یک روز دقیق است.':''}</p></section>
+
+      <AnimatePresence>{showLog && <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-[60] bg-slate-950/45 p-4 flex items-end sm:items-center justify-center" onClick={()=>setShowLog(false)}><motion.div initial={{y:30}} animate={{y:0}} exit={{y:30}} onClick={e=>e.stopPropagation()} className="w-full max-w-sm rounded-[2rem] bg-[oklch(98%_0.008_330)] dark:bg-slate-900 p-5"><h3 className="text-lg font-black text-slate-900 dark:text-white mb-1">شروع قاعدگی</h3><p className="text-xs text-slate-500 mb-5">تاریخ واقعی شروع خون‌ریزی را انتخاب کن.</p><JalaliDatePicker value={selectedDate} onChange={setSelectedDate} allowFuture={false} inline/><button onClick={logPeriod} className="mt-4 w-full min-h-12 rounded-2xl bg-[oklch(50%_0.15_330)] text-white font-black">ثبت در تاریخچه</button>{logs.length>0&&<div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 space-y-2">{logs.slice(0,4).map(log=><div key={log.id} className="flex items-center justify-between text-xs"><span>{formatJalaliDate(log.startIso)}</span><button onClick={()=>setLogs(StorageService.deletePeriodLog(log.id))} className="w-9 h-9 rounded-xl text-slate-400 hover:text-rose-500"><Trash2 size={15}/></button></div>)}</div>}</motion.div></motion.div>}</AnimatePresence>
     </div>
   );
 };
 
-function polarToCartesian(
-  centerX: number,
-  centerY: number,
-  radius: number,
-  angleInDegrees: number
-) {
-  const angleInRadians = ((angleInDegrees - 90) * Math.PI) / 180.0;
-  return {
-    x: centerX + radius * Math.cos(angleInRadians),
-    y: centerY + radius * Math.sin(angleInRadians),
-  };
-}
+const Scale = ({label,value,onChange}:{label:string;value:number;onChange:(value:number)=>void}) => <div><div className="flex justify-between mb-2"><span className="text-xs font-black text-slate-700 dark:text-slate-200">{label}</span><span className="text-xs text-slate-400">{toPersianDigits(value)} از ۵</span></div><div className="grid grid-cols-5 gap-2">{[1,2,3,4,5].map(item=><button key={item} onClick={()=>onChange(item)} className={`aspect-square rounded-xl text-xs font-black ${item<=value?'bg-[oklch(65%_0.11_330)] text-white':'bg-slate-100 dark:bg-slate-800 text-slate-400'}`}>{toPersianDigits(item)}</button>)}</div></div>;

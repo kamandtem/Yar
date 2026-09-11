@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { MenstrualCycleConfig,  ActiveTab, UserPreferences, Article, Exercise, Journey, PerspectiveCase } from './types';
 import { StorageService } from './services/storage';
 import { applySystemBars } from './native/systemBars';
@@ -42,11 +42,7 @@ export default function App() {
   const [onboardingStep, setOnboardingStep] = useState<'flow' | 'modal' | 'done'>('flow');
   const [showSplash, setShowSplash] = useState(true);
   const [activeTab, setActiveTab] = useState<ActiveTab>('home');
-  const [cycleConfig, setCycleConfig] = useState<MenstrualCycleConfig>(() => ({
-    enabled: false,
-    cycleLengthDays: 28,
-    periodLengthDays: 5,
-  }));
+  const [cycleConfig, setCycleConfig] = useState<MenstrualCycleConfig>(() => StorageService.getCycleConfig());
 
   const [preferences, setPreferences] = useState<UserPreferences>(() =>
     StorageService.getPreferences()
@@ -124,6 +120,36 @@ export default function App() {
   useEffect(() => {
     const timer = window.setTimeout(() => setShowSplash(false), 1700);
     return () => window.clearTimeout(timer);
+  }, []);
+
+  // Back button: close the deepest open surface first, then return to home.
+  const navigationRef = useRef({ activeArticle, activeExercise, activeJourney, activePerspective, isSOSOpen, isMenuExpanded, isDrawerOpen, onboardingStep, isOnboardingOpen, activeTab });
+  navigationRef.current = { activeArticle, activeExercise, activeJourney, activePerspective, isSOSOpen, isMenuExpanded, isDrawerOpen, onboardingStep, isOnboardingOpen, activeTab };
+  useEffect(() => {
+    window.history.pushState({ yar: true }, '', window.location.href);
+    let lastBackAt = 0;
+    const handleBack = () => {
+      const now = Date.now();
+      const n = navigationRef.current;
+      if (n.activeArticle) { setActiveArticle(null); window.history.pushState({ yar: true }, '', window.location.href); return; }
+      if (n.activeExercise) { setActiveExercise(null); window.history.pushState({ yar: true }, '', window.location.href); return; }
+      if (n.activeJourney) { setActiveJourney(null); window.history.pushState({ yar: true }, '', window.location.href); return; }
+      if (n.activePerspective) { setActivePerspective(null); window.history.pushState({ yar: true }, '', window.location.href); return; }
+      if (n.isSOSOpen) { setIsSOSOpen(false); window.history.pushState({ yar: true }, '', window.location.href); return; }
+      if (n.isMenuExpanded) { setIsMenuExpanded(false); window.history.pushState({ yar: true }, '', window.location.href); return; }
+      if (n.isDrawerOpen) { setIsDrawerOpen(false); window.history.pushState({ yar: true }, '', window.location.href); return; }
+      if (n.onboardingStep === 'modal' && n.isOnboardingOpen) return;
+      if (n.activeTab !== 'home') { setActiveTab('home'); window.history.pushState({ yar: true }, '', window.location.href); return; }
+      if (now - lastBackAt < 1800) {
+        if (window.confirm('می‌خواهید از یار خارج شوید؟')) window.location.href = 'about:blank';
+      } else {
+        lastBackAt = now;
+        window.history.pushState({ yar: true }, '', window.location.href);
+        window.alert('برای خروج، یک‌بار دیگر دکمه برگشت را بزنید.');
+      }
+    };
+    window.addEventListener('popstate', handleBack);
+    return () => window.removeEventListener('popstate', handleBack);
   }, []);
 
   if (showSplash) {
@@ -276,7 +302,7 @@ export default function App() {
         {activeTab === 'cycle' && (
           <CycleTab
             cycleConfig={cycleConfig}
-            onUpdateCycleConfig={setCycleConfig}
+            onUpdateCycleConfig={(config) => setCycleConfig(StorageService.saveCycleConfig(config))}
           />
         )}
 
@@ -345,6 +371,10 @@ export default function App() {
       <OnboardingModal
         isOpen={onboardingStep === 'modal' && isOnboardingOpen}
         onComplete={handleOnboardingComplete}
+        onCycleSetup={(config) => {
+          StorageService.logPeriodStart(config.lastPeriodStartIso!);
+          setCycleConfig(StorageService.saveCycleConfig(config));
+        }}
       />
 
       <ConflictSOSModal

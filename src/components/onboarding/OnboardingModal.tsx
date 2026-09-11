@@ -1,395 +1,67 @@
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
-import { AppIcon } from '../common/AppIcon';
-import { RelationshipStage, PriorityTopic, UserPreferences } from '../../types';
-import { ArrowLeft, Check, Sparkles, Heart, Users, Compass } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
+import { ArrowRight, Check, ChevronLeft, HeartHandshake, MoonStar, Sparkles, UserRound, UsersRound } from 'lucide-react';
+import { MenstrualCycleConfig, PriorityTopic, RelationshipStage, UserPreferences } from '../../types';
+import { JalaliDatePicker } from '../common/JalaliDatePicker';
+import { getTodayIsoDate } from '../../services/jalali';
 
-interface OnboardingModalProps {
-  isOpen: boolean;
-  onComplete: (prefs: Partial<UserPreferences>) => void;
-}
-
-const STAGES_LIST: { id: RelationshipStage; label: string; desc: string }[] = [
-  { id: 'engaged', label: 'دوران نامزدی یا آشنایی', desc: 'در آستانه شروع زندگی مشترک' },
-  { id: 'newlywed', label: 'تازه ازدواج کرده‌ایم', desc: 'ماه‌های ابتدایی زندگی زیر یک سقف' },
-  { id: 'under_1_year', label: 'کمتر از ۱ سال', desc: 'در حال تطبیق با عادات و روال‌ها' },
-  { id: '1_to_3_years', label: '۱ تا ۳ سال', desc: 'تثبیت پیوند و مواجهه با اولین چالش‌ها' },
-  { id: 'over_3_years', label: 'بیشتر از ۳ سال', desc: 'تعمیق صمیمیت و احیای طراوت رابطه' },
-  { id: 'solo', label: 'استفاده فردی', desc: 'می‌خواهم روی مهارت‌های عاطفی خودم کار کنم' }
+interface Props { isOpen: boolean; onComplete: (prefs: Partial<UserPreferences>) => void; onCycleSetup?: (config: MenstrualCycleConfig) => void; }
+const STAGES: { id: RelationshipStage; label: string; caption: string }[] = [
+  { id:'engaged', label:'آشنایی یا نامزدی', caption:'در حال شناخت و ساختن پایه‌ها' },
+  { id:'newlywed', label:'تازه ازدواج کرده‌ایم', caption:'شروع زندگی زیر یک سقف' },
+  { id:'under_1_year', label:'کمتر از یک سال', caption:'هماهنگ‌شدن با عادت‌ها' },
+  { id:'1_to_3_years', label:'یک تا سه سال', caption:'رشد میان اولین چالش‌ها' },
+  { id:'over_3_years', label:'بیشتر از سه سال', caption:'تعمیق و تازه‌کردن رابطه' },
+  { id:'solo', label:'فعلاً فردی', caption:'رشد مهارت‌های عاطفی خودم' },
+];
+const TOPICS: { id: PriorityTopic; label: string; emoji: string }[] = [
+  {id:'communication',label:'گفت‌وگوی بهتر',emoji:'💬'},{id:'conflict',label:'مدیریت تنش',emoji:'🫶'},{id:'intimacy',label:'صمیمیت',emoji:'❤️'},
+  {id:'trust',label:'اعتماد و امنیت',emoji:'🤝'},{id:'self_awareness',label:'خودشناسی',emoji:'🪞'},{id:'sexuality',label:'رابطه جنسی سالم',emoji:'🌿'},
+  {id:'family',label:'مرز با خانواده',emoji:'🏡'},{id:'finances',label:'پول و آینده',emoji:'🧭'},{id:'parenting',label:'فرزندپروری',emoji:'🌱'},
+];
+const GENDERS: { id: NonNullable<UserPreferences['gender']>; label: string; icon: React.ReactNode }[] = [
+  {id:'female',label:'خانم هستم',icon:<UserRound size={18}/>},{id:'male',label:'آقا هستم',icon:<UserRound size={18}/>},{id:'other',label:'گزینه دیگر',icon:<UsersRound size={18}/>},{id:'prefer_not',label:'ترجیح می‌دهم نگویم',icon:<HeartHandshake size={18}/>},
 ];
 
-const TOPICS_LIST: { id: PriorityTopic; label: string }[] = [
-  { id: 'communication', label: 'ارتباط و گفت‌وگوی مؤثر' },
-  { id: 'conflict', label: 'کاهش دعوا و تنش' },
-  { id: 'intimacy', label: 'صمیمیت عاطفی' },
-  { id: 'trust', label: 'اعتماد و امنیت' },
-  { id: 'self_awareness', label: 'خودشناسی و الگوها' },
-  { id: 'trauma', label: 'تروما و تجربه‌های گذشته' },
-  { id: 'sexuality', label: 'رابطه جنسی سالم' },
-  { id: 'family', label: 'مرزبندی با خانواده‌ها' },
-  { id: 'finances', label: 'مسائل مالی و آینده' },
-  { id: 'parenting', label: 'فرزندآوری و فرزندپروری' }
-];
-
-export const OnboardingModal: React.FC<OnboardingModalProps> = ({ isOpen, onComplete }) => {
-  const [step, setStep] = useState<number>(1);
-  const [stage, setStage] = useState<RelationshipStage | null>(null);
-  const [selectedTopics, setSelectedTopics] = useState<PriorityTopic[]>([]);
-  const [userName, setUserName] = useState('');
-  const [partnerName, setPartnerName] = useState('');
-  const [anniversaryDate, setAnniversaryDate] = useState('');
-
-  useEffect(() => {
-    if (!isOpen) return;
-    setStep(1);
-    setStage(null);
-    setSelectedTopics([]);
-    setUserName('');
-    setPartnerName('');
-    setAnniversaryDate('');
-  }, [isOpen]);
-
-  if (!isOpen) return null;
-
-  const toggleTopic = (topic: PriorityTopic) => {
-    if (selectedTopics.includes(topic)) {
-      if (selectedTopics.length > 1) {
-        setSelectedTopics(selectedTopics.filter((t) => t !== topic));
-      }
-    } else {
-      setSelectedTopics([...selectedTopics, topic]);
-    }
+export const OnboardingModal: React.FC<Props> = ({ isOpen, onComplete, onCycleSetup }) => {
+  const [step,setStep]=useState(1); const [stage,setStage]=useState<RelationshipStage|null>(null); const [topics,setTopics]=useState<PriorityTopic[]>([]);
+  const [userName,setUserName]=useState(''); const [partnerName,setPartnerName]=useState(''); const [anniversaryDate,setAnniversaryDate]=useState('');
+  const [gender,setGender]=useState<UserPreferences['gender']>(); const [trackCycle,setTrackCycle]=useState(false); const [lastPeriod,setLastPeriod]=useState(getTodayIsoDate());
+  useEffect(()=>{if(!isOpen)return;setStep(1);setStage(null);setTopics([]);setUserName('');setPartnerName('');setAnniversaryDate('');setGender(undefined);setTrackCycle(false);setLastPeriod(getTodayIsoDate());},[isOpen]);
+  if(!isOpen)return null;
+  const canNext=step===1?!!stage:step===2?topics.length>0:true;
+  const next=()=>{if(canNext)setStep(value=>Math.min(4,value+1));};
+  const finish=()=>{
+    if(!stage||!topics.length)return;
+    if(gender==='female'&&trackCycle&&lastPeriod) onCycleSetup?.({enabled:true,cycleLengthDays:28,periodLengthDays:5,pmsStartDaysBefore:7,lastPeriodStartIso:lastPeriod});
+    onComplete({hasCompletedOnboarding:true,relationshipStage:stage,priorityTopics:topics,userName:userName.trim()||undefined,partnerName:stage==='solo'?undefined:partnerName.trim()||undefined,anniversaryDate:stage==='solo'?undefined:anniversaryDate||undefined,gender});
   };
-
-  const handleFinish = () => {
-    if (!stage || selectedTopics.length === 0) return;
-    onComplete({
-      hasCompletedOnboarding: true,
-      relationshipStage: stage,
-      priorityTopics: selectedTopics,
-      userName: userName.trim() || undefined,
-      partnerName: stage === 'solo' ? undefined : partnerName.trim() || undefined,
-      anniversaryDate: stage === 'solo' ? undefined : anniversaryDate.trim() || undefined
-    });
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-md">
-      <div className="relative w-full max-w-md bg-[#FBF8F3] dark:bg-[#1A1E22] rounded-3xl p-6 sm:p-7 shadow-2xl border border-[#EBE1D7] dark:border-neutral-800 max-h-[90vh] overflow-y-auto">
+  return <div className="fixed inset-0 z-[60] bg-[oklch(98%_0.008_330)] dark:bg-slate-950 overflow-y-auto" dir="rtl">
+    <div className="min-h-full max-w-md mx-auto flex flex-col px-5 pt-[calc(env(safe-area-inset-top)+1rem)] pb-[calc(env(safe-area-inset-bottom)+1rem)]">
+      <header className="flex items-center gap-4 min-h-14"><button onClick={()=>step>1&&setStep(step-1)} disabled={step===1} className="w-11 h-11 rounded-2xl bg-[oklch(94%_0.015_330)] dark:bg-slate-900 text-slate-500 flex items-center justify-center disabled:opacity-0"><ArrowRight size={19}/></button><div className="flex-1 flex gap-1.5">{[1,2,3,4].map(item=><span key={item} className={`h-1.5 flex-1 rounded-full ${item<=step?'bg-[oklch(54%_0.14_330)]':'bg-[oklch(91%_0.015_330)] dark:bg-slate-800'}`}/>)}</div><span className="text-xs font-black text-slate-400">{step}/۴</span></header>
+      <main className="flex-1 pt-7 pb-6">
         <AnimatePresence mode="wait">
-          {/* Slide 1: Welcome */}
-          {step === 1 && (
-            <motion.div
-              key="step-1"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              className="text-center py-5 flex flex-col items-center"
-            >
-              <AppIcon size={84} rounded={true} className="mb-6 shadow-md" />
-              <h1 className="text-3xl font-extrabold text-[#1E2224] dark:text-[#F3F4F6] mb-2">
-                یار
-              </h1>
-              <p className="text-base text-[#707B84] dark:text-[#9CA3AF] font-medium max-w-xs mb-8">
-                یک همراه علمی و محترمانه برای رابطه‌ای آگاهانه‌تر و ماندگار
-              </p>
-
-              <div className="w-full bg-[#F3EBE1] dark:bg-neutral-800/60 p-4 rounded-2xl mb-8 text-right border border-[#E8DDCF] dark:border-neutral-700/60">
-                <p className="text-xs text-[#525B62] dark:text-[#CBD5E1] leading-relaxed">
-                  «یار قرار نیست به تو یاد بدهد چطور همسرت را تغییر بدهی؛ کمک می‌کند خودت، رابطه‌ات و آدم روبه‌رویت را بهتر بفهمی.»
-                </p>
-              </div>
-
-              <button
-                id="onboarding-next-1"
-                onClick={() => setStep(2)}
-                className="w-full py-3.5 px-6 rounded-2xl bg-[#C2413C] text-white font-semibold text-sm hover:bg-[#B13732] active:scale-98 transition-all shadow-md flex items-center justify-center gap-2"
-              >
-                <span>شروع آشنایی</span>
-                <ArrowLeft size={16} />
-              </button>
-            </motion.div>
-          )}
-
-          {/* Slide 2: Three core pillars */}
-          {step === 2 && (
-            <motion.div
-              key="step-2"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              className="py-3"
-            >
-              <div className="text-center mb-6">
-                <span className="text-xs font-semibold text-[#C2413C] dark:text-[#F87171] uppercase tracking-wider">
-                  سه اصل ساده یار
-                </span>
-                <h2 className="text-xl font-bold text-[#1E2224] dark:text-[#F3F4F6] mt-1">
-                  چگونه پیش می‌رویم؟
-                </h2>
-              </div>
-
-              <div className="space-y-3.5 mb-8">
-                <div className="p-4 rounded-2xl bg-white dark:bg-neutral-800/80 border border-[#EBE1D7] dark:border-neutral-700/60 flex items-start gap-3.5">
-                  <div className="p-2 rounded-xl bg-[#FFF1EB] dark:bg-[#3D251D] text-[#C2413C] dark:text-[#F87171] shrink-0 mt-0.5">
-                    <Heart size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-[#1E2224] dark:text-[#F3F4F6]">
-                      ۱. خودت را بهتر بشناس
-                    </h3>
-                    <p className="text-xs text-[#6F7981] dark:text-[#9CA3AF] mt-1 leading-relaxed">
-                      شناخت الگوهای دلبستگی، محرک‌های عصبی (Triggers) و زخم‌هایی که ناخواسته به امروز می‌آوریم.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white dark:bg-neutral-800/80 border border-[#EBE1D7] dark:border-neutral-700/60 flex items-start gap-3.5">
-                  <div className="p-2 rounded-xl bg-[#EBF3ED] dark:bg-[#1E3024] text-[#4E6B58] dark:text-[#86EFAC] shrink-0 mt-0.5">
-                    <Users size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-[#1E2224] dark:text-[#F3F4F6]">
-                      ۲. همدیگر را عمیق‌تر بفهمید
-                    </h3>
-                    <p className="text-xs text-[#6F7981] dark:text-[#9CA3AF] mt-1 leading-relaxed">
-                      رمزگشایی نیازهای زیرینِ خشم و سکوت، بدون پیش‌داوری و با لنز دو دیدگاه متفاوت.
-                    </p>
-                  </div>
-                </div>
-
-                <div className="p-4 rounded-2xl bg-white dark:bg-neutral-800/80 border border-[#EBE1D7] dark:border-neutral-700/60 flex items-start gap-3.5">
-                  <div className="p-2 rounded-xl bg-[#EFF4F8] dark:bg-[#1E2B38] text-[#3D5A80] dark:text-[#93C5FD] shrink-0 mt-0.5">
-                    <Compass size={20} />
-                  </div>
-                  <div>
-                    <h3 className="text-sm font-bold text-[#1E2224] dark:text-[#F3F4F6]">
-                      ۳. هر روز یک قدم ۵ دقیقه‌ای
-                    </h3>
-                    <p className="text-xs text-[#6F7981] dark:text-[#9CA3AF] mt-1 leading-relaxed">
-                      بدون نیاز به ساعت‌ها وقت؛ تمرین‌های کوتاه روزانه برای ساختن بانک پس‌انداز عاطفی.
-                    </p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setStep(1)}
-                  className="py-3 px-4 rounded-xl border border-[#D5CBC1] dark:border-neutral-700 text-[#555E65] dark:text-[#9CA3AF] text-sm font-medium"
-                >
-                  بازگشت
-                </button>
-                <button
-                  id="onboarding-next-2"
-                  onClick={() => setStep(3)}
-                  className="flex-1 py-3 px-6 rounded-xl bg-[#C2413C] text-white font-semibold text-sm hover:bg-[#B13732] transition-all flex items-center justify-center gap-2"
-                >
-                  <span>شخصی‌سازی مسیر من</span>
-                  <ArrowLeft size={16} />
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Slide 3: Relationship Stage */}
-          {step === 3 && (
-            <motion.div
-              key="step-3"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              className="py-3"
-            >
-              <div className="text-center mb-5">
-                <span className="text-xs font-semibold text-[#4E6B58] dark:text-[#86EFAC]">
-                  قدم اول
-                </span>
-                <h2 className="text-lg font-bold text-[#1E2224] dark:text-[#F3F4F6] mt-0.5">
-                  رابطه شما در چه مرحله‌ای است؟
-                </h2>
-                <p className="text-xs text-[#7A858C] dark:text-[#9CA3AF] mt-1">
-                  محتوا متناسب با نیازهای همین مرحله چیده می‌شود.
-                </p>
-              </div>
-
-              <div className="space-y-2.5 mb-7">
-                {STAGES_LIST.map((item) => {
-                  const isSelected = stage === item.id;
-                  return (
-                    <button
-                      key={item.id}
-                      onClick={() => setStage(item.id)}
-                      className={`w-full p-3.5 rounded-2xl text-right border transition-all flex items-center justify-between ${
-                        isSelected
-                          ? 'border-[#C2413C] bg-[#FFF4F3] dark:bg-[#2D1A18] text-[#1E2224] dark:text-[#F3F4F6]'
-                          : 'border-[#E8DDCF] dark:border-neutral-800 bg-white dark:bg-neutral-800/60 hover:bg-[#FAF5EE] dark:hover:bg-neutral-800'
-                      }`}
-                    >
-                      <div>
-                        <div className="text-xs font-bold">{item.label}</div>
-                        <div className="text-[11px] text-[#7A858C] dark:text-[#9CA3AF] mt-0.5">
-                          {item.desc}
-                        </div>
-                      </div>
-                      <div
-                        className={`w-5 h-5 rounded-full border flex items-center justify-center shrink-0 ${
-                          isSelected
-                            ? 'border-[#C2413C] bg-[#C2413C] text-white'
-                            : 'border-[#C7BDAD] dark:border-neutral-600'
-                        }`}
-                      >
-                        {isSelected && <Check size={12} />}
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setStep(2)}
-                  className="py-3 px-4 rounded-xl border border-[#D5CBC1] dark:border-neutral-700 text-[#555E65] dark:text-[#9CA3AF] text-sm font-medium"
-                >
-                  قبلی
-                </button>
-                <button
-                  id="onboarding-next-3"
-                  onClick={() => setStep(4)}
-                  className="flex-1 py-3 px-6 rounded-xl bg-[#C2413C] text-white font-semibold text-sm hover:bg-[#B13732] transition-all flex items-center justify-center gap-2"
-                >
-                  <span>ادامه</span>
-                  <ArrowLeft size={16} />
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Slide 4: Priority Topics */}
-          {step === 4 && (
-            <motion.div
-              key="step-4"
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -15 }}
-              className="py-3"
-            >
-              <div className="text-center mb-5">
-                <span className="text-xs font-semibold text-[#D97D7A]">
-                  قدم دوم
-                </span>
-                <h2 className="text-lg font-bold text-[#1E2224] dark:text-[#F3F4F6] mt-0.5">
-                  دوست داری بیشتر روی چه چیزی کار کنی؟
-                </h2>
-                <p className="text-xs text-[#7A858C] dark:text-[#9CA3AF] mt-1">
-                  می‌توانی چند گزینه را انتخاب کنی (حداقل ۱ مورد).
-                </p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-2 mb-7">
-                {TOPICS_LIST.map((topic) => {
-                  const isSelected = selectedTopics.includes(topic.id);
-                  return (
-                    <button
-                      key={topic.id}
-                      onClick={() => toggleTopic(topic.id)}
-                      className={`p-3 rounded-xl text-right text-xs font-semibold border transition-all flex items-center justify-between ${
-                        isSelected
-                          ? 'border-[#C2413C] bg-[#FFF2F1] dark:bg-[#331C1A] text-[#C2413C] dark:text-[#FCA5A5]'
-                          : 'border-[#E8DDCF] dark:border-neutral-800 bg-white dark:bg-neutral-800/60 text-[#4E565D] dark:text-[#D1D5DB] hover:bg-[#FAF5EE]'
-                      }`}
-                    >
-                      <span className="leading-snug">{topic.label}</span>
-                      {isSelected && <Check size={13} className="shrink-0 text-[#C2413C] dark:text-[#FCA5A5]" />}
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Optional Partner and User Name */}
-              <div className="mb-6 p-3.5 rounded-2xl bg-[#F6EEE4] dark:bg-neutral-800/60 border border-[#E8DDCF] dark:border-neutral-700/60">
-                <label className="block text-[11px] font-bold text-[#555E65] dark:text-[#CBD5E1] mb-1.5">
-                  نام اختیاری شما و شریکتان (برای متن‌های شخصی‌تر):
-                </label>
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    value={userName}
-                    onChange={(e) => setUserName(e.target.value)}
-                    placeholder="نام شما"
-                    className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-[#D5CBC1] dark:border-neutral-700 focus:outline-none focus:border-[#C2413C]"
-                  />
-                  {stage !== 'solo' && (
-                    <input
-                      type="text"
-                      value={partnerName}
-                      onChange={(e) => setPartnerName(e.target.value)}
-                      placeholder="نام همراه شما"
-                      className="w-full px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-[#D5CBC1] dark:border-neutral-700 focus:outline-none focus:border-[#C2413C]"
-                    />
-                  )}
-                </div>
-                {stage !== 'solo' && (
-                  <input
-                    type="text"
-                    value={anniversaryDate}
-                    onChange={(e) => setAnniversaryDate(e.target.value)}
-                    placeholder="تاریخ آشنایی یا سالگرد (اختیاری)"
-                    className="w-full mt-2 px-3 py-2 text-xs rounded-xl bg-white dark:bg-neutral-900 border border-[#D5CBC1] dark:border-neutral-700 focus:outline-none focus:border-[#C2413C]"
-                  />
-                )}
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setStep(3)}
-                  className="py-3 px-4 rounded-xl border border-[#D5CBC1] dark:border-neutral-700 text-[#555E65] dark:text-[#9CA3AF] text-sm font-medium"
-                >
-                  قبلی
-                </button>
-                <button
-                  id="onboarding-next-4"
-                  onClick={() => selectedTopics.length > 0 && setStep(5)}
-                  disabled={selectedTopics.length === 0}
-                  className="flex-1 py-3 px-6 rounded-xl bg-[#C2413C] disabled:bg-[#C9BDB5] disabled:cursor-not-allowed text-white font-semibold text-sm hover:bg-[#B13732] transition-all flex items-center justify-center gap-2"
-                >
-                  <span>تأیید و ساخت مسیر</span>
-                  <Sparkles size={16} />
-                </button>
-              </div>
-            </motion.div>
-          )}
-
-          {/* Slide 5: Ready Message */}
-          {step === 5 && (
-            <motion.div
-              key="step-5"
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              className="text-center py-6 flex flex-col items-center"
-            >
-              <div className="w-16 h-16 rounded-full bg-[#EBF3ED] dark:bg-[#1E3024] flex items-center justify-center text-[#4E6B58] dark:text-[#86EFAC] mb-4">
-                <Sparkles size={32} />
-              </div>
-
-              <h2 className="text-2xl font-black text-[#1E2224] dark:text-[#F3F4F6] mb-2">
-                مسیر اولیه یار برای تو آماده شد
-              </h2>
-              <p className="text-xs text-[#6B757C] dark:text-[#9CA3AF] leading-relaxed max-w-xs mb-8">
-                هر روز با یک پیشنهاد کوتاه، یک تمرین ساده یا یک سؤال دونفره همراهت هستیم. آرام و بدون شتاب، با هم پیش می‌رویم.
-              </p>
-
-              <button
-                id="onboarding-finish-btn"
-                onClick={handleFinish}
-                className="w-full py-3.5 px-6 rounded-2xl bg-[#C2413C] text-white font-bold text-sm hover:bg-[#B13732] transition-all shadow-lg active:scale-98"
-              >
-                ورود به خانه یار
-              </button>
-            </motion.div>
-          )}
+          {step===1&&<Page key="stage" eyebrow="از همین‌جا شروع کنیم" title="رابطه‌ات الان کجای مسیر است؟" subtitle="این انتخاب فقط ترتیب پیشنهادها را بهتر می‌کند.">
+            <div className="space-y-2.5">{STAGES.map(item=><Choice key={item.id} active={stage===item.id} onClick={()=>setStage(item.id)} title={item.label} caption={item.caption}/>)}</div>
+          </Page>}
+          {step===2&&<Page key="topics" eyebrow="اولویت تو" title="دوست داری چه چیزی بهتر شود؟" subtitle="یک یا چند موضوع را انتخاب کن. بعداً قابل تغییر است.">
+            <div className="grid grid-cols-2 gap-3">{TOPICS.map(item=>{const active=topics.includes(item.id);return <button key={item.id} onClick={()=>setTopics(active?topics.filter(x=>x!==item.id):[...topics,item.id])} className={`relative min-h-[6.5rem] rounded-[1.5rem] p-4 text-right border transition-transform active:scale-[.97] ${active?'bg-[oklch(91%_0.045_330)] border-[oklch(72%_0.10_330)]':'bg-white dark:bg-slate-900 border-[oklch(91%_0.015_330)] dark:border-slate-800'}`}><span className="text-2xl">{item.emoji}</span><b className="block mt-3 text-sm text-slate-900 dark:text-white">{item.label}</b>{active&&<span className="absolute top-3 left-3 w-6 h-6 rounded-full bg-[oklch(52%_0.14_330)] text-white flex items-center justify-center"><Check size={14}/></span>}</button>})}</div>
+          </Page>}
+          {step===3&&<Page key="profile" eyebrow="شخصی‌سازی" title="یار تو را چطور بشناسد؟" subtitle="همه موارد این صفحه اختیاری‌اند.">
+            <div className="space-y-5"><div className="grid grid-cols-2 gap-3"><Field label="نام تو" value={userName} onChange={setUserName} placeholder="مثلاً سارا"/>{stage!=='solo'&&<Field label="نام همراه" value={partnerName} onChange={setPartnerName} placeholder="مثلاً علی"/>}</div>
+              {stage!=='solo'&&<JalaliDatePicker value={anniversaryDate} onChange={setAnniversaryDate} labelFa="تاریخ آشنایی یا سالگرد" allowFuture={false}/>}<div><label className="text-sm font-black text-slate-700 dark:text-slate-200 block mb-2">برای پیشنهادهای مرتبط‌تر</label><div className="grid grid-cols-2 gap-2">{GENDERS.map(item=><button key={item.id} onClick={()=>setGender(item.id)} className={`min-h-12 px-3 rounded-2xl flex items-center gap-2 text-xs font-bold border ${gender===item.id?'bg-[oklch(91%_0.045_330)] border-[oklch(70%_0.10_330)] text-[oklch(43%_0.13_330)]':'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-600 dark:text-slate-300'}`}>{item.icon}{item.label}</button>)}</div></div>
+              {gender==='female'&&<div className="rounded-[1.75rem] bg-[oklch(94%_0.035_330)] dark:bg-pink-950/20 p-4 border border-[oklch(87%_0.045_330)] dark:border-pink-900/30"><button onClick={()=>setTrackCycle(!trackCycle)} className="w-full flex items-center gap-3 text-right"><span className="w-11 h-11 rounded-2xl bg-[oklch(55%_0.14_330)] text-white flex items-center justify-center"><MoonStar size={20}/></span><span className="flex-1"><b className="block text-sm text-slate-900 dark:text-white">سیکل قاعدگی را هم دنبال کن</b><small className="text-[11px] leading-5 text-slate-500">برای شناخت الگوی خلق، انرژی و نیاز به نزدیکی یا فضا</small></span><span className={`w-11 h-6 rounded-full p-1 ${trackCycle?'bg-[oklch(55%_0.14_330)]':'bg-slate-300 dark:bg-slate-700'}`}><span className={`block w-4 h-4 rounded-full bg-white transition-transform ${trackCycle?'-translate-x-5':''}`}/></span></button>{trackCycle&&<div className="mt-4 pt-4 border-t border-[oklch(84%_0.04_330)]"><JalaliDatePicker value={lastPeriod} onChange={setLastPeriod} labelFa="شروع آخرین قاعدگی" allowFuture={false}/></div>}</div>}
+            </div>
+          </Page>}
+          {step===4&&<motion.div key="ready" initial={{opacity:0,y:18}} animate={{opacity:1,y:0}} exit={{opacity:0,y:-10}} className="pt-10 text-center"><div className="relative w-28 h-28 mx-auto mb-8"><div className="absolute inset-0 rounded-[2.2rem] bg-[oklch(90%_0.06_330)] rotate-6"/><div className="absolute inset-2 rounded-[1.9rem] bg-[oklch(52%_0.14_330)] text-white flex items-center justify-center"><Sparkles size={44}/></div></div><p className="text-xs font-black text-[oklch(52%_0.14_330)] mb-2">آماده‌ای</p><h1 className="text-3xl font-black text-slate-900 dark:text-white leading-tight">مسیر یار برای تو ساخته شد</h1><p className="mt-4 text-sm leading-7 text-slate-500 dark:text-slate-400">پیشنهادها از انتخاب‌هایت شروع می‌شوند و با ثبت‌های واقعی تو بهتر خواهند شد.</p><div className="mt-9 rounded-[1.75rem] bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 p-5 text-right space-y-3"><Summary icon="✓" text={`${topics.length} اولویت برای رابطه`}/><Summary icon="۵" text="دقیقه برای هر قدم روزانه"/>{gender==='female'&&trackCycle&&<Summary icon="◌" text="سیکل قاعدگی و خلق فعال شد"/>}</div></motion.div>}
         </AnimatePresence>
-      </div>
+      </main>
+      <footer className="sticky bottom-0 pt-3 bg-[oklch(98%_0.008_330)] dark:bg-slate-950">{step<4?<button onClick={next} disabled={!canNext} className="w-full min-h-14 rounded-[1.25rem] bg-[oklch(35%_0.04_330)] disabled:bg-slate-200 dark:disabled:bg-slate-800 disabled:text-slate-400 text-white font-black flex items-center justify-center gap-2 active:scale-[.98] transition-transform">ادامه <ChevronLeft size={18}/></button>:<button onClick={finish} className="w-full min-h-14 rounded-[1.25rem] bg-[oklch(52%_0.14_330)] text-white font-black flex items-center justify-center gap-2 active:scale-[.98] transition-transform"><Sparkles size={18}/> ورود به یار</button>}</footer>
     </div>
-  );
+  </div>;
 };
+
+const Page=({eyebrow,title,subtitle,children}:{eyebrow:string;title:string;subtitle:string;children:React.ReactNode})=><motion.section initial={{opacity:0,x:-18}} animate={{opacity:1,x:0}} exit={{opacity:0,x:18}} transition={{duration:.28,ease:[.16,1,.3,1]}}><p className="text-xs font-black text-[oklch(52%_0.14_330)] mb-2">{eyebrow}</p><h1 className="text-3xl font-black leading-tight text-slate-900 dark:text-white text-balance">{title}</h1><p className="text-sm leading-6 text-slate-500 dark:text-slate-400 mt-3 mb-7">{subtitle}</p>{children}</motion.section>;
+const Choice=({active,onClick,title,caption}:{active:boolean;onClick:()=>void;title:string;caption:string})=><button onClick={onClick} className={`w-full min-h-[4.6rem] px-4 rounded-[1.4rem] flex items-center gap-3 text-right border active:scale-[.98] transition-transform ${active?'bg-[oklch(91%_0.045_330)] border-[oklch(70%_0.10_330)]':'bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800'}`}><span className={`w-7 h-7 rounded-full border flex items-center justify-center ${active?'bg-[oklch(52%_0.14_330)] border-transparent text-white':'border-slate-300 dark:border-slate-700'}`}>{active&&<Check size={15}/>}</span><span><b className="block text-sm text-slate-900 dark:text-white">{title}</b><small className="text-[11px] text-slate-500">{caption}</small></span></button>;
+const Field=({label,value,onChange,placeholder}:{label:string;value:string;onChange:(value:string)=>void;placeholder:string})=><label><span className="text-sm font-black text-slate-700 dark:text-slate-200 block mb-2">{label}</span><input value={value} onChange={e=>onChange(e.target.value)} placeholder={placeholder} className="w-full min-h-12 px-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 text-sm focus-visible:ring-2 focus-visible:ring-pink-400"/></label>;
+const Summary=({icon,text}:{icon:string;text:string})=><div className="flex items-center gap-3"><span className="w-8 h-8 rounded-xl bg-[oklch(93%_0.04_175)] text-[oklch(48%_0.10_175)] flex items-center justify-center text-xs font-black">{icon}</span><span className="text-sm font-bold text-slate-700 dark:text-slate-200">{text}</span></div>;

@@ -28,6 +28,7 @@ export interface UserPreferences {
   partnerName?: string;
   userName?: string;
   anniversaryDate?: string;
+  gender?: 'female' | 'male' | 'other' | 'prefer_not';
   darkMode: boolean;
   fontSize: 'normal' | 'large';
   notificationsEnabled: boolean;
@@ -220,4 +221,4 @@ export interface MediaItem {
   badge: string;
 }
 
-export type ActiveTab = 'home' | 'journeys' | 'exercises' | 'couple' | 'library' | 'profile';
+export type ActiveTab = 'home' | 'journeys' | 'exercises' | 'couple' | 'library' | 'cycle' | 'profile';

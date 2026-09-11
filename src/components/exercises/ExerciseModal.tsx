@@ -103,12 +103,12 @@ export const ExerciseModal: React.FC<ExerciseModalProps> = ({
             {timerSeconds !== null && (
               <button
                 onClick={() => setIsTimerRunning(!isTimerRunning)}
-                className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white dark:bg-neutral-800 border border-[#D5CBC1] dark:border-neutral-700 text-xs font-mono font-bold text-[#1E2224] dark:text-[#E5E7EB]"
-                title="تایمر تمرین"
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-black transition-all ${isTimerRunning ? 'bg-[oklch(93%_0.04_330)] text-[oklch(50%_0.13_330)]' : 'bg-[oklch(94%_0.025_175)] text-[oklch(46%_0.1_175)]'}`}
+                title="شروع یا توقف تایمر"
               >
-                <Clock size={13} className={isTimerRunning ? 'text-[#C2413C] animate-spin' : 'text-[#7A858C]'} />
-                <span>{formatTimer(timerSeconds)}</span>
-                <span className="text-[10px] text-[#7A858C]">{isTimerRunning ? 'توقف' : 'شروع'}</span>
+                <span className={`w-2.5 h-2.5 rounded-full ${isTimerRunning ? 'bg-[oklch(58%_0.15_20)] animate-pulse' : 'bg-[oklch(59%_0.10_175)]'}`} />
+                <span className="font-mono text-sm tabular-nums">{formatTimer(timerSeconds)}</span>
+                <span>{isTimerRunning ? 'توقف' : 'شروع'}</span>
               </button>
             )}
 
@@ -175,6 +175,12 @@ export const ExerciseModal: React.FC<ExerciseModalProps> = ({
                 </div>
               </div>
             )}
+
+            <div className="rounded-[1.75rem] bg-[oklch(95%_0.025_330)] dark:bg-slate-900 border border-[oklch(89%_0.03_330)] dark:border-slate-800 p-4 flex items-center gap-4">
+              <div className="relative w-16 h-16 shrink-0 rounded-full bg-[conic-gradient(oklch(52%_0.14_330)_0_72%,oklch(88%_0.025_330)_72%_100%)] flex items-center justify-center"><div className="w-12 h-12 rounded-full bg-[oklch(98%_0.008_330)] dark:bg-slate-950 flex items-center justify-center"><Clock size={19} className="text-[oklch(52%_0.14_330)]"/></div></div>
+              <div className="flex-1"><p className="text-[11px] font-black text-slate-500 dark:text-slate-400">زمان این تمرین</p><p className="mt-1 text-lg font-black text-slate-900 dark:text-white font-mono tabular-nums">{timerSeconds !== null ? formatTimer(timerSeconds) : '۰۰:۰۰'}</p></div>
+              <button onClick={() => setIsTimerRunning(!isTimerRunning)} className="min-h-11 px-4 rounded-2xl bg-[oklch(35%_0.04_330)] text-white text-xs font-black">{isTimerRunning ? 'مکث' : 'شروع'}</button>
+            </div>
 
             {/* Progress Dots */}
             <div className="flex items-center justify-center gap-1.5 py-2">

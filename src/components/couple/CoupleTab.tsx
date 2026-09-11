@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react';
 import { motion } from 'motion/react';
 import { UserPreferences, CheckinResult, RelationshipMemory, WeeklyDate } from '../../types';
 import { toPersianDigits, getTodayPersianDateString } from '../../utils/persianDate';
+import { JalaliDatePicker } from '../common/JalaliDatePicker';
+import { formatJalaliDate } from '../../services/jalali';
 import { StorageService } from '../../services/storage';
 import {
   Heart,
@@ -75,7 +77,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
 
     const created = StorageService.addMemory({
       title: newMemTitle.trim(),
-      date: newMemDate.trim() || getTodayPersianDateString(),
+      date: newMemDate ? formatJalaliDate(newMemDate) : getTodayPersianDateString(),
       notes: newMemNotes.trim(),
       feeling: newMemFeeling.trim() || undefined,
       type: 'milestone'
@@ -455,14 +457,8 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                   placeholder="عنوان خاطره (مثلاً: اولین سفر شمال دو نفره)"
                   className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:border-indigo-500"
                 />
-                <div className="grid grid-cols-2 gap-2">
-                  <input
-                    type="text"
-                    value={newMemDate}
-                    onChange={(e) => setNewMemDate(e.target.value)}
-                    placeholder="تاریخ (مثلاً: ۲۵ فروردین ۱۴۰۲)"
-                    className="w-full p-2.5 text-xs rounded-xl bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 focus:outline-hidden focus:border-indigo-500"
-                  />
+                <div className="grid grid-cols-1 gap-3">
+                  <JalaliDatePicker value={newMemDate} onChange={setNewMemDate} labelFa="تاریخ خاطره" allowFuture={false} />
                   <input
                     type="text"
                     value={newMemFeeling}

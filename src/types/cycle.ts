@@ -38,6 +38,7 @@ export interface MenstrualCycleConfig {
   lastPeriodStartIso?: string;
   /** فاز هدف برای تنطیمِ روابط (تخمک‌گذاری برای بارداری، لوتئال برای جلوگیری) */
   targetPhase?: MenstrualPhase;
+  pmsStartDaysBefore?: number;
 }
 
 export interface CycleState {
@@ -82,8 +83,20 @@ export const PHASE_NAMES_FA: Record<MenstrualPhase, string> = {
 };
 
 export const PHASE_DESCRIPTIONS_FA: Record<MenstrualPhase, string> = {
-  menstrual: 'حساسیت بالا، رطوبت کم. پیلینگ و لیزر را کنار بگذار.',
-  follicular: 'بهترین فاز برای لیزر، پیلینگ و فیشیال.',
-  ovulation: 'ترشح چربی افزایش می‌یابد. مرطوب‌کننده سبک استفاده کن.',
-  luteal: 'جوش هورمونی و نفخ. از محصولات سنگین اجتناب کن.',
+  menstrual: 'ممکن است درد، خستگی یا نیاز به استراحت بیشتر شود.',
+  follicular: 'در برخی افراد انرژی و تمرکز به‌تدریج بهتر می‌شود.',
+  ovulation: 'تغییر انرژی یا میل ممکن است رخ دهد، اما برای همه یکسان نیست.',
+  luteal: 'حساسیت، تحریک‌پذیری یا افت خلق ممکن است بیشتر شود.',
 };
+
+
+export interface CycleDailyCheckin {
+  id: string;
+  dateIso: string;
+  mood: number;
+  energy: number;
+  irritability: number;
+  pain: number;
+  need: 'connection' | 'space' | 'support' | 'rest' | 'talk';
+  note?: string;
+}

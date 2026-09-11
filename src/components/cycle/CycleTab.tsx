@@ -14,12 +14,12 @@ interface Props { cycleConfig: MenstrualCycleConfig; onUpdateCycleConfig: (confi
 const NEEDS: { value: CycleDailyCheckin['need']; label: string }[] = [
   { value: 'connection', label: 'نزدیکی' }, { value: 'space', label: 'کمی فضا' }, { value: 'support', label: 'حمایت' }, { value: 'rest', label: 'استراحت' }, { value: 'talk', label: 'گفت‌وگو' },
 ];
-const PHASE_LABEL: Record<MenstrualPhase, string> = { menstrual: 'قاعدگی', follicular: 'فولیکولار', ovulation: 'تخمک‌گذاری تقریبی', luteal: 'لوتئال' };
+const PHASE_LABEL: Record<MenstrualPhase, string> = { menstrual: 'قاعدگی', follicular: 'فولیکولار', ovulation: 'تخمک‌گذاری تقریبی', luteal: 'PMS' };
 const PHASE_STYLE: Record<MenstrualPhase, { active: string; idle: string }> = {
   menstrual: { active: 'bg-[oklch(62%_0.16_20)] text-white border-transparent', idle: 'bg-[oklch(96%_0.025_20)] text-[oklch(48%_0.13_20)] border-[oklch(88%_0.06_20)]' },
   follicular: { active: 'bg-[oklch(59%_0.10_175)] text-white border-transparent', idle: 'bg-[oklch(96%_0.025_175)] text-[oklch(43%_0.09_175)] border-[oklch(87%_0.045_175)]' },
   ovulation: { active: 'bg-[oklch(68%_0.13_78)] text-[oklch(30%_0.06_78)] border-transparent', idle: 'bg-[oklch(97%_0.03_78)] text-[oklch(47%_0.10_78)] border-[oklch(89%_0.06_78)]' },
-  luteal: { active: 'bg-[oklch(58%_0.13_300)] text-white border-transparent', idle: 'bg-[oklch(96%_0.025_300)] text-[oklch(47%_0.11_300)] border-[oklch(88%_0.05_300)]' },
+  luteal: { active: 'bg-[oklch(58%_0.13_300)] text-white border-transparent', idle: 'bg-[oklch(96%_0.025_265)] text-[oklch(47%_0.08_265)] border-[oklch(88%_0.025_265)]' },
 };
 const CONFIDENCE = { none: 'تقریبی', low: 'اطمینان کم', medium: 'اطمینان متوسط', high: 'اطمینان بالا' } as const;
 

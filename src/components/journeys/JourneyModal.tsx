@@ -178,7 +178,7 @@ export const JourneyModal: React.FC<JourneyModalProps> = ({
                       </p>
 
                       {/* 1. Scientific Concept */}
-                      <button onClick={() => setScienceStage(stage)} className="w-full p-3.5 rounded-xl bg-[oklch(96%_0.035_265)] text-right dark:bg-slate-900 border border-[oklch(86%_0.035_265)] dark:border-slate-700 space-y-1 transition-transform active:scale-[.99]">
+                      <button onClick={() => setScienceStage(stage)} className="group w-full rounded-[1.35rem] bg-[oklch(94%_0.04_265)] p-4 text-right shadow-[0_8px_18px_oklch(45%_0.05_265_/_0.08)] transition-transform active:scale-[.99] dark:bg-slate-900">
                         <div className="flex items-center justify-between text-xs">
                           <div className="flex items-center gap-1.5 font-bold text-[oklch(45%_0.13_265)] dark:text-sky-300">
                             <BookOpen size={14} />
@@ -192,7 +192,7 @@ export const JourneyModal: React.FC<JourneyModalProps> = ({
                           )}
                         </div>
                         <p className="text-xs text-slate-700 dark:text-slate-200 font-medium leading-relaxed line-clamp-2">{stage.concept}</p>
-                        <span className="mt-1 inline-flex items-center gap-1 text-[10px] font-black text-[oklch(45%_0.13_265)]">خواندن توضیح کامل <ArrowLeft size={12}/></span>
+                        <span className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[oklch(45%_0.13_265)] text-[11px] font-black text-white shadow-[0_5px_12px_oklch(45%_0.12_265_/_0.18)] transition-transform group-hover:translate-y-[-1px]">خواندن توضیح کامل <ArrowLeft size={14}/></span>
                       </button>
 
                       {/* 2. Reflection and Couple Prompt */}

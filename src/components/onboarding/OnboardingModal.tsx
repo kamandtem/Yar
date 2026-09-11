@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'motion/react';
-import { ArrowRight, Check, ChevronLeft, HeartHandshake, MoonStar, Sparkles, UserRound, UsersRound } from 'lucide-react';
+import { ArrowRight, Check, ChevronLeft, HeartHandshake, MoonStar, Sparkles, UserRound, UsersRound, MessageCircle, Flame, Heart, ShieldCheck, Search, Leaf, Home, Compass } from 'lucide-react';
 import { MenstrualCycleConfig, PriorityTopic, RelationshipStage, UserPreferences } from '../../types';
 import { JalaliDatePicker } from '../common/JalaliDatePicker';
 import { getTodayIsoDate } from '../../services/jalali';
@@ -14,10 +14,10 @@ const STAGES: { id: RelationshipStage; label: string; caption: string }[] = [
   { id:'over_3_years', label:'بیشتر از سه سال', caption:'تعمیق و تازه‌کردن رابطه' },
   { id:'solo', label:'فعلاً فردی', caption:'رشد مهارت‌های عاطفی خودم' },
 ];
-const TOPICS: { id: PriorityTopic; label: string; emoji: string }[] = [
-  {id:'communication',label:'گفت‌وگوی بهتر',emoji:'💬'},{id:'conflict',label:'مدیریت تنش',emoji:'🫶'},{id:'intimacy',label:'صمیمیت',emoji:'❤️'},
-  {id:'trust',label:'اعتماد و امنیت',emoji:'🤝'},{id:'self_awareness',label:'خودشناسی',emoji:'🪞'},{id:'sexuality',label:'رابطه جنسی سالم',emoji:'🌿'},
-  {id:'family',label:'مرز با خانواده',emoji:'🏡'},{id:'finances',label:'پول و آینده',emoji:'🧭'},{id:'parenting',label:'فرزندپروری',emoji:'🌱'},
+const TOPICS: { id: PriorityTopic; label: string; icon: React.ReactNode }[] = [
+  {id:'communication',label:'گفت‌وگوی بهتر',icon:<MessageCircle size={22}/>},{id:'conflict',label:'مدیریت تنش',icon:<Flame size={22}/>},{id:'intimacy',label:'صمیمیت',icon:<Heart size={22}/>},
+  {id:'trust',label:'اعتماد و امنیت',icon:<ShieldCheck size={22}/>},{id:'self_awareness',label:'خودشناسی',icon:<Search size={22}/>},{id:'sexuality',label:'رابطه جنسی سالم',icon:<Leaf size={22}/>},
+  {id:'family',label:'مرز با خانواده',icon:<Home size={22}/>},{id:'finances',label:'پول و آینده',icon:<Compass size={22}/>},{id:'parenting',label:'فرزندپروری',icon:<Sparkles size={22}/>},
 ];
 const GENDERS: { id: NonNullable<UserPreferences['gender']>; label: string; icon: React.ReactNode }[] = [
   {id:'female',label:'خانم هستم',icon:<UserRound size={18}/>},{id:'male',label:'آقا هستم',icon:<UserRound size={18}/>},{id:'other',label:'گزینه دیگر',icon:<UsersRound size={18}/>},{id:'prefer_not',label:'ترجیح می‌دهم نگویم',icon:<HeartHandshake size={18}/>},
@@ -45,7 +45,7 @@ export const OnboardingModal: React.FC<Props> = ({ isOpen, onComplete, onCycleSe
             <div className="space-y-2.5">{STAGES.map(item=><Choice key={item.id} active={stage===item.id} onClick={()=>setStage(item.id)} title={item.label} caption={item.caption}/>)}</div>
           </Page>}
           {step===2&&<Page key="topics" eyebrow="اولویت تو" title="دوست داری چه چیزی بهتر شود؟" subtitle="یک یا چند موضوع را انتخاب کن. بعداً قابل تغییر است.">
-            <div className="grid grid-cols-2 gap-3">{TOPICS.map(item=>{const active=topics.includes(item.id);return <button key={item.id} onClick={()=>setTopics(active?topics.filter(x=>x!==item.id):[...topics,item.id])} className={`relative min-h-[6.5rem] rounded-[1.5rem] p-4 text-right border transition-transform active:scale-[.97] ${active?'bg-[oklch(91%_0.045_330)] border-[oklch(72%_0.10_330)]':'bg-white dark:bg-slate-900 border-[oklch(91%_0.015_330)] dark:border-slate-800'}`}><span className="text-2xl">{item.emoji}</span><b className="block mt-3 text-sm text-slate-900 dark:text-white">{item.label}</b>{active&&<span className="absolute top-3 left-3 w-6 h-6 rounded-full bg-[oklch(52%_0.14_330)] text-white flex items-center justify-center"><Check size={14}/></span>}</button>})}</div>
+            <div className="grid grid-cols-2 gap-3">{TOPICS.map(item=>{const active=topics.includes(item.id);return <button key={item.id} onClick={()=>setTopics(active?topics.filter(x=>x!==item.id):[...topics,item.id])} className={`relative min-h-[6.5rem] rounded-[1.5rem] p-4 text-right border transition-transform active:scale-[.97] ${active?'bg-[oklch(91%_0.045_330)] border-[oklch(72%_0.10_330)]':'bg-white dark:bg-slate-900 border-[oklch(91%_0.015_330)] dark:border-slate-800'}`}><span className="flex h-10 w-10 items-center justify-center rounded-xl bg-[oklch(94%_0.04_330)] text-[oklch(50%_0.14_330)]">{item.icon}</span><b className="block mt-3 text-sm text-slate-900 dark:text-white">{item.label}</b>{active&&<span className="absolute top-3 left-3 w-6 h-6 rounded-full bg-[oklch(52%_0.14_330)] text-white flex items-center justify-center"><Check size={14}/></span>}</button>})}</div>
           </Page>}
           {step===3&&<Page key="profile" eyebrow="شخصی‌سازی" title="یار تو را چطور بشناسد؟" subtitle="همه موارد این صفحه اختیاری‌اند.">
             <div className="space-y-5"><div className="grid grid-cols-2 gap-3"><Field label="نام تو" value={userName} onChange={setUserName} placeholder="مثلاً سارا"/>{stage!=='solo'&&<Field label="نام همراه" value={partnerName} onChange={setPartnerName} placeholder="مثلاً علی"/>}</div>

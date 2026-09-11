@@ -12,19 +12,19 @@ interface OnboardingStep {
 const ONBOARDING_STEPS: OnboardingStep[] = [
   {
     id: 1,
-    titleFa: '💕 یار، همراه رابطه‌ات',
+    titleFa: 'یار، همراه رابطه‌ات',
     descriptionFa: 'برنامه‌ای برای زوج‌هایی که می‌خواهند رابطه‌شان را عمیق‌تر و آگاهانه‌تر کنند.\n\nدرک شریک، ارتباط بهتر، تنفسِ نزدیک‌تر.',
     imageSrc: '/onboarding/live-collaboration-pana.svg',
   },
   {
     id: 2,
-    titleFa: '💬 گفتگو که حقیقی است',
+    titleFa: 'گفتگو که حقیقی است',
     descriptionFa: 'مقالاتِ علمی و تمرین‌هایی برای شناخت بیشتر یکدیگر.\n\nپرسش‌هایی که دل را تغییر می‌دهند.\nهر روز کمی بیشتر نزدیک شدن.',
     imageSrc: '/onboarding/chat-amico.svg',
   },
   {
     id: 3,
-    titleFa: '❤️ مراقبتِ روابط',
+    titleFa: 'مراقبتِ روابط',
     descriptionFa: 'ردیابی چرخهٔ قاعدگی، شناخت خلقیات، توصیه‌های روز‌به‌روز.\n\nرابطهٔ سالمِ تری با درکِ بیشتر از خود و شریک.',
     imageSrc: '/onboarding/couple-stress-amico.svg',
   },

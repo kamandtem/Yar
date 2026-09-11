@@ -29,7 +29,9 @@ import {
   Compass,
   Zap,
   Layers,
-  MoonStar
+  MoonStar,
+  RefreshCw,
+  Check
 } from 'lucide-react';
 
 interface HomeTabProps {
@@ -156,17 +158,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
         </div>
       </div>
 
-      {preferences.gender === 'female' && (
-        <button
-          onClick={() => onNavigateToTab('cycle')}
-          className="w-full min-h-[5.2rem] px-4 rounded-[1.6rem] bg-[oklch(94%_0.035_330)] dark:bg-pink-950/20 border border-[oklch(88%_0.04_330)] dark:border-pink-900/30 flex items-center gap-3 text-right active:scale-[.98] transition-transform"
-        >
-          <span className="w-12 h-12 rounded-2xl bg-[oklch(54%_0.14_330)] text-white flex items-center justify-center shrink-0"><MoonStar size={21} /></span>
-          <span className="flex-1"><b className="block text-sm font-black text-slate-900 dark:text-white">سیکل، خلق و رابطه</b><small className="text-[11px] leading-5 text-slate-500 dark:text-slate-400">حال امروز را ثبت کن و الگوی شخصی‌ات را بشناس</small></span>
-          <ChevronLeft size={17} className="text-[oklch(52%_0.13_330)]" />
-        </button>
-      )}
-
       {preferences.gender === 'female' && <CycleCareCard cycleState={cycleState} onOpenSOS={onOpenSOS} onNavigateToTab={onNavigateToTab} onOpenArticle={onOpenArticle} onOpenExercise={onOpenExercise} articles={articles} exercises={exercises} />}
 
       {/* 3. Horizontal Squircle Selector (matching Lights, TV, Temp, Window in Screen 2) */}
@@ -212,13 +203,11 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             <span className="text-[11px] font-bold">اورژانس SOS</span>
           </button>
 
-          {/* Quick Item 4: Journey */}
-          <button
-            onClick={() => onNavigateToTab('journeys')}
-            className="p-3 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700/60 text-slate-500 dark:text-slate-400 shadow-soft-card flex flex-col items-center justify-center gap-1.5 hover:bg-slate-50 transition-all cursor-pointer"
-          >
-            <Compass size={20} className="text-sky-500" />
-            <span className="text-[11px] font-bold">مسیرها</span>
+          {/* Quick Item 4: Cycle phase preview */}
+          <button onClick={() => onNavigateToTab('cycle')} className="p-3 rounded-2xl bg-[oklch(95%_0.025_330)] dark:bg-pink-950/25 border border-[oklch(89%_0.035_330)] dark:border-pink-900/40 text-slate-600 dark:text-slate-300 shadow-soft-card flex flex-col items-center justify-center gap-1.5 hover:bg-[oklch(93%_0.04_330)] transition-all cursor-pointer">
+            <MoonStar size={20} className="text-[oklch(55%_0.14_330)]" />
+            <span className="text-[10px] font-black">چرخه</span>
+            <span className="max-w-full truncate text-[9px] font-bold text-[oklch(50%_0.11_330)]">{cycleState?.available ? (cycleState.inPmsWindow ? 'PMS' : cycleState.phaseNameFa.replace('لوتئال','')) : 'ثبت شروع'}</span>
           </button>
         </div>
       </div>
@@ -344,8 +333,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
         <div className="flex items-center justify-between text-xs font-bold text-slate-400 dark:text-slate-400 px-1">
           <span className="uppercase tracking-wider">بخش‌های فعال رابطه</span>
           <button
-            onClick={() => onNavigateToTab('journeys')}
-            className="text-indigo-600 dark:text-indigo-400 hover:underline"
+            onClick={() => onNavigateToTab('cycle')}
+            className="text-[oklch(50%_0.12_330)] dark:text-pink-300 hover:underline"
           >
             مشاهده همه
           </button>
@@ -542,8 +531,8 @@ const TemperatureAdvice = ({ score, cycleState, moodInsight, onNavigateToTab }: 
     <div className="flex items-center gap-2"><span className={`flex h-8 w-8 items-center justify-center rounded-xl ${low?'bg-rose-500':high?'bg-emerald-500':'bg-amber-500'} text-white`}><Heart size={15} className="fill-current"/></span><div><b className="block text-sm text-slate-900 dark:text-white">{title}</b><small className="text-[11px] text-slate-500">دمای امروز: {toPersianDigits(score)} از ۵</small></div></div>
     <p className="mt-3 text-xs font-bold text-slate-700 dark:text-slate-300">{body}</p>
     {!open ? <button onClick={()=>setOpen(true)} className="mt-3 min-h-11 w-full rounded-xl bg-[oklch(35%_0.04_330)] text-xs font-black text-white">خواندن پیشنهاد</button> : <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="mt-4 space-y-3">
-      <div className="flex items-center justify-between"><b className="text-xs text-slate-800 dark:text-white">پیشنهادهای مخصوص همین لحظه</b><button onClick={()=>setRound(v=>v+1)} className="min-h-10 rounded-xl px-3 text-[11px] font-black text-slate-600 dark:text-slate-300">پیشنهادهای دیگر</button></div>
-      {suggestions.map((item:any,index:number)=><div key={item.id} className="flex gap-3 rounded-2xl bg-[oklch(99%_0.006_80)] p-3 dark:bg-slate-900"><span className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-[11px] font-black ${low?'bg-rose-100 text-rose-700':high?'bg-emerald-100 text-emerald-700':'bg-amber-100 text-amber-700'}`}>{toPersianDigits(index+1)}</span><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><b className="text-xs text-slate-900 dark:text-white">{item.title}</b><small className="flex shrink-0 items-center gap-1 text-[9px] text-slate-400"><Clock size={10}/>{item.time}</small></div><p className="mt-1 text-[11px] leading-5 text-slate-600 dark:text-slate-300">{item.action}</p></div></div>)}
+      <div className="flex items-center justify-between gap-2"><b className="text-xs text-slate-800 dark:text-white">پیشنهادهای مخصوص همین لحظه</b><button onClick={()=>setRound(v=>v+1)} className="group flex min-h-10 items-center gap-1.5 rounded-xl bg-[oklch(45%_0.13_330)] px-3 text-[10px] font-black text-white shadow-[0_6px_14px_oklch(45%_0.12_330_/_0.2)] transition-transform active:scale-95"><RefreshCw size={13} className="transition-transform group-active:rotate-180"/> پیشنهادهای دیگر</button></div>
+      {suggestions.map((item:any)=><div key={item.id} className="flex gap-3 rounded-2xl bg-[oklch(99%_0.006_80)] p-3 dark:bg-slate-900"><button aria-label="علامت‌گذاری پیشنهاد" onClick={(e)=>{const el=e.currentTarget;el.classList.toggle('bg-[oklch(45%_0.13_175)]');el.classList.toggle('text-white')}} className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 border-[oklch(58%_0.10_175)] text-transparent transition-colors"><Check size={16}/></button><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><b className="text-xs text-slate-900 dark:text-white">{item.title}</b><small className="flex shrink-0 items-center gap-1 text-[9px] text-slate-400"><Clock size={10}/>{item.time}</small></div><p className="mt-1 text-[11px] leading-5 text-slate-600 dark:text-slate-300">{item.action}</p></div></div>)}
       {moodInsight?.count >= 3 && <p className="text-[10px] leading-5 text-slate-500">این پیشنهادها با الگوی خلق، انرژی، نیاز پرتکرار و دمای رابطه تو انتخاب شده‌اند.</p>}
       <button onClick={()=>onNavigateToTab('couple')} className="min-h-10 w-full rounded-xl bg-white text-xs font-black text-slate-700 dark:bg-slate-900 dark:text-slate-200">ثبت اقدام در اتاق ما</button>
     </motion.div>}

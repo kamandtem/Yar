@@ -20,6 +20,7 @@ export const CycleWheel:React.FC<Props>=({currentDay,selectedDay,cycleLength,per
    <div className="pointer-events-auto"><p className="text-[1.25rem] font-black leading-8 text-[oklch(25%_0.04_300)]">روز {dayWord(currentDay)}</p><p className="mt-0.5 text-sm font-bold text-[oklch(44%_0.035_300)]">از {toPersianDigits(cycleLength)} روز</p></div>
    <div className="mt-2 flex items-center gap-1.5 rounded-full bg-[oklch(99%_0.004_300_/_0.78)] px-2.5 py-1 text-[10px] font-bold text-[oklch(47%_0.08_300)]"><CalendarHeart size={11}/>{daysUntilNextPeriod&&daysUntilNextPeriod>0?`پریود بعدی: ${toPersianDigits(daysUntilNextPeriod)} روز دیگر`:'پریود بعدی نزدیک است'}</div>
    <button onClick={onEditPeriod} className="pointer-events-auto relative mt-2 flex h-7 items-center gap-1 rounded-full bg-[oklch(60%_0.20_330)] px-2.5 text-[9px] font-black text-[oklch(99%_0.004_300)] shadow-[0_4px_12px_oklch(45%_0.18_330_/_0.22)] after:absolute after:-inset-x-2 after:-inset-y-2 active:scale-95"><Pencil size={10}/><span>ویرایش پریود</span><Droplet size={10}/></button>
+
   </div>
  </div>;
 };

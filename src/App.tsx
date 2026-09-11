@@ -150,11 +150,11 @@ export default function App() {
       if (n.onboardingStep === 'modal' && n.isOnboardingOpen) return;
       if (n.activeTab !== 'home') { setActiveTab('home'); window.history.pushState({ yar: true }, '', window.location.href); return; }
       if (now - lastBackAt < 1800) {
-        if (window.confirm('می‌خواهید از یار خارج شوید؟')) window.location.href = 'about:blank';
+        if (window.confirm('آیا می‌خواهید از یار خارج شوید؟')) window.location.href = 'about:blank';
       } else {
         lastBackAt = now;
         window.history.pushState({ yar: true }, '', window.location.href);
-        window.alert('برای خروج، یک‌بار دیگر دکمه برگشت را بزنید.');
+        window.alert('برای خروج از برنامه، دوباره دکمه برگشت را بزنید.');
       }
     };
     window.addEventListener('popstate', handleBack);
@@ -236,6 +236,7 @@ export default function App() {
         onOpenSOS={() => setIsSOSOpen(true)}
         onOpenMenu={() => setIsMenuExpanded(true)}
         notifications={notifications}
+        onNotificationNavigate={(target) => setActiveTab(target)}
       />
 
       {/* Side Drawer Menu */}

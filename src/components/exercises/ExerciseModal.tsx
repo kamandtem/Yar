@@ -1,304 +1,36 @@
-import React, { useState, useEffect } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+import React, { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'motion/react';
+import { ArrowLeft, ArrowRight, Check, CheckCircle2, ChevronDown, ChevronUp, Clock, Save, ShieldAlert, Sparkles, Timer, User, Users, X } from 'lucide-react';
 import { Exercise } from '../../types';
 import { toPersianDigits } from '../../utils/persianDate';
 import { StorageService } from '../../services/storage';
-import {
-  X,
-  Clock,
-  Users,
-  User,
-  ShieldAlert,
-  CheckCircle2,
-  ArrowLeft,
-  ArrowRight,
-  Sparkles,
-  Save,
-  Check
-} from 'lucide-react';
 
-interface ExerciseModalProps {
-  exercise: Exercise | null;
-  isOpen: boolean;
-  onClose: () => void;
-  isCompleted: boolean;
-  onToggleCompleted: (id: string) => void;
-}
+interface Props { exercise: Exercise | null; isOpen: boolean; onClose: () => void; isCompleted: boolean; onToggleCompleted: (id: string) => void; }
+const safetyText = 'این تمرین نیازمند آرامش اولیه است. اگر در این لحظه در اوج دعوا هستید یا ترس وجود دارد، ابتدا وقفه بگیرید و از تمرین‌های آرام‌سازی انفرادی استفاده کنید.';
+const cleanTitle = (title: string) => title.replace(/\s*\([^)]*[A-Za-z][^)]*\)/g, '').replace(/\s+(Time-Out|Repair Attempts|Fight|Flight|Freeze|Fawn)\b/gi, '').trim();
 
-export const ExerciseModal: React.FC<ExerciseModalProps> = ({
-  exercise,
-  isOpen,
-  onClose,
-  isCompleted,
-  onToggleCompleted
-}) => {
-  const [currentStepIndex, setCurrentStepIndex] = useState(0);
-  const [userNote, setUserNote] = useState('');
-  const [savedSuccess, setSavedSuccess] = useState(false);
-  const [timerSeconds, setTimerSeconds] = useState<number | null>(null);
-  const [isTimerRunning, setIsTimerRunning] = useState(false);
-
-  useEffect(() => {
-    if (exercise && isOpen) {
-      setCurrentStepIndex(0);
-      const existing = StorageService.getExerciseNote(exercise.id);
-      setUserNote(existing);
-      setTimerSeconds(exercise.duration * 60);
-      setIsTimerRunning(false);
-    }
-  }, [exercise, isOpen]);
-
-  useEffect(() => {
-    let interval: any = null;
-    if (isTimerRunning && timerSeconds && timerSeconds > 0) {
-      interval = setInterval(() => {
-        setTimerSeconds((prev) => (prev && prev > 0 ? prev - 1 : 0));
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [isTimerRunning, timerSeconds]);
-
+export const ExerciseModal: React.FC<Props> = ({ exercise, isOpen, onClose, isCompleted, onToggleCompleted }) => {
+  const [step, setStep] = useState(0); const [note, setNote] = useState(''); const [saved, setSaved] = useState(false);
+  const [seconds, setSeconds] = useState(0); const [running, setRunning] = useState(false); const [showInfo, setShowInfo] = useState(false); const [showSafety, setShowSafety] = useState(true);
+  useEffect(() => { if (exercise && isOpen) { setStep(0); setNote(StorageService.getExerciseNote(exercise.id)); setSeconds(exercise.duration * 60); setRunning(false); setShowInfo(false); setShowSafety(localStorage.getItem('yar-exercise-safety-seen') !== '1'); } }, [exercise, isOpen]);
+  useEffect(() => { if (!running || seconds <= 0) return; const id = window.setInterval(() => setSeconds(v => Math.max(0, v - 1)), 1000); return () => window.clearInterval(id); }, [running, seconds]);
   if (!isOpen || !exercise) return null;
-
-  const steps = exercise.steps;
-  const currentStep = steps[currentStepIndex];
-  const isLastStep = currentStepIndex === steps.length - 1;
-
-  const handleSaveNote = () => {
-    StorageService.saveExerciseNote(exercise.id, userNote);
-    setSavedSuccess(true);
-    setTimeout(() => setSavedSuccess(false), 2000);
-  };
-
-  const handleFinish = () => {
-    if (userNote.trim()) {
-      StorageService.saveExerciseNote(exercise.id, userNote);
-    }
-    if (!isCompleted) {
-      onToggleCompleted(exercise.id);
-    }
-    onClose();
-  };
-
-  const formatTimer = (secs: number) => {
-    const mins = Math.floor(secs / 60);
-    const remaining = secs % 60;
-    return `${toPersianDigits(mins)}:${remaining < 10 ? '۰' : ''}${toPersianDigits(remaining)}`;
-  };
-
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-md">
-      <div className="relative w-full max-w-lg h-full sm:h-auto sm:max-h-[92vh] bg-[#FBF8F3] dark:bg-[#1A1E22] sm:rounded-3xl shadow-2xl border border-[#EBE1D7] dark:border-neutral-800 overflow-y-auto flex flex-col">
-        
-        {/* Header Bar */}
-        <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-[#FBF8F3]/90 dark:bg-[#1A1E22]/90 backdrop-blur-md border-b border-[#EBDED3] dark:border-neutral-800">
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-full text-[#7A858C] dark:text-[#9CA3AF] hover:bg-[#EFE7DC] dark:hover:bg-neutral-800 transition-colors"
-          >
-            <X size={20} />
-          </button>
-
-          <div className="flex items-center gap-2">
-            {timerSeconds !== null && (
-              <button
-                onClick={() => setIsTimerRunning(!isTimerRunning)}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-2xl text-xs font-black transition-all ${isTimerRunning ? 'bg-[oklch(93%_0.04_330)] text-[oklch(50%_0.13_330)]' : 'bg-[oklch(94%_0.025_175)] text-[oklch(46%_0.1_175)]'}`}
-                title="شروع یا توقف تایمر"
-              >
-                <span className={`w-2.5 h-2.5 rounded-full ${isTimerRunning ? 'bg-[oklch(58%_0.15_20)] animate-pulse' : 'bg-[oklch(59%_0.10_175)]'}`} />
-                <span className="font-mono text-sm tabular-nums">{formatTimer(timerSeconds)}</span>
-                <span>{isTimerRunning ? 'توقف' : 'شروع'}</span>
-              </button>
-            )}
-
-            <button
-              onClick={() => onToggleCompleted(exercise.id)}
-              className={`flex items-center gap-1 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                isCompleted
-                  ? 'bg-[#EBF3ED] dark:bg-[#1E3024] text-[#4E6B58] dark:text-[#86EFAC]'
-                  : 'bg-white dark:bg-neutral-800 text-[#5C646A] border border-[#D5CBC1] dark:border-neutral-700'
-              }`}
-            >
-              <CheckCircle2 size={15} />
-              <span>{isCompleted ? 'تکمیل شد' : 'ثبت اتمام'}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Content Container */}
-        <div className="p-5 sm:p-7 flex-1 flex flex-col justify-between space-y-6">
-          <div className="space-y-4">
-            {/* Badges and metadata */}
-            <div className="flex items-center justify-between">
-              <span className="px-3 py-1 rounded-full bg-[#FFF1EB] dark:bg-[#3D251D] text-[#C2413C] dark:text-[#FCA5A5] text-xs font-bold">
-                {exercise.category}
-              </span>
-              <div className="flex items-center gap-3 text-xs text-[#7A858C] dark:text-[#9CA3AF]">
-                <span className="flex items-center gap-1">
-                  <Clock size={13} />
-                  <span>{toPersianDigits(exercise.duration)} دقیقه</span>
-                </span>
-                <span className="flex items-center gap-1">
-                  {exercise.mode === 'couple' ? (
-                    <>
-                      <Users size={13} />
-                      <span>دونفره</span>
-                    </>
-                  ) : (
-                    <>
-                      <User size={13} />
-                      <span>فردی / دونفره</span>
-                    </>
-                  )}
-                </span>
-              </div>
-            </div>
-
-            {/* Title & Description */}
-            <div>
-              <h1 className="text-xl sm:text-2xl font-black text-[#1E2224] dark:text-[#F3F4F6]">
-                {exercise.title}
-              </h1>
-              <p className="text-xs text-[#6F7981] dark:text-[#9CA3AF] mt-1 leading-relaxed">
-                {exercise.description}
-              </p>
-            </div>
-
-            {/* Safety Alert (Item 56) */}
-            {exercise.safetyLevel !== 'standard' && (
-              <div className="p-3.5 rounded-2xl bg-[#FFF5F3] dark:bg-[#321C1A] border border-[#F9D0CA] dark:border-[#5C2320] text-xs text-[#78281F] dark:text-[#FCA5A5] leading-relaxed flex items-start gap-2.5">
-                <ShieldAlert size={17} className="shrink-0 text-[#C2413C] mt-0.5" />
-                <div>
-                  <strong className="block font-bold">هشدار آرامش و ایمنی:</strong>
-                  این تمرین نیازمند آرامش اولیه است. اگر در این لحظه در اوج دعوا هستید یا ترس وجود دارد، ابتدا وقفه بگیرید و از تمرین‌های آرام‌سازی انفرادی استفاده کنید.
-                </div>
-              </div>
-            )}
-
-            <div className="rounded-[1.75rem] bg-[oklch(95%_0.025_330)] dark:bg-slate-900 border border-[oklch(89%_0.03_330)] dark:border-slate-800 p-4 flex items-center gap-4">
-              <div className="relative w-16 h-16 shrink-0 rounded-full bg-[conic-gradient(oklch(52%_0.14_330)_0_72%,oklch(88%_0.025_330)_72%_100%)] flex items-center justify-center"><div className="w-12 h-12 rounded-full bg-[oklch(98%_0.008_330)] dark:bg-slate-950 flex items-center justify-center"><Clock size={19} className="text-[oklch(52%_0.14_330)]"/></div></div>
-              <div className="flex-1"><p className="text-[11px] font-black text-slate-500 dark:text-slate-400">زمان این تمرین</p><p className="mt-1 text-lg font-black text-slate-900 dark:text-white font-mono tabular-nums">{timerSeconds !== null ? formatTimer(timerSeconds) : '۰۰:۰۰'}</p></div>
-              <button onClick={() => setIsTimerRunning(!isTimerRunning)} className="min-h-11 px-4 rounded-2xl bg-[oklch(35%_0.04_330)] text-white text-xs font-black">{isTimerRunning ? 'مکث' : 'شروع'}</button>
-            </div>
-
-            {/* Progress Dots */}
-            <div className="flex items-center justify-center gap-1.5 py-2">
-              {steps.map((_, i) => (
-                <div
-                  key={i}
-                  className={`h-1.5 rounded-full transition-all ${
-                    currentStepIndex === i
-                      ? 'w-7 bg-[#C2413C]'
-                      : i < currentStepIndex
-                      ? 'w-2 bg-[#4E6B58]'
-                      : 'w-2 bg-[#E2D8CC] dark:bg-neutral-800'
-                  }`}
-                />
-              ))}
-            </div>
-
-            {/* Step Card */}
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentStepIndex}
-                initial={{ opacity: 0, x: -15 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: 15 }}
-                className="p-5 rounded-2xl bg-white dark:bg-neutral-800/90 border border-[#E8DDCF] dark:border-neutral-700 shadow-xs space-y-3"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-bold text-[#7A858C] dark:text-[#9CA3AF]">
-                    مرحله {toPersianDigits(currentStep.stepNumber)} از {toPersianDigits(steps.length)}
-                  </span>
-                  <span className="text-xs font-bold text-[#C2413C] dark:text-[#F87171]">
-                    {currentStep.title}
-                  </span>
-                </div>
-
-                <p className="text-sm font-semibold text-[#1E2224] dark:text-[#F3F4F6] leading-relaxed">
-                  {currentStep.instruction}
-                </p>
-
-                {currentStep.promptInput && (
-                  <div className="p-3.5 rounded-xl bg-[#FFF8F3] dark:bg-neutral-900 border border-[#FCE2D4] dark:border-neutral-800 text-xs font-extrabold text-[#943126] dark:text-[#FCA5A5] leading-relaxed">
-                    🗣️ {currentStep.promptInput}
-                  </div>
-                )}
-
-                {currentStep.tip && (
-                  <div className="p-3 rounded-xl bg-[#F0F6F2] dark:bg-neutral-900/60 border border-[#D1E3D7] dark:border-neutral-800 text-[11px] text-[#3B5443] dark:text-[#A3B899]">
-                    💡 نکته: {currentStep.tip}
-                  </div>
-                )}
-              </motion.div>
-            </AnimatePresence>
-
-            {/* User / Couple Reflection Notebook */}
-            <div className="space-y-1.5 pt-2">
-              <div className="flex items-center justify-between">
-                <label className="text-xs font-bold text-[#555E65] dark:text-[#CBD5E1]">
-                  یادداشت و ثبت پاسخ شما به تمرین:
-                </label>
-                {savedSuccess && (
-                  <span className="text-[11px] font-bold text-[#4E6B58] flex items-center gap-1">
-                    <Check size={12} /> ذخیره شد
-                  </span>
-                )}
-              </div>
-              <textarea
-                value={userNote}
-                onChange={(e) => setUserNote(e.target.value)}
-                placeholder="اینجا می‌توانید جملات تکمیل‌شده یا حس خود را پس از تمرین بنویسید (روی دستگاه شما باقی می‌ماند)..."
-                rows={3}
-                className="w-full p-3 text-xs rounded-2xl bg-white dark:bg-neutral-900 border border-[#D5CBC1] dark:border-neutral-700 focus:outline-none focus:border-[#C2413C] text-[#1E2224] dark:text-[#F3F4F6] resize-none leading-relaxed"
-              />
-              <button
-                onClick={handleSaveNote}
-                className="py-1.5 px-3 rounded-xl bg-[#EFE7DC] dark:bg-neutral-800 text-[#525B62] dark:text-[#CBD5E1] text-[11px] font-bold hover:bg-[#E5DCD1] transition-all flex items-center gap-1"
-              >
-                <Save size={12} />
-                <span>ذخیره یادداشت</span>
-              </button>
-            </div>
-          </div>
-
-          {/* Bottom Step Controls */}
-          <div className="pt-4 border-t border-[#EBDED3] dark:border-neutral-800 flex items-center justify-between gap-3">
-            <button
-              disabled={currentStepIndex === 0}
-              onClick={() => setCurrentStepIndex((prev) => prev - 1)}
-              className={`p-3 rounded-xl border border-[#D5CBC1] dark:border-neutral-700 flex items-center gap-1.5 text-xs font-bold transition-all ${
-                currentStepIndex === 0
-                  ? 'opacity-30 cursor-not-allowed text-[#7A858C]'
-                  : 'text-[#4A5258] dark:text-[#CBD5E1] hover:bg-[#EFE7DC]'
-              }`}
-            >
-              <ArrowRight size={14} />
-              <span>مرحله قبل</span>
-            </button>
-
-            {!isLastStep ? (
-              <button
-                onClick={() => setCurrentStepIndex((prev) => prev + 1)}
-                className="flex-1 py-3 px-5 rounded-xl bg-[#C2413C] text-white font-bold text-xs hover:bg-[#B13732] transition-all flex items-center justify-center gap-1.5 shadow-sm"
-              >
-                <span>مرحله بعد</span>
-                <ArrowLeft size={14} />
-              </button>
-            ) : (
-              <button
-                id="exercise-complete-btn"
-                onClick={handleFinish}
-                className="flex-1 py-3 px-5 rounded-xl bg-[#4E6B58] text-white font-bold text-xs hover:bg-[#3E5546] transition-all flex items-center justify-center gap-1.5 shadow-md"
-              >
-                <Sparkles size={15} />
-                <span>اتمام تمرین و ذخیره در کارنامه</span>
-              </button>
-            )}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+  const current = exercise.steps[step]; const total = exercise.duration * 60; const progress = total ? seconds / total : 0; const circumference = 2 * Math.PI * 47;
+  const time = `${toPersianDigits(Math.floor(seconds / 60))}:${toPersianDigits(String(seconds % 60).padStart(2, '0'))}`;
+  const dismissSafety = () => { localStorage.setItem('yar-exercise-safety-seen', '1'); setShowSafety(false); };
+  const saveNote = () => { StorageService.saveExerciseNote(exercise.id, note); setSaved(true); window.setTimeout(() => setSaved(false), 1800); };
+  const finish = () => { saveNote(); if (!isCompleted) onToggleCompleted(exercise.id); onClose(); };
+  return <div className="fixed inset-x-0 bottom-0 top-[4.5rem] z-50 flex items-end justify-center bg-slate-950/25 p-0 sm:items-center sm:p-4" dir="rtl">
+    <motion.div initial={{opacity:0,y:24}} animate={{opacity:1,y:0}} className="relative flex max-h-[calc(100dvh-5rem)] w-full max-w-lg flex-col overflow-y-auto rounded-t-[2rem] bg-[oklch(98%_0.012_80)] shadow-2xl dark:bg-[oklch(19%_0.02_265)] sm:rounded-[2rem]">
+      <header className="sticky top-0 z-20 flex items-center gap-3 border-b border-[oklch(89%_0.025_80)] bg-[oklch(98%_0.012_80_/_0.96)] px-5 py-4 backdrop-blur-md dark:border-slate-800 dark:bg-[oklch(19%_0.02_265_/_0.96)]"><button onClick={onClose} aria-label="بازگشت" className="flex h-10 w-10 items-center justify-center rounded-xl bg-[oklch(93%_0.025_265)] text-slate-600 active:scale-95 dark:bg-slate-800 dark:text-slate-200"><ArrowRight size={18}/></button><div className="min-w-0 flex-1"><small className="block text-[10px] font-black text-[oklch(50%_0.12_265)]">تمرین‌های یار</small><b className="block truncate text-sm text-slate-900 dark:text-white">{cleanTitle(exercise.title)}</b></div><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-[oklch(94%_0.035_175)] text-[oklch(45%_0.10_175)]"><Timer size={17}/></span></header>
+      <main className="space-y-4 p-5 sm:p-7">
+        {showSafety && exercise.safetyLevel !== 'standard' && <div className="relative flex gap-3 rounded-2xl border border-[oklch(87%_0.05_55)] bg-[oklch(96%_0.035_55)] p-4 text-xs leading-6 text-[oklch(38%_0.08_45)] dark:border-amber-900/40 dark:bg-amber-950/25 dark:text-amber-100"><ShieldAlert size={18} className="mt-0.5 shrink-0"/><div><b className="block">هشدار آرامش و ایمنی</b>{safetyText}</div><button onClick={dismissSafety} aria-label="بستن هشدار" className="absolute left-2 top-2 flex h-8 w-8 items-center justify-center rounded-lg text-amber-700 dark:text-amber-200"><X size={15}/></button></div>}
+        <section className="rounded-[1.6rem] bg-[oklch(95%_0.025_265)] p-4 dark:bg-slate-900"><div className="flex items-center gap-2 text-xs font-black text-[oklch(45%_0.11_265)]"><span className="rounded-xl bg-[oklch(88%_0.04_265)] px-2 py-1">{exercise.category}</span><span>تمرین یار</span></div><button onClick={() => setShowInfo(v=>!v)} className="mt-3 flex w-full items-center justify-between text-right"><h1 className="text-xl font-black leading-8 text-slate-900 dark:text-white">{cleanTitle(exercise.title)}</h1>{showInfo?<ChevronUp size={18}/>:<ChevronDown size={18}/>}</button><AnimatePresence initial={false}>{showInfo&&<motion.p initial={{opacity:0,height:0}} animate={{opacity:1,height:'auto'}} exit={{opacity:0,height:0}} className="pt-2 text-xs leading-6 text-slate-600 dark:text-slate-300">{exercise.description}</motion.p>}</AnimatePresence></section>
+        <section className="rounded-[1.6rem] bg-[oklch(96%_0.025_175)] p-5 dark:bg-emerald-950/25"><div className="flex items-center justify-between"><div><p className="text-[10px] font-black text-[oklch(45%_0.11_175)]">تایمر تمرین</p><p className="mt-1 text-xs text-slate-600 dark:text-slate-300">با ریتم خودت جلو برو</p></div><div className="relative h-28 w-28"><svg viewBox="0 0 112 112" className="h-full w-full -rotate-90"><circle cx="56" cy="56" r="47" fill="none" stroke="oklch(87% 0.035 175)" strokeWidth="7"/><circle cx="56" cy="56" r="47" fill="none" stroke="oklch(50% 0.12 175)" strokeWidth="7" strokeLinecap="round" strokeDasharray={circumference} strokeDashoffset={circumference*(1-progress)} className="transition-all duration-1000"/></svg><div className="absolute inset-0 flex flex-col items-center justify-center"><b className="font-mono text-lg tabular-nums">{time}</b><small className="text-[9px]">{running?'در حال اجرا':'آماده'}</small></div></div></div><button onClick={()=>setRunning(v=>!v)} disabled={seconds===0} className="mt-3 min-h-11 w-full rounded-xl bg-[oklch(43%_0.11_175)] text-xs font-black text-white disabled:opacity-40">{running?'مکث تایمر':'شروع تایمر'}</button></section>
+        <section className="rounded-[1.6rem] border border-[oklch(88%_0.025_265)] bg-[oklch(99%_0.006_265)] p-5 dark:border-slate-700 dark:bg-slate-900"><div className="mb-4 flex items-center justify-between"><span className="text-xs font-black text-slate-500">مرحله {toPersianDigits(current.stepNumber)} از {toPersianDigits(exercise.steps.length)}</span><div className="flex gap-1">{exercise.steps.map((_,i)=><span key={i} className={`h-1.5 rounded-full transition-all ${i===step?'w-7 bg-[oklch(50%_0.12_175)]':i<step?'w-2 bg-[oklch(65%_0.10_175)]':'w-2 bg-slate-200 dark:bg-slate-700'}`}/>)}</div></div><h2 className="text-base font-black text-slate-900 dark:text-white">{current.title}</h2><p className="mt-3 text-sm font-semibold leading-7 text-slate-700 dark:text-slate-200">{current.instruction}</p>{current.promptInput&&<p className="mt-3 rounded-xl bg-[oklch(96%_0.03_55)] p-3 text-xs font-bold leading-6 text-[oklch(40%_0.08_45)]">🗣️ {current.promptInput}</p>}{current.tip&&<p className="mt-3 rounded-xl bg-[oklch(95%_0.035_175)] p-3 text-[11px] leading-6 text-slate-700 dark:bg-emerald-950/30 dark:text-slate-200">💡 نکته: {current.tip}</p>}</section>
+        <section><div className="mb-2 flex items-center justify-between"><label className="text-xs font-black text-slate-700 dark:text-slate-200">یادداشت تمرین</label>{saved&&<span className="flex items-center gap-1 text-[10px] font-black text-emerald-600"><Check size={13}/> ذخیره شد</span>}</div><textarea value={note} onChange={e=>setNote(e.target.value)} rows={3} placeholder="یک جمله درباره تجربه‌ات بنویس" className="w-full rounded-2xl border border-slate-200 bg-[oklch(99%_0.006_80)] p-3 text-xs leading-6 dark:border-slate-700 dark:bg-slate-900 dark:text-white"/><button onClick={saveNote} className="mt-2 flex min-h-10 items-center gap-1 rounded-xl bg-slate-100 px-3 text-[11px] font-black text-slate-600 dark:bg-slate-800 dark:text-slate-200"><Save size={13}/>ذخیره یادداشت</button></section>
+        <footer className="flex gap-2 border-t border-slate-200 pt-4 dark:border-slate-800"><button onClick={()=>setStep(v=>Math.max(0,v-1))} disabled={step===0} className="min-h-12 rounded-xl border border-slate-200 px-4 text-xs font-black disabled:opacity-30 dark:border-slate-700"><ArrowRight size={15}/></button>{step<exercise.steps.length-1?<button onClick={()=>setStep(v=>v+1)} className="flex-1 rounded-xl bg-[oklch(43%_0.11_175)] text-xs font-black text-white">مرحله بعد <ArrowLeft size={15} className="inline"/></button>:<button onClick={finish} className="flex-1 rounded-xl bg-[oklch(43%_0.11_175)] text-xs font-black text-white"><Sparkles size={15} className="inline ml-1"/>اتمام تمرین</button>}</footer>
+      </main>
+    </motion.div>
+  </div>;
 };

@@ -73,15 +73,17 @@ export function computeRelationshipCycle(
   }
   const elapsed = Math.max(0, getDaysDifference(latest.startIso, todayIso));
   const cycleDay = (elapsed % cycleLength) + 1;
-  const phase = getPhaseForDay(cycleDay, cycleLength, periodLength);
+  const rawPhase = getPhaseForDay(cycleDay, cycleLength, periodLength);
   const daysUntilNextPeriod = cycleLength - cycleDay + 1;
   const pmsDays = config.pmsStartDaysBefore ?? 7;
+  const inPmsWindow = daysUntilNextPeriod <= pmsDays && rawPhase === 'luteal';
+  const phase = rawPhase === 'luteal' && !inPmsWindow ? 'follicular' : rawPhase;
   return {
     available: true, cycleDay, cycleLength, periodLength, phase,
     phaseNameFa: PHASE_NAMES[phase],
     nextPeriodIso: addDays(todayIso, daysUntilNextPeriod),
     daysUntilNextPeriod,
-    inPmsWindow: daysUntilNextPeriod <= pmsDays && phase === 'luteal',
+    inPmsWindow,
     ...stats,
   };
 }

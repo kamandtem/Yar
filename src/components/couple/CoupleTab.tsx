@@ -53,6 +53,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
   const [checkinHistory, setCheckinHistory] = useState<CheckinResult[]>(() =>
     StorageService.getCheckinHistory()
   );
+  const [showAllCheckins, setShowAllCheckins] = useState(false);
 
   // Memories state
   const [memories, setMemories] = useState<RelationshipMemory[]>(() =>
@@ -80,7 +81,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
       gratitudeNote: gratitudeNote.trim() || undefined
     };
     StorageService.saveCheckin(newCheckin);
-    setCheckinHistory([newCheckin, ...checkinHistory.filter(item => item.date !== newCheckin.date)]);
+    setCheckinHistory([newCheckin, ...checkinHistory]);
     setCheckinSaved(true);
     setTimeout(() => setCheckinSaved(false), 3000);
   };
@@ -319,7 +320,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                 ثبت‌های اخیر ما
               </h3>
               <div className="space-y-2">
-                {checkinHistory.slice(0, 3).map((item, idx) => (
+                {(showAllCheckins ? checkinHistory : checkinHistory.slice(0, 2)).map((item, idx) => (
                   <div
                     key={item.id || `${item.date}-${idx}`}
                     className="p-3.5 rounded-2xl bg-white dark:bg-slate-800/90 border border-slate-100 dark:border-slate-700/60 flex items-center justify-between text-xs shadow-soft-card"
@@ -341,6 +342,7 @@ export const CoupleTab: React.FC<CoupleTabProps> = ({
                   </div>
                 ))}
               </div>
+              {checkinHistory.length > 2 && <button onClick={() => setShowAllCheckins(v => !v)} className="mt-2 flex min-h-10 w-full items-center justify-center gap-1 rounded-xl bg-slate-100 text-[11px] font-black text-slate-600 dark:bg-slate-800 dark:text-slate-200"><ChevronDown size={14} className={`transition-transform ${showAllCheckins ? 'rotate-180' : ''}`}/>{showAllCheckins ? 'بستن تاریخچه' : `نمایش همه ثبت‌ها (${checkinHistory.length})`}</button>}
             </div>
           )}
         </div>

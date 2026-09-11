@@ -3,7 +3,6 @@ import { motion } from 'motion/react';
 import { Article } from '../../types';
 import { toPersianDigits } from '../../utils/persianDate';
 import {
-  X,
   Clock,
   Bookmark,
   BookmarkCheck,
@@ -48,17 +47,12 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-0 sm:p-4 bg-black/70 backdrop-blur-md">
-      <div className="relative w-full max-w-lg h-full sm:h-auto sm:max-h-[92vh] bg-[#FBF8F3] dark:bg-[#1A1E22] sm:rounded-3xl shadow-2xl border border-[#EBE1D7] dark:border-neutral-800 overflow-y-auto flex flex-col">
+    <div className="fixed inset-x-0 top-[4.5rem] bottom-[5.5rem] z-40 flex items-center justify-center bg-slate-950/20 p-0 sm:p-4">
+      <div className="relative w-full max-w-lg h-full sm:h-auto sm:max-h-full bg-[#FBF8F3] dark:bg-[#1A1E22] sm:rounded-3xl shadow-2xl border border-[#EBE1D7] dark:border-neutral-800 overflow-y-auto flex flex-col">
         
         {/* Floating Top Bar */}
         <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-[#FBF8F3]/90 dark:bg-[#1A1E22]/90 backdrop-blur-md border-b border-[#EBDED3] dark:border-neutral-800">
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-full text-[#7A858C] dark:text-[#9CA3AF] hover:bg-[#EFE7DC] dark:hover:bg-neutral-800 transition-colors"
-          >
-            <X size={20} />
-          </button>
+<div className="w-8"/>
 
           <div className="flex items-center gap-2">
             <button
@@ -247,20 +241,7 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
             </div>
           )}
 
-          {/* Scientific Sources (Item 22 mandate) */}
-          {article.sources?.length > 0 && (
-            <div className="p-3.5 rounded-2xl bg-[#F5EFE6] dark:bg-neutral-900 border border-[#E5DCD1] dark:border-neutral-800 text-[11px] text-[#6B757C] dark:text-[#9CA3AF] space-y-1.5">
-              <span className="font-bold text-[#1E2224] dark:text-[#E5E7EB] block">
-                منابع علمی و پژوهش‌های مرتبط:
-              </span>
-              {article.sources.map((src, i) => (
-                <div key={i} className="leading-normal">
-                  • <strong className="text-[#3E454B] dark:text-[#CBD5E1]">{src.author}:</strong>{' '}
-                  <span className="italic">{src.bookOrStudy}</span> — {src.insight}
-                </div>
-              ))}
-            </div>
-          )}
+          <button onClick={onClose} className="mt-2 min-h-12 w-full rounded-2xl bg-[#3D5A80] text-sm font-black text-white shadow-md">متوجه شدم، برگشت به نکات زندگی</button>
         </div>
       </div>
     </div>

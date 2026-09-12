@@ -8,7 +8,7 @@ export const ARTICLES_PART_3: Article[] = [
     category: 'ترمیم و پیوند',
     summary: 'عذرخواهی ناقص مانند این است که بگوییم: «ببخشید اگر تو ناراحت شدی!» که مسئولیت را به گردن حساسیت طرف می‌اندازد.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'یک عذرخواهی واقعی شامل: پذیرش صریح اشتباه، درک رنج طرف مقابل، و تعهد به عدم تکرار است.',
       scientificInsight: 'پژوهش‌ها نشان می‌دهند عذرخواهی کامل ترشح کورتیزول را در فرد آسیب‌دیده مهار می‌کند.',
@@ -34,7 +34,7 @@ export const ARTICLES_PART_3: Article[] = [
     category: 'تنظیم هیجان',
     summary: 'ما اغلب تنش ترافیک، رییس یا مشکلات مالی را به اولین کسی که می‌بینیم شلیک می‌کنیم.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/journaling.webp',
     content: {
       scenario: '۱۰ دقیقه سکوت در ماشین یا پیاده‌روی قبل از ورود به خانه به عنوان منطقه حائل (Buffer Zone) عمل می‌کند.',
       scientificInsight: 'تخلیه کورتیزول مانع از ایجاد تلافی ناخودآگاه در کانون خانواده می‌شود.',
@@ -60,7 +60,7 @@ export const ARTICLES_PART_3: Article[] = [
     category: 'آینده و ارزش‌ها',
     summary: 'رابطه‌ای که چشم‌انداز آینده نداشته باشد به تدریج در مرداب روزمرگی دچار رخوت می‌شود.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/path-together.webp',
     content: {
       scenario: 'گفت‌وگو درباره سفرها، آرزوهای تحصیلی، خانه رویایی و هدف‌های معنوی شور زندگی را مضاعف می‌کند.',
       scientificInsight: 'خلق معنای مشترک (Shared Meaning) بالاترین سطح هرم خانه رابطه سالم گاتمن است.',
@@ -86,7 +86,7 @@ export const ARTICLES_PART_3: Article[] = [
     category: 'اعتماد و وفاداری',
     summary: 'اعتماد با یک سوگند بزرگ شکل نمی‌گیرد، بلکه در هزاران قول وفادارمانده کوچک ریشه دارد.',
     readingTime: 5,
-    heroImage: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'وقتی قول می‌دهید ساعت ۸ در خانه باشید و دقیق سر وقت می‌آیید، آجری در دیوار اعتماد چیده‌اید.',
       scientificInsight: 'برنه براون اعتماد را به شیشه پر از تیله تشبیه می‌کند که با هر رفتار وفادارانه دانه‌ای به آن افزوده می‌شود.',
@@ -112,7 +112,7 @@ export const ARTICLES_PART_3: Article[] = [
     category: 'مدیریت تعارض',
     summary: 'قهر محروم‌سازی عاطفی است که به جای حل مشکل، بذر ناامنی عمیق را در قلب دیگری می‌کارد.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/journaling.webp',
     content: {
       scenario: 'تفاوت وقفه هوشمند با قهر این است که در وقفه زمان بازگشت و علاقه مشخص است، اما در قهر پیام طرد و انتقام مخابره می‌شود.',
       scientificInsight: 'طرد عاطفی مناطقی از مغز را فعال می‌کند که درد فیزیکی را پردازش می‌کنند.',
@@ -138,7 +138,7 @@ export const ARTICLES_PART_3: Article[] = [
     category: 'فلسفه رابطه و دوباتن',
     summary: 'کودکان نوزاد زبان ندارند و مادر نیازشان را حدس می‌زند؛ در بزرگسالی هم ناخودآگاه انتظار داریم همسرمان مغزمان را بخواند.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/book-growth.webp',
     content: {
       scenario: 'ما اخم می‌کنیم و در جواب «چی شده؟» می‌گوییم «هیچی!» و خشمگین می‌شویم که چرا متوجه رنج ما نشد.',
       scientificInsight: 'دوباتن می‌گوید این خطای شناختی مانع از آموزش صبورانه خواسته‌هایمان به شریک زندگی می‌شود.',
@@ -164,7 +164,7 @@ export const ARTICLES_PART_3: Article[] = [
     category: 'قدردانی و نشاط',
     summary: 'مغز تمایل دارد چیزهای پایدار را عادی تلقی کند؛ سپاسگزاری آگاهانه پادزهر این عادی‌سازی است.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'دیدن زحمات روزمره همسر و گفتن یک متشکرم از ته دل هورمون‌های نشاط را در خانه به جریان می‌اندازد.',
       scientificInsight: 'پژوهش‌های دانشگاه برکلی نشان می‌دهد سپاسگزاری رضایت زناشویی را تا ۳۵٪ ارتقا می‌دهد.',
@@ -190,7 +190,7 @@ export const ARTICLES_PART_3: Article[] = [
     category: 'مهارت‌های گفت‌وگو',
     summary: 'نگاه چشم در چشم طولانی در زمان تنش می‌تواند حس بازجویی ایجاد کند؛ در حالی که نشستن شانه به شانه استرس را می‌کاهد.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/journaling.webp',
     content: {
       scenario: 'پیاده‌روی یا رانندگی در جاده‌های خلوت فضایی امن و بدون قضاوت برای باز کردن صحبت‌های عمیق می‌سازد.',
       scientificInsight: 'کاهش فشار خیره شدن مستقیم، مقاومت آمیگدال مغز را کاهش می‌دهد.',
@@ -216,7 +216,7 @@ export const ARTICLES_PART_3: Article[] = [
     category: 'تنظیم هیجان',
     summary: 'کلماتی که در ثانیه‌های نخست خشم پرتاب می‌شوند ممکن است سال‌ها ترمیم نشوند.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/journaling.webp',
     content: {
       scenario: 'یک مکث ۵ ثانیه‌ای و نوشیدن جرعه‌ای آب به قشر پیش‌پیشانی مغز فرصت می‌دهد دوباره کنترل فرمان را در دست گیرد.',
       scientificInsight: 'موج آدرنالین خشم پس از ۹۰ ثانیه آغاز به افت می‌کند به شرطی که با نشخوار ذهنی بنزین روی آن نریزید.',
@@ -242,7 +242,7 @@ export const ARTICLES_PART_3: Article[] = [
     category: 'صمیمیت و اشتیاق',
     summary: 'برای اینکه اشتیاق زنده بماند، همسرمان باید بتواند ما را در حال درخشش در قلمروهای دیگر (کار، هنر، ورزش) تماشا کند.',
     readingTime: 5,
-    heroImage: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'ادغام کامل و چسبندگی افراطی شعله کشش را کم‌سو می‌کند؛ فاصله اندک و استقلال جذابیت می‌آفریند.',
       scientificInsight: 'کشش جنسی نیازمند عنصری از نوآوری و دیدن همسر به عنوان انسانی جداگانه و دست‌نیافتنی است.',

@@ -8,7 +8,7 @@ export const ARTICLES_PART_5: Article[] = [
     category: 'ارتباط دیجیتال',
     summary: 'فابینگ (نادیده گرفتن همسر به خاطر گوشی) سیگنال بی‌ارزشی به طرف مقابل می‌دهد و صمیمیت را تخریب می‌کند.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'سر میز شام هر دو نفر با گوشی کار می‌کنند یا هنگام درد دل کردن همسر، انگشت روی اینستاگرام می‌لغزد.',
       scientificInsight: 'حتی وجود یک گوشی خاموش روی میز تمرکز و عمق همدلی مکالمه را تا ۳۰ درصد می‌کاهد.',
@@ -34,7 +34,7 @@ export const ARTICLES_PART_5: Article[] = [
     category: 'مرزبندی و استقلال',
     summary: 'اگر نتوانید به دعوت‌های بی‌پایان دیگران «نه» بگویید، رابطه دونفره‌تان اولین قربانی کمبود وقت خواهد بود.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/path-together.webp',
     content: {
       scenario: 'تعارف‌های افراطی باعث می‌شود آخر هفته‌ها را در خستگی مهمانی‌های اجباری بگذرانید و وقتی برای شارژ رابطه نماند.',
       scientificInsight: 'مرزگذاری محکم بیرونی امنیت و آرامش درونی خانه را تقویت می‌کند.',
@@ -60,7 +60,7 @@ export const ARTICLES_PART_5: Article[] = [
     category: 'فلسفه رابطه و دوباتن',
     summary: 'همه ما در بخش‌هایی دیوانه و غیرمنطقی هستیم؛ هنر رابطه در این است که این نقاط ضعف را صادقانه به همسرمان اعتراف کنیم.',
     readingTime: 5,
-    heroImage: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/book-growth.webp',
     content: {
       scenario: 'اگر بگویید: «من وقتی گرسنه می‌شوم بدخلق می‌شوم، پای خودت نگذار»، همسرتان در آن لحظه رفتار شما را شخصی نمی‌کند.',
       scientificInsight: 'دوباتن پیشنهاد می‌کند هر زوج یک مانیفست کوتاه از نقاط ضعف و قلق‌های روانی خود بنویسد.',
@@ -86,7 +86,7 @@ export const ARTICLES_PART_5: Article[] = [
     category: 'ارتباط همدلانه',
     summary: 'پژوهش‌ها نشان می‌دهد پاسخ مشتاقانه و فعال به موفقیت‌های کوچک همسر پیوند عاطفی را بسیار عمیق‌تر می‌کند.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'وقتی همسرتان می‌گوید «امروز پروژه‌ام تأیید شد»، نگویید «خوب خداروشکر، حالا بگو شام چی داریم»؛ بلند شوید، بغلش کنید و با جزئیات بپرسید چطور پیش رفت.',
       scientificInsight: 'پاسخ فعالانه-سازنده (Active-Constructive Responding) بهترین شاخص پایداری عشق است.',
@@ -112,7 +112,7 @@ export const ARTICLES_PART_5: Article[] = [
     category: 'همکاری و انصاف',
     summary: 'وقتی بار مدیریت خانه فقط روی دوش یکی از طرفین باشد، خشم خاموش و کاهش میل جنسی حتمی است.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/book-growth.webp',
     content: {
       scenario: 'همکاری داوطلبانه در آشپزی، تمیزکاری و مراقبت بدون نیاز به غر زدن و التماس حس تیمی بودن می‌آفریند.',
       scientificInsight: 'تقسیم عادلانه کارهای خانه رضایت زناشویی و میل جنسی را در زنان به طور معناداری بالا می‌برد.',
@@ -138,7 +138,7 @@ export const ARTICLES_PART_5: Article[] = [
     category: 'رشد و پویایی',
     summary: 'خطرناک‌ترین مرحله ازدواج دشمنی نیست؛ بی‌تفاوتی و تبدیل شدن به دو همکار لجستیکی است.',
     readingTime: 5,
-    heroImage: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/journaling.webp',
     content: {
       scenario: 'وقتی تمام حرف‌ها به خرید ماست، پرداخت قبض و کارهای مدرسه بچه‌ها محدود می‌شود، زنگ خطر به صدا درآمده است.',
       scientificInsight: 'کشف تجربیات جدید دونفره (کلاس رقص، کوه‌نوردی، یادگیری هنر نو) دوپامین را مجدداً ترشح می‌کند.',
@@ -164,7 +164,7 @@ export const ARTICLES_PART_5: Article[] = [
     category: 'خانواده و فرزندپروری',
     summary: 'بهترین هدیه‌ای که والدین می‌توانند به فرزندان بدهند، خانه‌ای است که در آن پدر و مادر عاشقانه یکدیگر را دوست دارند.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1476703993599-0035a21b17a9?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/path-together.webp',
     content: {
       scenario: 'وقتی کودک محور کل کیهان خانه می‌شود، زن و شوهر به حاشیه می‌روند و با ترک خانه توسط فرزندان، با خلأ عاطفی روبه‌رو می‌شوند.',
       scientificInsight: 'حفظ مرز زناشویی حس امنیت عمیقی به کودک می‌دهد که والدینش تکیه‌گاه یکدیگرند.',
@@ -190,7 +190,7 @@ export const ARTICLES_PART_5: Article[] = [
     category: 'ترمیم و بخشش',
     summary: 'کینه نگه‌داشتن مانند نوشیدن سم و انتظار مرگ طرف مقابل است؛ بخشش رهایی قلب خودمان است.',
     readingTime: 5,
-    heroImage: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'باز کردن زخم‌های سال‌های قبل در هر دعوا مانع از جریان حیات تازه در رابطه می‌شود.',
       scientificInsight: 'بخشش حقیقی با تعهد متقابل و درک پشیمانی همراه است و ساختار نورونی مغز را التیام می‌بخشد.',
@@ -216,7 +216,7 @@ export const ARTICLES_PART_5: Article[] = [
     category: 'صمیمیت و آرامش',
     summary: 'آخرین احساسی که با آن به خواب می‌روید، رویاها و کیفیت بازیابی سیستم عصبی‌تان را رقم می‌زند.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/journaling.webp',
     content: {
       scenario: 'پایان دادن به روز با یک بوسه، لمس ملایم و گفتن «شب بخیر، دوستت دارم» حتی پس از روزی پر تنش.',
       scientificInsight: 'کاهش کورتیزول قبل از خواب عمق خواب REM را افزایش داده و سلامت مغز را ارتقا می‌دهد.',
@@ -242,7 +242,7 @@ export const ARTICLES_PART_5: Article[] = [
     category: 'فلسفه رابطه و دوباتن',
     summary: 'عشق چیزی نیست که در خیابان پیدا شود؛ تندیسی است که هر دو نفر با تراشیدن سنگ منیت و صیقل دادن شکیبایی خلق می‌کنند.',
     readingTime: 5,
-    heroImage: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'در پایان عمر، آنچه از زندگی مشترک باقی می‌ماند نه متراژ خانه است و نه برند ماشین؛ بلکه خاطره مهربانی‌ها و وفاداری‌های آرام در لحظات سختی است.',
       scientificInsight: 'آلن دوباتن در پایان «سیر عشق» می‌نویسد: زیباترین عشق‌ها آن‌هایی نیستند که در طوفان‌ها نسوختند، بلکه آن‌هایی هستند که با مهارت آموختند چگونه دوباره جوانه بزنند.',

@@ -8,7 +8,7 @@ export const ARTICLES_PART_2: Article[] = [
     category: 'فلسفه رابطه و دوباتن',
     summary: 'ما به دنبال کسی می‌گردیم که بدون سخن گفتن همه نیازهایمان را حدس بزند؛ در حالی که چنین انسانی هرگز خلق نشده است.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/journaling.webp',
     content: {
       scenario: 'یکی منظم و برنامه‌ریز است و دیگری منعطف و آرام. اختلاف بر سر این تفاوت‌ها انرژی زیادی می‌گیرد.',
       scientificInsight: 'دوباتن بیان می‌کند سازگاری پیش‌نیاز عشق نیست، بلکه دستاورد عشق و مدارا در طول سال‌ها است.',
@@ -34,7 +34,7 @@ export const ARTICLES_PART_2: Article[] = [
     category: 'فلسفه رابطه و دوباتن',
     summary: 'اگر کودکی ۳ ساله گریه کند یا غذایش را پرتاب کند، او را شیطان نمی‌دانیم، می‌فهمیم خسته یا گرسنه است. در مورد همسر نیز همین است.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1544716278-ca5e3f4abd8c?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/book-growth.webp',
     content: {
       scenario: 'وقتی همسرتان با طعنه سخن می‌گوید، اولین حس شما خشم است، اما پشت این طعنه یک کودک ناتوان در بیان ناامیدی نشسته است.',
       scientificInsight: 'آلن دوباتن در کتاب «آیا برای عشق آماده‌ای؟» تأکید می‌کند که بلوغ عاطفی یعنی توانایی دیدن رنج زیر نقاب تهاجم.',
@@ -60,7 +60,7 @@ export const ARTICLES_PART_2: Article[] = [
     category: 'مرزبندی و خانواده',
     summary: 'یکی از شایع‌ترین تنش‌های سال‌های نخست، کشمکش بر سر اولویت همسر در برابر نظرات و انتظارات والدین است.',
     readingTime: 5,
-    heroImage: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/path-together.webp',
     content: {
       scenario: 'دخالت در تصمیم‌گیری‌های مالی یا تربیت فرزند اگر با مرزگذاری واضح روبه‌رو نشود، رابطه زن و شوهر را فرسوده می‌کند.',
       scientificInsight: 'گاتمن نشان می‌دهد زوج‌های موفق ائتلافی ناگسستنی تشکیل می‌دهند و اولویت نخست تصمیم‌گیری را درون خانه خود نگه می‌دارند.',
@@ -86,7 +86,7 @@ export const ARTICLES_PART_2: Article[] = [
     category: 'ابراز محبت',
     summary: 'شاید شما با شستن ماشین محبتتان را ابراز می‌کنید، در حالی که همسرتان فقط منتظر شنیدن یک جمله عاشقانه است.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'سوءتفاهم زمانی رخ می‌دهد که هر کس به زبان مادری خود عشق می‌ورزد و زبان همسر را یاد نگرفته است.',
       scientificInsight: 'گری چپمن نشان داد شناخت زبان برتر همسر بازدهی انرژی عاطفی را به حداکثر می‌رساند.',
@@ -112,7 +112,7 @@ export const ARTICLES_PART_2: Article[] = [
     category: 'برنامه‌ریزی و ارزش‌ها',
     summary: 'بحث‌های مالی به ندرت بر سر اعداد هستند؛ پول برای یکی نماد بقا و امنیت است و برای دیگری نماد آزادی و لذت از حال.',
     readingTime: 5,
-    heroImage: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/book-growth.webp',
     content: {
       scenario: 'یکی از زوجین نگران آینده است و ریال به ریال را پس‌انداز می‌کند، دیگری معتقد است عمر کوتاه است و باید در لحظه شاد بود.',
       scientificInsight: 'کشف رویاهای مالی پشت هزینه‌کردن مانع از اتهام‌زنی مثل خسیس یا ولخرج می‌شود.',
@@ -138,7 +138,7 @@ export const ARTICLES_PART_2: Article[] = [
     category: 'بحران و تاب‌آوری',
     summary: 'طوفان‌های بیرونی یا رابطه را در هم می‌شکنند یا به دژی نفوذناپذیر تبدیل می‌کنند.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1499209974431-9dddcece7f88?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/journaling.webp',
     content: {
       scenario: 'در بحران‌ها ممکن است فشار روانی باعث سرریز شدن پرخاشگری روی شریک زندگی شود.',
       scientificInsight: 'روانشناسی بالینی نشان می‌دهد همبستگی و همدلی شناختی در بحران‌ها مانع از فرسودگی روانی می‌شود.',
@@ -164,7 +164,7 @@ export const ARTICLES_PART_2: Article[] = [
     category: 'فلسفه رابطه و دوباتن',
     summary: 'عشق واقعی به رسمیت شناختن تنهایی اگزیستانسیال انسان دیگر است؛ نه بلعیدن تمام خلوت او.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1506126613408-eca07ce68773?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/journaling.webp',
     content: {
       scenario: 'وقتی همسرتان می‌خواهد کتاب بخواند یا در اتاقش تنها باشد، آن را به بی‌مهری نسبت به خود تعبیر نکنید.',
       scientificInsight: 'فضای شخصی سالم، انرژی روانی لازم را برای بازگشت مشتاقانه به صمیمیت فراهم می‌کند.',
@@ -190,7 +190,7 @@ export const ARTICLES_PART_2: Article[] = [
     category: 'نشاط و صمیمیت',
     summary: 'زوج‌هایی که با هم شوخی‌های رمزی دارند و در خانه می‌خندند، در برابر فرسودگی رابطه ایمن هستند.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1518199266791-5375a83190b7?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'تنش‌های کوچک خانه وقتی با شوخی ملایم مدیریت شوند هرگز به بحران تبدیل نمی‌شوند.',
       scientificInsight: 'خنده باعث ترشح اندورفین و اکسی‌توسین شده و فاز دفاعی مغز را غیرفعال می‌سازد.',
@@ -216,7 +216,7 @@ export const ARTICLES_PART_2: Article[] = [
     category: 'خودآگاهی و واقع‌گرایی',
     summary: 'ما باطن و چالش‌های زندگی خود را با گلچین لحظات بی‌نقص عکس‌های دیگران مقایسه می‌کنیم و دچار سرخوردگی می‌شویم.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'دیدن سفرهای لوکس یا کادوهای پر زرق و برق دیگران ممکن است این وسوسه را ایجاد کند که رابطه ما چیزی کم دارد.',
       scientificInsight: 'پژوهش‌ها نشان می‌دهد مقایسه بیرونی رضایت رابطه را تا ۴۰ درصد کاهش می‌دهد.',
@@ -242,7 +242,7 @@ export const ARTICLES_PART_2: Article[] = [
     category: 'سلامت جسم و روان',
     summary: 'لمس محبت‌آمیز بدون انتظار رابطه جنسی، ضربان قلب را منظم و کورتیزول خون را پایین می‌آورد.',
     readingTime: 4,
-    heroImage: 'https://images.unsplash.com/photo-1516589178581-6cd7833ae3b2?auto=format&fit=crop&w=800&q=80',
+    heroImage: '/offline/conversation.webp',
     content: {
       scenario: 'در شلوغی‌های روزمره تماس بدنی فراموش می‌شود و زوجین مثل دو هم‌اتاقی اداری در کنار هم زندگی می‌کنند.',
       scientificInsight: 'در آغوش گرفتن به مدت ۲۰ ثانیه باعث ترشح هورمون اکسی‌توسین شده و حس امنیت عصبی را فعال می‌کند.',

@@ -8,7 +8,7 @@ export const ARTICLES_PART_4: Article[] = [
     category: 'ارتباط همدلانه',
     summary: 'اغلب آقایان به محض شنیدن یک مشکل شروع به حل مسئله می‌کنند، در حالی که خانم‌ها ابتدا نیازمند شنیده شدن بار هیجانی هستند.',
     readingTime: 4,
-    heroImage: '/offline/conversation.webp',
+    heroImage: '/images/articles/A31.jpg',
     content: {
       scenario: 'همسر می‌گوید: «امروز مدیرم خیلی بی‌انصافی کرد»، پاسخ اشتباه: «خوب تو نباید بهش فلان حرفو می‌زدی!»؛ پاسخ درست: «واقعاً حق داشتی ناراحت بشی، خیلی روز سختی بوده.»',
       scientificInsight: 'همدلی شناختی پیش‌نیاز آرامش مغز است و ارائه راه‌حل قبل از همدردی حس رد شدن ایجاد می‌کند.',
@@ -34,7 +34,7 @@ export const ARTICLES_PART_4: Article[] = [
     category: 'نشاط و صمیمیت',
     summary: 'مرور عکس‌ها و یادآوری انگیزه‌های اولیه انتخاب همسر، مغز را با دوز بالایی از دوپامین و عشق بازپروری می‌کند.',
     readingTime: 4,
-    heroImage: '/offline/conversation.webp',
+    heroImage: '/images/articles/A32.jpg',
     content: {
       scenario: 'یک عصر تعطیل و نگاه کردن به عکس‌های سفر اول یا پیام‌های عاشقانه ماه‌های نخست آشنایی.',
       scientificInsight: 'یادآوری روایت دلدادگی (The Fondness & Admiration System) دومین رکن خانه رابطه موفق است.',
@@ -60,7 +60,7 @@ export const ARTICLES_PART_4: Article[] = [
     category: 'سلامت جسم و روان',
     summary: 'وقتی بدن فرسوده و کم‌انرژی است، کوچک‌ترین شوخی یا اشتباه به بحران تبدیل می‌شود.',
     readingTime: 4,
-    heroImage: '/offline/journaling.webp',
+    heroImage: '/images/articles/A33.jpg',
     content: {
       scenario: 'اصطلاح روان‌شناسی Hangry (خشم ناشی از گرسنگی) نشان می‌دهد چقدر مغز به گلوکز برای خودکنترلی وابسته است.',
       scientificInsight: 'کاهش خواب آمیگدال را بیش‌فعال و بازداری قشر فرونتال را به شدت ضعیف می‌کند.',
@@ -86,7 +86,7 @@ export const ARTICLES_PART_4: Article[] = [
     category: 'فلسفه رابطه و دوباتن',
     summary: 'در رابطه عاطفی یا هر دو نفر برنده می‌شوند یا اگر یکی برنده و دیگری تحقیر شود، هر دو باخته‌اند.',
     readingTime: 4,
-    heroImage: '/offline/book-growth.webp',
+    heroImage: '/images/articles/A34.jpg',
     content: {
       scenario: 'اثبات اینکه «من حق داشتم و تو اشتباه کردی» ممکن است در دادگاه بدرخشد، اما در تختخواب سرما می‌آفریند.',
       scientificInsight: 'پیروزی کلامی بر همسر به معنای ایجاد حس حقارت و انتقام پنهان در اوست.',
@@ -112,7 +112,7 @@ export const ARTICLES_PART_4: Article[] = [
     category: 'ذهن‌آگاهی و آرامش',
     summary: 'نشستن روبه‌روی هم و نفس کشیدن هماهنگ، فرکانس‌های سیستم عصبی پاراسمپاتیک را همگام می‌سازد.',
     readingTime: 4,
-    heroImage: '/offline/journaling.webp',
+    heroImage: '/images/articles/A35.jpg',
     content: {
       scenario: 'کافی است دست روی سینه یکدیگر بگذارید و به آرامی دم و بازدم را همزمان کنید.',
       scientificInsight: 'پدیده همگامی فیزیولوژیک (Physiological Synchrony) عمق پیوند قلبی را افزایش می‌دهد.',
@@ -138,7 +138,7 @@ export const ARTICLES_PART_4: Article[] = [
     category: 'اعتماد و وفاداری',
     summary: 'پنهان کردن فاکتور یا قرض دادن بدون مشورت شاید بی‌خطر به نظر برسد، اما حس تنهایی و حذف شدن را در همسر بیدار می‌کند.',
     readingTime: 4,
-    heroImage: '/offline/book-growth.webp',
+    heroImage: '/images/articles/A36.jpg',
     content: {
       scenario: 'صداقت در تمام امور مالی آرامش خاطر و حس شریک واقعی بودن را تزریق می‌کند.',
       scientificInsight: 'خیانت مالی دومین عامل تنش‌های حاد بعد از خیانت عاطفی است.',
@@ -164,7 +164,7 @@ export const ARTICLES_PART_4: Article[] = [
     category: 'رشد رابطه و تعهد',
     summary: 'ما هر سال انسان متفاوتی می‌شویم؛ بنابراین قراردادهای عاطفی ما نیز نیازمند به‌روزرسانی و تجدید عهد هستند.',
     readingTime: 4,
-    heroImage: '/offline/path-together.webp',
+    heroImage: '/images/articles/A37.jpg',
     content: {
       scenario: 'در سالگردها به جای صرفاً یک هدیه، بنویسید که در سال گذشته بابت چه چیزهایی قدردانید و سال بعد چه برنامه‌ای دارید.',
       scientificInsight: 'آئین‌های پیوند دهنده (Rituals of Connection) حس تعلق و هویت مشترک را تحکیم می‌کنند.',
@@ -190,7 +190,7 @@ export const ARTICLES_PART_4: Article[] = [
     category: 'خودآگاهی و امنیت',
     summary: 'حسادت لزوماً نشانه بدخواهی نیست؛ فریادی است که می‌گوید: «آیا من هنوز برایت زیباترین و مهم‌ترینم؟»',
     readingTime: 4,
-    heroImage: '/offline/book-growth.webp',
+    heroImage: '/images/articles/A38.jpg',
     content: {
       scenario: 'به جای بازجویی یا پنهان‌کاری، پذیرش آرام حس ناامنی و اطمینان دادن همسر شعله حسادت را خاموش می‌کند.',
       scientificInsight: 'آلن دوباتن در «جستارهایی در باب عشق» حسادت را برآمده از وحشت عمیق طردشدگی می‌داند.',
@@ -216,7 +216,7 @@ export const ARTICLES_PART_4: Article[] = [
     category: 'رشد فردی و فرهنگ',
     summary: 'ادبیات اصیل به ما کلماتی هدیه می‌دهد تا عمیق‌ترین و پیچیده‌ترین لایه‌های قلبمان را به زبان آوریم.',
     readingTime: 4,
-    heroImage: '/offline/path-together.webp',
+    heroImage: '/images/articles/A39.jpg',
     content: {
       scenario: 'خواندن گزیده‌ای از حافظ، سعدی، مولانا یا نزار قبانی قبل از خواب فضایی شاعرانه و امن در خانه می‌آفریند.',
       scientificInsight: 'مطالعه ادبیات تخیلی قوی هوش هیجانی و تئوری ذهن را در بزرگسالان تقویت می‌کند.',
@@ -242,7 +242,7 @@ export const ARTICLES_PART_4: Article[] = [
     category: 'صمیمیت و نشاط',
     summary: 'آراستگی نباید فقط برای مهمانی‌ها باشد؛ بهترین عطرها و تمیزترین لباس‌ها شایسته کسی است که تمام عمر را با او شریکیم.',
     readingTime: 4,
-    heroImage: '/offline/conversation.webp',
+    heroImage: '/images/articles/A40.jpg',
     content: {
       scenario: 'پوشیدن لباسی مرتب در خانه و معطر بودن پیامی ناخودآگاه از احترام و ارزش‌گذاری به همسر می‌فرستد.',
       scientificInsight: 'حس بویایی مستقیماً با سیستم لیمبیک و خاطرات عاشقانه مغز مرتبط است.',

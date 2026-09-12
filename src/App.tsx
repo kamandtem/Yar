@@ -58,6 +58,7 @@ export default function App() {
   const [isMenuExpanded, setIsMenuExpanded] = useState(false);
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [isBreathingOpen, setIsBreathingOpen] = useState(false);
+  const [showExitDialog, setShowExitDialog] = useState(false);
 
   // Active modal targets
   const [activeArticle, setActiveArticle] = useState<Article | null>(null);
@@ -153,11 +154,8 @@ export default function App() {
       const now = Date.now();
       const n = navigationRef.current;
       if (now - lastBackAt < 1800) {
-        if (window.confirm('آیا می‌خواهید از یار خارج شوید؟')) {
-          void CapacitorApp.exitApp();
-        } else {
-          lastBackAt = 0;
-        }
+        setShowExitDialog(true);
+        lastBackAt = 0;
         return;
       }
       lastBackAt = now;
@@ -451,6 +449,8 @@ export default function App() {
         isOpen={!!activePerspective}
         onClose={() => setActivePerspective(null)}
       />
+
+      {showExitDialog && <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/45 px-5 backdrop-blur-sm" dir="rtl"><div role="dialog" aria-modal="true" className="w-full max-w-sm overflow-hidden rounded-[2rem] border border-violet-200/70 bg-[linear-gradient(145deg,#faf7ff,#f1eaff)] p-6 text-center shadow-2xl dark:border-violet-900/60 dark:bg-slate-900"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-violet-600 text-white shadow-lg shadow-violet-500/25"><span className="text-2xl">✦</span></div><h2 className="mt-4 text-lg font-black text-slate-900 dark:text-white">از یار خارج می‌شوی؟</h2><p className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-300">هر وقت برگردی، اطلاعاتت همین‌جا منتظر توست.</p><div className="mt-5 grid grid-cols-2 gap-2"><button onClick={()=>setShowExitDialog(false)} className="min-h-11 rounded-2xl bg-violet-600 text-xs font-black text-white shadow-lg shadow-violet-500/20 transition-transform active:scale-95">ادامه در یار</button><button onClick={()=>void CapacitorApp.exitApp()} className="min-h-11 rounded-2xl border border-violet-200 bg-white/70 text-xs font-black text-violet-700 transition-transform active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-violet-200">خروج</button></div></div></div>}
     </div>
     </div>
   );

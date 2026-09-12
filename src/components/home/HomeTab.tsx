@@ -9,6 +9,7 @@ import { computeRelationshipCycle, RELATIONSHIP_GUIDANCE } from '../../services/
 import { learnMoodPattern } from '../../services/personalization';
 import { getPrivateSuggestions } from '../../services/dailySuggestions';
 import { getTodayIsoDate } from '../../services/jalali';
+import { ALL_50_ARTICLES } from '../../data/allArticles';
 import {
   Sparkles,
   ArrowLeft,
@@ -82,14 +83,16 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
   // Tailor today's article and exercise based on user's priority topics
   const priorityCategory = preferences.priorityTopics?.[0] || 'communication';
-  const todaysArticle =
-    articles.find((a) =>
-      priorityCategory === 'conflict'
-        ? a.id === 'art-1' || a.id === 'art-4'
-        : priorityCategory === 'trauma'
-        ? a.id === 'art-7' || a.id === 'art-6'
-        : a.id === 'art-2'
-    ) || articles[0];
+  const articlePool = ALL_50_ARTICLES.length ? ALL_50_ARTICLES : articles;
+  const articleSeed = `${getTodayIsoDate()}-${cycleState.phase}-${moodInsight?.averageMood || 'steady'}`;
+  const articleIndex = Array.from(articleSeed).reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % articlePool.length;
+  const moodFilteredArticles = articlePool.filter((a) => {
+    const haystack = `${a.title} ${a.summary} ${a.category} ${(a.tags || []).join(' ')}`;
+    if (priorityCategory === 'conflict') return /تعارض|گفت|دعوا|مرز|حل/.test(haystack);
+    if (priorityCategory === 'trauma') return /زخم|امن|اعتماد|اضطراب|احساس/.test(haystack);
+    return /ارتباط|صمیم|عشق|گفت|رابطه/.test(haystack);
+  });
+  const todaysArticle = (moodFilteredArticles.length ? moodFilteredArticles : articlePool)[articleIndex % (moodFilteredArticles.length || articlePool.length)] || articles[0];
 
   const todaysExercise =
     exercises.find((e) =>
@@ -330,12 +333,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       <div className="space-y-3">
         <div className="flex items-center justify-between text-xs font-bold text-slate-400 dark:text-slate-400 px-1">
           <span className="uppercase tracking-wider">بخش‌های فعال رابطه</span>
-          <button
-            onClick={() => onNavigateToTab('cycle')}
-            className="text-[oklch(50%_0.12_330)] dark:text-pink-300 hover:underline"
-          >
-            مشاهده همه
-          </button>
+
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -349,9 +347,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <span className="text-[10px] font-bold text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-950/70 px-2 py-0.5 rounded-full">
                 مسیر فعال
               </span>
-              <span className="text-[10px] font-bold text-slate-400">
-                {toPersianDigits(nextStage.stageNumber)}/{toPersianDigits(activeJourney.stages.length)}
-              </span>
+
             </div>
 
             <div>
@@ -384,10 +380,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
               <span className="text-[10px] font-bold text-purple-600 dark:text-purple-400 bg-purple-50 dark:bg-purple-950/70 px-2 py-0.5 rounded-full">
                 تمرین روز
               </span>
-              <span className="text-[10px] font-bold text-slate-400 flex items-center gap-0.5">
-                <Clock size={10} />
-                <span>{toPersianDigits(todaysExercise.duration)}د</span>
-              </span>
+
             </div>
 
             <div>
@@ -477,7 +470,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
       {/* 8. Alain de Botton & 50 Articles Showcase Card */}
       <div
-        onClick={() => onNavigateToTab('library-old')}
+        onClick={() => onNavigateToTab('library')}
         className="relative overflow-hidden p-5 rounded-[28px] bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 text-white shadow-soft-elevated cursor-pointer group hover:scale-[1.01] transition-all"
       >
         <div className="absolute top-0 right-0 -mr-6 -mt-6 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
@@ -485,13 +478,13 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           <div className="space-y-1.5">
             <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-white/20 backdrop-blur-sm text-[10px] font-bold">
               <Sparkles size={12} className="text-amber-300" />
-              <span>کتابخانه و ۵۰ مقاله جدید</span>
+              <span>کتابخانه یار</span>
             </div>
             <h3 className="text-base font-black tracking-tight">
-              آثار آلن دوباتن و درس‌های ماندگار رابطه
+              کتاب‌های یار برای رشد رابطه
             </h3>
             <p className="text-xs text-white/90 leading-relaxed max-w-[260px]">
-              کتاب «آیا برای عشق آماده‌ای؟»، سیر عشق و گنجینه ۵۰ مقاله تحلیلی برای عمق بخشیدن به پیوند زناشویی.
+              دوپامین، کایزن و کتاب‌های آلن دوباتن؛ هر کدام با نام مشخص و مطالعه آفلاین.
             </p>
           </div>
           <div className="w-10 h-10 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0 group-hover:-translate-x-1 transition-transform">
@@ -530,7 +523,7 @@ const TemperatureAdvice = ({ score, cycleState, moodInsight, onNavigateToTab }: 
     <div className="flex items-center gap-2"><span className={`flex h-8 w-8 items-center justify-center rounded-xl ${low?'bg-rose-500':high?'bg-emerald-500':'bg-amber-500'} text-white`}><Heart size={15} className="fill-current"/></span><div><b className="block text-sm text-slate-900 dark:text-white">{title}</b><small className="text-[11px] text-slate-500">دمای امروز: {toPersianDigits(score)} از ۵</small></div></div>
     <p className="mt-3 text-xs font-bold text-slate-700 dark:text-slate-300">{body}</p>
     {!open ? <button onClick={()=>setOpen(true)} className="mt-3 min-h-11 w-full rounded-xl bg-[oklch(35%_0.04_330)] text-xs font-black text-white">خواندن پیشنهاد</button> : <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="mt-4 space-y-3">
-      <div className="flex items-center justify-between gap-2"><b className="text-xs text-slate-800 dark:text-white">پیشنهادهای مخصوص همین لحظه</b><button onClick={()=>setRound(v=>v+1)} className="group flex min-h-10 items-center gap-1.5 rounded-xl bg-[oklch(45%_0.13_330)] px-3 text-[10px] font-black text-white shadow-[0_6px_14px_oklch(45%_0.12_330_/_0.2)] transition-transform active:scale-95"><RefreshCw size={13} className="transition-transform group-active:rotate-180"/> پیشنهادهای دیگر</button></div>
+      <div className="flex items-center justify-between gap-2"><b className="text-[11px] text-slate-800 dark:text-white">پیشنهادهای این لحظه</b><button onClick={()=>setRound(v=>v+1)} className="group flex min-h-10 items-center gap-1.5 rounded-xl bg-[oklch(45%_0.13_330)] px-3 text-[10px] font-black text-white shadow-[0_6px_14px_oklch(45%_0.12_330_/_0.2)] transition-transform active:scale-95"><RefreshCw size={13} className="transition-transform group-active:rotate-180"/> پیشنهادهای دیگر</button></div>
       {suggestions.map((item:any)=>{const done=completedSuggestions.includes(item.id);return <motion.div key={item.id} animate={done?{scale:[1,.98,1]}:{scale:1}} className={`flex gap-3 rounded-2xl p-3 transition-colors ${done?'bg-emerald-50 dark:bg-emerald-950/25':'bg-[oklch(99%_0.006_80)] dark:bg-slate-900'}`}><button aria-label={done?'لغو انجام پیشنهاد':'انجام پیشنهاد'} aria-pressed={done} onClick={()=>setCompletedSuggestions(current=>current.includes(item.id)?current.filter(id=>id!==item.id):[...current,item.id])} className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 transition-all ${done?'border-emerald-600 bg-emerald-600 text-white shadow-[0_0_0_4px_oklch(90%_0.08_155)]':'border-[oklch(58%_0.10_175)] text-transparent'}`}><Check size={16}/></button><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><b className={`text-xs ${done?'text-emerald-700 dark:text-emerald-300':'text-slate-900 dark:text-white'}`}>{item.title}</b><small className="flex shrink-0 items-center gap-1 text-[9px] text-slate-400"><Clock size={10}/>{item.time}</small></div><p className={`mt-1 text-[11px] leading-5 transition-all ${done?'text-slate-400 line-through decoration-2':'text-slate-600 dark:text-slate-300'}`}>{item.action}</p>{done&&<motion.small initial={{opacity:0,y:3}} animate={{opacity:1,y:0}} className="mt-1 block text-[10px] font-black text-emerald-600">انجام شد ✓</motion.small>}</div></motion.div>})}
       {moodInsight?.count >= 3 && <p className="text-[10px] leading-5 text-slate-500">این پیشنهادها با الگوی خلق، انرژی، نیاز پرتکرار و دمای رابطه تو انتخاب شده‌اند.</p>}
     </motion.div>}

@@ -199,7 +199,7 @@ export const JourneyModal: React.FC<JourneyModalProps> = ({
                           )}
                         </div>
                         <p className="text-xs text-slate-700 dark:text-slate-200 font-medium leading-relaxed line-clamp-2">{stage.concept}</p>
-                        <span className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[oklch(45%_0.13_265)] text-[11px] font-black text-white shadow-[0_5px_12px_oklch(45%_0.12_265_/_0.18)] transition-transform group-hover:translate-y-[-1px]">خواندن توضیح کامل <ArrowLeft size={14}/></span>
+                        <span className="mt-3 flex min-h-10 w-full items-center justify-center gap-2 rounded-xl bg-[oklch(55%_0.17_305)] text-[11px] font-black text-white shadow-[0_5px_14px_oklch(48%_0.14_305_/_0.2)] transition-transform group-hover:translate-y-[-1px]">خواندن توضیح کامل <ArrowLeft size={14}/></span>
                       </button>
 
                       {/* 2. Reflection and Couple Prompt */}
@@ -225,8 +225,8 @@ export const JourneyModal: React.FC<JourneyModalProps> = ({
                         onClick={() => onToggleStageCompleted(journey.id, stage.stageNumber)}
                         className={`w-full py-2 px-4 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 ${
                           isCompleted
-                            ? 'bg-[#EBF3ED] text-[#4E6B58] dark:bg-[#1E3024] dark:text-[#86EFAC]'
-                            : 'bg-[#C2413C] text-white hover:bg-[#B13732]'
+                            ? 'bg-[oklch(91%_0.055_305)] text-[oklch(42%_0.14_305)] dark:bg-[oklch(28%_0.07_305)] dark:text-[oklch(82%_0.08_305)]'
+                            : 'bg-[oklch(55%_0.17_305)] text-white hover:bg-[oklch(49%_0.18_305)]'
                         }`}
                       >
                         <CheckCircle2 size={14} />

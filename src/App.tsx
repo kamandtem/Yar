@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { App as CapacitorApp } from '@capacitor/app';
 import { MenstrualCycleConfig,  ActiveTab, UserPreferences, Article, Exercise, Journey, PerspectiveCase } from './types';
 import { StorageService } from './services/storage';
 import { applySystemBars } from './native/systemBars';
@@ -85,6 +86,13 @@ export default function App() {
   const moodInsight = learnMoodPattern(StorageService.getCycleCheckins(), liveCycleState.phase);
   const notifications = buildPersonalNotifications({ phase: liveCycleState.phase, inPms: liveCycleState.inPmsWindow, temperature: StorageService.getRelationTemperature(), moodInsight });
 
+  // Every tab is a fresh page, never inherit the previous page's scroll position.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }, [activeTab]);
+
   // Initialize app state and handle onboarding flow
   useEffect(() => {
     // Show splash screen for 2 seconds
@@ -131,34 +139,46 @@ export default function App() {
     return () => window.clearTimeout(timer);
   }, []);
 
-  // Back button: close the deepest open surface first, then return to home.
+  // Back button: first press goes one level back; a second press within the
+  // short window asks whether the user wants to exit the app.
   const navigationRef = useRef({ activeArticle, activeExercise, activeJourney, activePerspective, isSOSOpen, isMenuExpanded, isDrawerOpen, onboardingStep, isOnboardingOpen, activeTab });
   navigationRef.current = { activeArticle, activeExercise, activeJourney, activePerspective, isSOSOpen, isMenuExpanded, isDrawerOpen, onboardingStep, isOnboardingOpen, activeTab };
   useEffect(() => {
     window.history.pushState({ yar: true }, '', window.location.href);
     let lastBackAt = 0;
+    const pushBackState = () => {
+      window.history.pushState({ yar: true }, '', window.location.href);
+    };
     const handleBack = () => {
       const now = Date.now();
       const n = navigationRef.current;
-      if (n.activeArticle) { setActiveArticle(null); window.history.pushState({ yar: true }, '', window.location.href); return; }
-      if (n.activeExercise) { setActiveExercise(null); window.history.pushState({ yar: true }, '', window.location.href); return; }
-      if (n.activeJourney) { setActiveJourney(null); window.history.pushState({ yar: true }, '', window.location.href); return; }
-      if (n.activePerspective) { setActivePerspective(null); window.history.pushState({ yar: true }, '', window.location.href); return; }
-      if (n.isSOSOpen) { setIsSOSOpen(false); window.history.pushState({ yar: true }, '', window.location.href); return; }
-      if (n.isMenuExpanded) { setIsMenuExpanded(false); window.history.pushState({ yar: true }, '', window.location.href); return; }
-      if (n.isDrawerOpen) { setIsDrawerOpen(false); window.history.pushState({ yar: true }, '', window.location.href); return; }
-      if (n.onboardingStep === 'modal' && n.isOnboardingOpen) return;
-      if (n.activeTab !== 'home') { setActiveTab('home'); window.history.pushState({ yar: true }, '', window.location.href); return; }
       if (now - lastBackAt < 1800) {
-        if (window.confirm('آیا می‌خواهید از یار خارج شوید؟')) window.location.href = 'about:blank';
-      } else {
-        lastBackAt = now;
-        window.history.pushState({ yar: true }, '', window.location.href);
-        window.alert('برای خروج از برنامه، دوباره دکمه برگشت را بزنید.');
+        if (window.confirm('آیا می‌خواهید از یار خارج شوید؟')) {
+          void CapacitorApp.exitApp();
+        } else {
+          lastBackAt = 0;
+        }
+        return;
       }
+      lastBackAt = now;
+      if (n.activeArticle) { setActiveArticle(null); pushBackState(); return; }
+      if (n.activeExercise) { setActiveExercise(null); pushBackState(); return; }
+      if (n.activeJourney) { setActiveJourney(null); pushBackState(); return; }
+      if (n.activePerspective) { setActivePerspective(null); pushBackState(); return; }
+      if (n.isSOSOpen) { setIsSOSOpen(false); pushBackState(); return; }
+      if (n.isMenuExpanded) { setIsMenuExpanded(false); pushBackState(); return; }
+      if (n.isDrawerOpen) { setIsDrawerOpen(false); pushBackState(); return; }
+      if (n.onboardingStep === 'modal' && n.isOnboardingOpen) { pushBackState(); return; }
+      if (n.activeTab !== 'home') { setActiveTab('home'); pushBackState(); return; }
+      window.alert('برای خروج از برنامه، دوباره دکمه برگشت را بزنید.');
+      pushBackState();
     };
     window.addEventListener('popstate', handleBack);
-    return () => window.removeEventListener('popstate', handleBack);
+    const nativeBack = CapacitorApp.addListener('backButton', handleBack);
+    return () => {
+      window.removeEventListener('popstate', handleBack);
+      void nativeBack.then(listener => listener.remove());
+    };
   }, []);
 
   if (showSplash) {

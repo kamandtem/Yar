@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Book, Article } from '../../types';
 import { BookOpen, Bookmark, CheckCircle2, ChevronLeft, Clock, Quote, Search, Star } from 'lucide-react';
 import { toPersianDigits } from '../../utils/persianDate';
@@ -9,6 +9,17 @@ export const LibraryTab: React.FC<Props> = ({ books, articles, favorites, comple
   const [query, setQuery] = useState('');
   const [category, setCategory] = useState('all');
   const [selectedBook, setSelectedBook] = useState<Book | null>(null);
+  useEffect(() => {
+    if (!selectedBook) return;
+    const bodyOverflow = document.body.style.overflow;
+    const rootOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = bodyOverflow;
+      document.documentElement.style.overflow = rootOverflow;
+    };
+  }, [selectedBook]);
   const filteredBooks = books.filter(book => `${book.title} ${book.author} ${book.summary}`.toLowerCase().includes(query.toLowerCase()));
   const categories = ['all', ...Array.from(new Set(articles.map(a => a.category)))];
   const filteredArticles = articles.filter(article => (category === 'all' || article.category === category) && `${article.title} ${article.summary} ${article.tags.join(' ')}`.toLowerCase().includes(query.toLowerCase()));

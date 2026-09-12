@@ -1,4 +1,3 @@
-import { QuoteOfTheDay } from '../common/QuoteOfTheDay';
 import { PageIntroAccordion } from '../common/PageIntroAccordion';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -115,7 +114,6 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   return (
     <div className="pt-1 px-4 max-w-md mx-auto space-y-6">
       <PageIntroAccordion kind="home" />
-      <QuoteOfTheDay />
       {/* Hero Weather/Climate Card */}
       <div className="relative overflow-hidden rounded-[30px] p-6 bg-linear-to-br from-[#818CF8] via-[#A78BFA] to-[#60A5FA] text-white shadow-soft-elevated">
         {/* Glowing Sun / Heart Orb */}
@@ -479,7 +477,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
 
       {/* 8. Alain de Botton & 50 Articles Showcase Card */}
       <div
-        onClick={() => onNavigateToTab('library')}
+        onClick={() => onNavigateToTab('library-old')}
         className="relative overflow-hidden p-5 rounded-[28px] bg-gradient-to-br from-indigo-500 via-purple-600 to-pink-500 text-white shadow-soft-elevated cursor-pointer group hover:scale-[1.01] transition-all"
       >
         <div className="absolute top-0 right-0 -mr-6 -mt-6 w-28 h-28 bg-white/10 rounded-full blur-xl pointer-events-none" />
@@ -523,6 +521,7 @@ const CycleCareCard = ({ cycleState, onOpenSOS, onNavigateToTab, onOpenArticle, 
 const TemperatureAdvice = ({ score, cycleState, moodInsight, onNavigateToTab }: any) => {
   const [open, setOpen] = useState(false);
   const [round, setRound] = useState(0);
+  const [completedSuggestions, setCompletedSuggestions] = useState<string[]>([]);
   const low = score <= 2; const high = score >= 4;
   const title = low ? 'رابطه الان به مراقبت نیاز دارد' : high ? 'این گرما را حفظ کنید' : 'یک قدم کوچک برای نزدیک‌ترشدن';
   const body = low ? 'امروز فقط یک حرکت امن.' : high ? 'این حال خوب را ماندگار کنید.' : 'یک کار کوچک، بدون فشار.';
@@ -532,9 +531,8 @@ const TemperatureAdvice = ({ score, cycleState, moodInsight, onNavigateToTab }: 
     <p className="mt-3 text-xs font-bold text-slate-700 dark:text-slate-300">{body}</p>
     {!open ? <button onClick={()=>setOpen(true)} className="mt-3 min-h-11 w-full rounded-xl bg-[oklch(35%_0.04_330)] text-xs font-black text-white">خواندن پیشنهاد</button> : <motion.div initial={{opacity:0,y:8}} animate={{opacity:1,y:0}} className="mt-4 space-y-3">
       <div className="flex items-center justify-between gap-2"><b className="text-xs text-slate-800 dark:text-white">پیشنهادهای مخصوص همین لحظه</b><button onClick={()=>setRound(v=>v+1)} className="group flex min-h-10 items-center gap-1.5 rounded-xl bg-[oklch(45%_0.13_330)] px-3 text-[10px] font-black text-white shadow-[0_6px_14px_oklch(45%_0.12_330_/_0.2)] transition-transform active:scale-95"><RefreshCw size={13} className="transition-transform group-active:rotate-180"/> پیشنهادهای دیگر</button></div>
-      {suggestions.map((item:any)=><div key={item.id} className="flex gap-3 rounded-2xl bg-[oklch(99%_0.006_80)] p-3 dark:bg-slate-900"><button aria-label="علامت‌گذاری پیشنهاد" onClick={(e)=>{const el=e.currentTarget;el.classList.toggle('bg-[oklch(45%_0.13_175)]');el.classList.toggle('text-white')}} className="mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 border-[oklch(58%_0.10_175)] text-transparent transition-colors"><Check size={16}/></button><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><b className="text-xs text-slate-900 dark:text-white">{item.title}</b><small className="flex shrink-0 items-center gap-1 text-[9px] text-slate-400"><Clock size={10}/>{item.time}</small></div><p className="mt-1 text-[11px] leading-5 text-slate-600 dark:text-slate-300">{item.action}</p></div></div>)}
+      {suggestions.map((item:any)=>{const done=completedSuggestions.includes(item.id);return <motion.div key={item.id} animate={done?{scale:[1,.98,1]}:{scale:1}} className={`flex gap-3 rounded-2xl p-3 transition-colors ${done?'bg-emerald-50 dark:bg-emerald-950/25':'bg-[oklch(99%_0.006_80)] dark:bg-slate-900'}`}><button aria-label={done?'لغو انجام پیشنهاد':'انجام پیشنهاد'} aria-pressed={done} onClick={()=>setCompletedSuggestions(current=>current.includes(item.id)?current.filter(id=>id!==item.id):[...current,item.id])} className={`mt-0.5 flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border-2 transition-all ${done?'border-emerald-600 bg-emerald-600 text-white shadow-[0_0_0_4px_oklch(90%_0.08_155)]':'border-[oklch(58%_0.10_175)] text-transparent'}`}><Check size={16}/></button><div className="min-w-0 flex-1"><div className="flex items-center justify-between gap-2"><b className={`text-xs ${done?'text-emerald-700 dark:text-emerald-300':'text-slate-900 dark:text-white'}`}>{item.title}</b><small className="flex shrink-0 items-center gap-1 text-[9px] text-slate-400"><Clock size={10}/>{item.time}</small></div><p className={`mt-1 text-[11px] leading-5 transition-all ${done?'text-slate-400 line-through decoration-2':'text-slate-600 dark:text-slate-300'}`}>{item.action}</p>{done&&<motion.small initial={{opacity:0,y:3}} animate={{opacity:1,y:0}} className="mt-1 block text-[10px] font-black text-emerald-600">انجام شد ✓</motion.small>}</div></motion.div>})}
       {moodInsight?.count >= 3 && <p className="text-[10px] leading-5 text-slate-500">این پیشنهادها با الگوی خلق، انرژی، نیاز پرتکرار و دمای رابطه تو انتخاب شده‌اند.</p>}
-      <button onClick={()=>onNavigateToTab('couple')} className="min-h-10 w-full rounded-xl bg-white text-xs font-black text-slate-700 dark:bg-slate-900 dark:text-slate-200">ثبت اقدام در اتاق ما</button>
     </motion.div>}
   </div>;
 };

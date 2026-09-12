@@ -1,15 +1,12 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { motion } from 'motion/react';
 import { Article } from '../../types';
 import { toPersianDigits } from '../../utils/persianDate';
 import {
   Clock,
-  Bookmark,
-  BookmarkCheck,
-  CheckCircle2,
   BookOpen,
+  ArrowRight,
   ArrowLeft,
-  Share2,
   Sparkles,
   HelpCircle
 } from 'lucide-react';
@@ -30,15 +27,25 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
   article,
   isOpen,
   onClose,
-  isFavorite,
-  isCompleted,
-  onToggleFavorite,
-  onToggleCompleted,
   onSelectRelatedArticle,
   allArticles
 }) => {
   const [selectedOption, setSelectedOption] = useState<number | null>(null);
   const [showFeedback, setShowFeedback] = useState(false);
+  useEffect(() => {
+    if (!isOpen) return;
+    const bodyOverflow = document.body.style.overflow;
+    const bodyOverscroll = document.body.style.overscrollBehavior;
+    const rootOverflow = document.documentElement.style.overflow;
+    document.body.style.overflow = 'hidden';
+    document.body.style.overscrollBehavior = 'none';
+    document.documentElement.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = bodyOverflow;
+      document.body.style.overscrollBehavior = bodyOverscroll;
+      document.documentElement.style.overflow = rootOverflow;
+    };
+  }, [isOpen]);
 
   if (!isOpen || !article) return null;
 
@@ -47,38 +54,12 @@ export const ArticleModal: React.FC<ArticleModalProps> = ({
   );
 
   return (
-    <div className="fixed inset-x-0 top-[4.5rem] bottom-[5.5rem] z-40 flex items-center justify-center bg-slate-950/20 p-0 sm:p-4">
-      <div className="relative w-full max-w-lg h-full sm:h-auto sm:max-h-full bg-[#FBF8F3] dark:bg-[#1A1E22] sm:rounded-3xl shadow-2xl border border-[#EBE1D7] dark:border-neutral-800 overflow-y-auto flex flex-col">
+    <div className="fixed inset-0 z-[100] flex items-center justify-center overscroll-none bg-slate-950/45 p-3 backdrop-blur-sm" onClick={onClose}>
+      <div onClick={event=>event.stopPropagation()} className="relative flex max-h-[calc(100dvh-1.5rem)] w-full max-w-lg flex-col overflow-y-auto overscroll-contain rounded-3xl border border-[#EBE1D7] bg-[#FBF8F3] shadow-2xl dark:border-neutral-800 dark:bg-[#1A1E22]">
         
-        {/* Floating Top Bar */}
-        <div className="sticky top-0 z-20 flex items-center justify-between px-4 py-3 bg-[#FBF8F3]/90 dark:bg-[#1A1E22]/90 backdrop-blur-md border-b border-[#EBDED3] dark:border-neutral-800">
-<div className="w-8"/>
-
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => onToggleFavorite(article.id)}
-              className={`p-2 rounded-full transition-colors ${
-                isFavorite
-                  ? 'text-[#C2413C] bg-[#FFF2F1] dark:bg-[#3D1E1E]'
-                  : 'text-[#7A858C] hover:bg-[#EFE7DC] dark:hover:bg-neutral-800'
-              }`}
-              title="نشان کردن"
-            >
-              {isFavorite ? <BookmarkCheck size={18} /> : <Bookmark size={18} />}
-            </button>
-
-            <button
-              onClick={() => onToggleCompleted(article.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${
-                isCompleted
-                  ? 'bg-[#EBF3ED] dark:bg-[#1E3024] text-[#4E6B58] dark:text-[#86EFAC]'
-                  : 'bg-white dark:bg-neutral-800 text-[#5C646A] dark:text-[#D1D5DB] border border-[#D5CBC1] dark:border-neutral-700'
-              }`}
-            >
-              <CheckCircle2 size={15} />
-              <span>{isCompleted ? 'خوانده شد' : 'علامت خوانده‌شده'}</span>
-            </button>
-          </div>
+        <div className="sticky top-0 z-20 flex items-center gap-3 border-b border-[#EBDED3] bg-[#FBF8F3]/90 px-4 py-3 backdrop-blur-md dark:border-neutral-800 dark:bg-[#1A1E22]/90">
+          <button onClick={onClose} aria-label="بازگشت به نکات زندگی" className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-[#EFE7DC] text-[#5C646A] active:scale-95 dark:bg-neutral-800 dark:text-neutral-200"><ArrowRight size={18}/></button>
+          <b className="min-w-0 flex-1 truncate text-sm text-[#1E2224] dark:text-[#F3F4F6]">{article.title}</b>
         </div>
 
         {/* Content Container */}

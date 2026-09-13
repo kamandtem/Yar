@@ -87,7 +87,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   // Tailor today's article and exercise based on user's priority topics
   const priorityCategory = preferences.priorityTopics?.[0] || 'communication';
   const articlePool = ALL_50_ARTICLES.length ? ALL_50_ARTICLES : articles;
-  const articleSeed = `${getTodayIsoDate()}-${cycleState.phase}-${moodInsight?.averageMood || 'steady'}`;
+  const articleSeed = `${getTodayIsoDate()}-${cycleState.phase}-${intimacyScore}-${moodInsight?.averageMood || 'steady'}`;
   const articleIndex = Array.from(articleSeed).reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % articlePool.length;
   const lowTemperature = intimacyScore <= 2;
   const weatherArticles = lowTemperature ? articlePool.filter((a) => {
@@ -107,10 +107,12 @@ export const HomeTab: React.FC<HomeTabProps> = ({
     : intimacyScore >= 4
       ? exercises.filter((e) => /قدردانی|صمیم|نزدیک|محبت|اعتماد|قرار|شناخت/.test(`${e.title} ${e.description || ''} ${e.category || ''}`))
       : exercises;
-  const todaysExercise =
-    exercisePool.find((e) =>
-      priorityCategory === 'conflict' ? e.id === 'ex-2' : priorityCategory === 'trauma' ? e.id === 'ex-7' || e.id === 'ex-5' : e.id === 'ex-1'
-    ) || exercisePool[0] || exercises[0];
+  const exerciseSeed = `${getTodayIsoDate()}-${intimacyScore}-${priorityCategory}-${moodInsight?.averageEnergy || 'steady'}`;
+  const exerciseIndex = Array.from(exerciseSeed).reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % Math.max(1, exercisePool.length);
+  const priorityExercise = exercisePool.find((e) =>
+    priorityCategory === 'conflict' ? e.id === 'ex-2' : priorityCategory === 'trauma' ? e.id === 'ex-7' || e.id === 'ex-5' : false
+  );
+  const todaysExercise = priorityExercise || exercisePool[exerciseIndex] || exercisePool[0] || exercises[0];
 
   // Primary active journey
   const activeJourney =
@@ -157,14 +159,14 @@ export const HomeTab: React.FC<HomeTabProps> = ({
             </p>
           </div>
 
-          <div className="pt-2 flex items-center gap-2">
-            <div className="flex items-center gap-1 text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/25 backdrop-blur-md">
-              <Sun size={13} className="text-amber-300" />
-              <span>{weatherLabel}</span>
+          <div className="pt-2 grid grid-cols-2 gap-2">
+            <div className="flex h-9 min-w-0 items-center justify-center gap-1 rounded-full bg-white/25 px-2 text-center text-[10px] font-bold backdrop-blur-md sm:text-[11px]">
+              {weatherLow ? <Cloud size={13} className="shrink-0 text-slate-100" /> : <Sun size={13} className="shrink-0 text-amber-300" />}
+              <span className="truncate">{weatherLabel}</span>
             </div>
             <button
               onClick={() => onNavigateToTab('couple')}
-              className="text-[11px] font-bold px-3 py-1.5 rounded-full bg-white text-indigo-700 shadow-sm hover:bg-indigo-50 transition-all cursor-pointer"
+              className="h-9 min-w-0 rounded-full bg-white px-2 text-[10px] font-bold text-indigo-700 shadow-sm transition-all hover:bg-indigo-50 cursor-pointer sm:text-[11px]"
             >
               ثبت حس امروز →
             </button>

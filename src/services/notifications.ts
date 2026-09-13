@@ -29,8 +29,8 @@ export async function scheduleDailyQuotes() {
     const pair = getDailyQuotePair(day);
     const morningAt = atTime(day, 10, 0), eveningAt = atTime(day, 20, 30);
     const morningId = notificationId(day, 0), eveningId = notificationId(day, 1);
-    if (morningAt > now) notifications.push({ id: morningId, title: 'صبح بخیر از یار', body: pair.morning, schedule: { at: morningAt }, channelId: CHANNEL_ID, extra: { target: 'home', kind: 'morning-quote' } });
-    if (eveningAt > now) notifications.push({ id: eveningId, title: 'یک مکث دونفره', body: pair.evening, schedule: { at: eveningAt }, channelId: CHANNEL_ID, extra: { target: 'home', kind: 'evening-quote' } });
+    if (morningAt > now) notifications.push({ id: morningId, title: 'جمله صبح | تلنگر روز', body: pair.morning, schedule: { at: morningAt }, channelId: CHANNEL_ID, extra: { target: 'home', kind: 'morning-quote' } });
+    if (eveningAt > now) notifications.push({ id: eveningId, title: 'جمله شب | تلنگر روز', body: pair.evening, schedule: { at: eveningAt }, channelId: CHANNEL_ID, extra: { target: 'home', kind: 'evening-quote' } });
   }
   const pending = await LocalNotifications.getPending();
   const existing = pending.notifications.filter(item => item.id >= ID_BASE && item.id < 1000000).map(item => ({ id: item.id }));

@@ -1,4 +1,5 @@
 import { CycleDailyCheckin, MenstrualPhase } from '../types';
+import { getDailyQuotePair } from '../data/dailyQuotes';
 
 export interface MoodInsight {
   count: number;
@@ -39,10 +40,14 @@ export function learnMoodPattern(checkins: CycleDailyCheckin[], phase?: Menstrua
 
 export function buildPersonalNotifications(args: { phase?: MenstrualPhase | null; inPms?: boolean; temperature?: number | null; moodInsight: MoodInsight }) {
   const items: { id:string; title:string; body:string; tone:'warm'|'attention'|'calm'; target:'home'|'couple'|'cycle' }[] = [];
-  const quote = 'اول بشنو، بعد حل کن.';
+  const quotes = getDailyQuotePair();
   if (args.inPms) items.push({ id:'pms-care', title:'مکث قبل از واکنش', body:'بازه PMS فعال است؛ گفت‌وگوی سنگین را به زمان باثبات‌تری منتقل کن.', tone:'calm', target:'cycle' });
   if ((args.temperature ?? 3) <= 2) items.push({ id:'temperature-low', title:'رابطه به مراقبت نیاز دارد', body:'امروز هدف حل همه‌چیز نیست؛ فقط یک درخواست روشن و محترمانه.', tone:'attention', target:'couple' });
   if (args.moodInsight.averageEnergy > 0 && args.moodInsight.averageEnergy <= 2.5) items.push({ id:'low-energy', title:'نسخه کم‌فشار امروز', body:'پیشنهادهای کوتاه و بدون گفت‌وگوی سنگین برایت اولویت دارند.', tone:'calm', target:'home' });
   if (!items.length) items.push({ id:'daily-step', title:'قدم امروز یار', body: args.moodInsight.count ? args.moodInsight.insightFa : 'حال امروزت را ثبت کن.', tone:'warm', target:'home' });
-  return [{ id:'quote-of-day', title:'جمله امروز', body:quote, tone:'warm', target:'home' }, ...items];
+  return [
+    { id:`morning-${quotes.dateKey}`, title:'جمله صبح', body:quotes.morning, tone:'warm' as const, target:'home' as const },
+    { id:`evening-${quotes.dateKey}`, title:'جمله شب', body:quotes.evening, tone:'calm' as const, target:'home' as const },
+    ...items
+  ];
 }

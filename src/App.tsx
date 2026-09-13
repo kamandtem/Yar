@@ -42,6 +42,9 @@ import { SplashScreen } from './components/common/SplashScreen';
 import { BreathingModal } from './components/common/BreathingModal';
 import { buildPersonalNotifications, learnMoodPattern } from './services/personalization';
 import { computeRelationshipCycle } from './services/relationshipCycle';
+import { NotificationPermissionPrompt } from './components/notifications/NotificationPermissionPrompt';
+import { ClimateGuidePrompt } from './components/home/ClimateGuidePrompt';
+import { disableDailyQuotes, listenForNotificationNavigation, requestNotificationPermission, scheduleDailyQuotes } from './services/notifications';
 
 export default function App() {
   const [onboardingStep, setOnboardingStep] = useState<'flow' | 'modal' | 'done'>('flow');
@@ -59,6 +62,8 @@ export default function App() {
   const [isDrawerOpen, setIsDrawerOpen] = useState<boolean>(false);
   const [isBreathingOpen, setIsBreathingOpen] = useState(false);
   const [showExitDialog, setShowExitDialog] = useState(false);
+  const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
+  const [showClimateGuide, setShowClimateGuide] = useState(false);
 
   // Active modal targets
   const [activeArticle, setActiveArticle] = useState<Article | null>(null);
@@ -86,6 +91,38 @@ export default function App() {
   const liveCycleState = computeRelationshipCycle(cycleConfig, StorageService.getPeriodLogs());
   const moodInsight = learnMoodPattern(StorageService.getCycleCheckins(), liveCycleState.phase);
   const notifications = buildPersonalNotifications({ phase: liveCycleState.phase, inPms: liveCycleState.inPmsWindow, temperature: StorageService.getRelationTemperature(), moodInsight });
+
+  useEffect(() => {
+    if (onboardingStep !== 'done' || !preferences.hasCompletedOnboarding) return;
+    const stopListening = listenForNotificationNavigation(target => setActiveTab(target));
+    if (preferences.notificationsEnabled) void scheduleDailyQuotes();
+    const climateGuideSeen = localStorage.getItem('yar_climate_guide_seen') === '1';
+    const timer = !climateGuideSeen
+      ? window.setTimeout(() => setShowClimateGuide(true), 650)
+      : !preferences.notificationPermissionAsked
+        ? window.setTimeout(() => setShowNotificationPrompt(true), 650)
+        : undefined;
+    return () => { if (timer) window.clearTimeout(timer); stopListening(); };
+  }, [onboardingStep, preferences.hasCompletedOnboarding, preferences.notificationsEnabled, preferences.notificationPermissionAsked]);
+
+  const enableNotifications = async () => {
+    try {
+      const granted = await requestNotificationPermission();
+      setPreferences(StorageService.savePreferences({ notificationsEnabled: granted, notificationPermissionAsked: true }));
+      if (granted) setShowNotificationPrompt(false);
+      return granted;
+    } catch {
+      setPreferences(StorageService.savePreferences({ notificationsEnabled: false, notificationPermissionAsked: true }));
+      return false;
+    }
+  };
+
+  const toggleNotifications = async (enabled: boolean) => {
+    if (enabled) return enableNotifications();
+    try { await disableDailyQuotes(); } catch { /* Keep the UI usable if Android has no pending schedule. */ }
+    setPreferences(StorageService.savePreferences({ notificationsEnabled: false, notificationPermissionAsked: true }));
+    return true;
+  };
 
   // Every tab is a fresh page, never inherit the previous page's scroll position.
   useEffect(() => {
@@ -168,7 +205,7 @@ export default function App() {
       if (n.isDrawerOpen) { setIsDrawerOpen(false); pushBackState(); return; }
       if (n.onboardingStep === 'modal' && n.isOnboardingOpen) { pushBackState(); return; }
       if (n.activeTab !== 'home') { setActiveTab('home'); pushBackState(); return; }
-      window.alert('برای خروج از برنامه، دوباره دکمه برگشت را بزنید.');
+      setShowExitDialog(true);
       pushBackState();
     };
     window.addEventListener('popstate', handleBack);
@@ -357,6 +394,7 @@ export default function App() {
             darkMode={darkMode}
             onToggleDarkMode={handleToggleDarkMode}
             onUpdatePreferences={(prefs) => setPreferences(StorageService.savePreferences(prefs))}
+            onNotificationToggle={toggleNotifications}
             onResetAll={() => {
               localStorage.clear();
               location.reload();
@@ -450,7 +488,22 @@ export default function App() {
         onClose={() => setActivePerspective(null)}
       />
 
-      {showExitDialog && <div className="fixed inset-0 z-[120] flex items-center justify-center bg-slate-950/45 px-5 backdrop-blur-sm" dir="rtl"><div role="dialog" aria-modal="true" className="w-full max-w-sm overflow-hidden rounded-[2rem] border border-violet-200/70 bg-[linear-gradient(145deg,#faf7ff,#f1eaff)] p-6 text-center shadow-2xl dark:border-violet-900/60 dark:bg-slate-900"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-violet-600 text-white shadow-lg shadow-violet-500/25"><span className="text-2xl">✦</span></div><h2 className="mt-4 text-lg font-black text-slate-900 dark:text-white">از یار خارج می‌شوی؟</h2><p className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-300">هر وقت برگردی، اطلاعاتت همین‌جا منتظر توست.</p><div className="mt-5 grid grid-cols-2 gap-2"><button onClick={()=>setShowExitDialog(false)} className="min-h-11 rounded-2xl bg-violet-600 text-xs font-black text-white shadow-lg shadow-violet-500/20 transition-transform active:scale-95">ادامه در یار</button><button onClick={()=>void CapacitorApp.exitApp()} className="min-h-11 rounded-2xl border border-violet-200 bg-white/70 text-xs font-black text-violet-700 transition-transform active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-violet-200">خروج</button></div></div></div>}
+
+      <ClimateGuidePrompt
+        isOpen={showClimateGuide}
+        onClose={() => { localStorage.setItem('yar_climate_guide_seen', '1'); setShowClimateGuide(false); if (!preferences.notificationPermissionAsked) window.setTimeout(() => setShowNotificationPrompt(true), 260); }}
+      />
+
+      <NotificationPermissionPrompt
+        isOpen={showNotificationPrompt}
+        onEnable={enableNotifications}
+        onLater={() => {
+          setPreferences(StorageService.savePreferences({ notificationsEnabled: false, notificationPermissionAsked: true }));
+          setShowNotificationPrompt(false);
+        }}
+      />
+
+      {showExitDialog && <div className="fixed inset-0 z-[120] flex items-center justify-center bg-[oklch(18%_0.03_290_/_0.48)] px-5 backdrop-blur-md" dir="rtl"><div role="dialog" aria-modal="true" className="w-full max-w-sm overflow-hidden rounded-[2rem] border border-[oklch(86%_0.07_300)] bg-[oklch(98%_0.012_300)] p-6 text-center shadow-[0_28px_80px_-24px_oklch(35%_0.12_300_/_0.55)] dark:border-[oklch(35%_0.08_300)] dark:bg-[oklch(20%_0.03_290)]"><div className="mx-auto flex h-16 w-16 items-center justify-center rounded-3xl bg-[oklch(53%_0.18_300)] text-white shadow-lg shadow-[oklch(53%_0.18_300_/_0.3)]"><span className="text-2xl">♥</span></div><h2 className="mt-4 text-lg font-black text-slate-900 dark:text-white">آیا می‌خواهی از یار خارج شوی؟</h2><p className="mt-2 text-xs leading-6 text-slate-500 dark:text-slate-300">اطلاعاتت روی همین دستگاه می‌ماند و هر وقت برگردی منتظر توست.</p><div className="mt-5 grid grid-cols-2 gap-2"><button onClick={()=>setShowExitDialog(false)} className="min-h-12 rounded-2xl bg-[oklch(53%_0.18_300)] text-xs font-black text-white shadow-lg shadow-[oklch(53%_0.18_300_/_0.2)] transition-transform active:scale-95">ادامه در یار</button><button onClick={()=>void CapacitorApp.exitApp()} className="min-h-12 rounded-2xl border border-[oklch(82%_0.06_300)] bg-[oklch(99%_0.006_300)] text-xs font-black text-[oklch(48%_0.16_300)] transition-transform active:scale-95 dark:border-slate-700 dark:bg-slate-800 dark:text-violet-200">خروج</button></div></div></div>}
     </div>
     </div>
   );

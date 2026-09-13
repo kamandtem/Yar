@@ -28,7 +28,8 @@ const DEFAULT_PREFERENCES: UserPreferences = {
   anniversaryDate: '',
   darkMode: false,
   fontSize: 'normal',
-  notificationsEnabled: true
+  notificationsEnabled: false,
+  notificationPermissionAsked: false
 };
 
 export const StorageService = {

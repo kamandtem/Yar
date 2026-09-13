@@ -32,6 +32,7 @@ export interface UserPreferences {
   darkMode: boolean;
   fontSize: 'normal' | 'large';
   notificationsEnabled: boolean;
+  notificationPermissionAsked?: boolean;
 }
 
 export interface ArticleSource {

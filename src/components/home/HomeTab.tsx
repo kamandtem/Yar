@@ -1,4 +1,5 @@
 import { PageIntroAccordion } from '../common/PageIntroAccordion';
+import { QuoteOfTheDay } from '../common/QuoteOfTheDay';
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { UserPreferences, Article, Exercise, Journey, DailyQuestion, WeeklyDate } from '../../types';
@@ -30,6 +31,8 @@ import {
   Zap,
   Layers,
   MoonStar,
+  Cloud,
+  CloudSun,
   RefreshCw,
   Check
 } from 'lucide-react';
@@ -86,22 +89,28 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   const articlePool = ALL_50_ARTICLES.length ? ALL_50_ARTICLES : articles;
   const articleSeed = `${getTodayIsoDate()}-${cycleState.phase}-${moodInsight?.averageMood || 'steady'}`;
   const articleIndex = Array.from(articleSeed).reduce((sum, ch) => sum + ch.charCodeAt(0), 0) % articlePool.length;
-  const moodFilteredArticles = articlePool.filter((a) => {
+  const lowTemperature = intimacyScore <= 2;
+  const weatherArticles = lowTemperature ? articlePool.filter((a) => {
+    const haystack = `${a.title} ${a.summary} ${a.category} ${(a.tags || []).join(' ')}`;
+    return /تعارض|گفت|دعوا|مرز|حل|اعتماد|امن|تنفس|ترمیم|شنیدن|خشم|احساس|شروع/.test(haystack);
+  }) : articlePool;
+  const moodFilteredArticles = weatherArticles.filter((a) => {
     const haystack = `${a.title} ${a.summary} ${a.category} ${(a.tags || []).join(' ')}`;
     if (priorityCategory === 'conflict') return /تعارض|گفت|دعوا|مرز|حل/.test(haystack);
     if (priorityCategory === 'trauma') return /زخم|امن|اعتماد|اضطراب|احساس/.test(haystack);
     return /ارتباط|صمیم|عشق|گفت|رابطه/.test(haystack);
   });
-  const todaysArticle = (moodFilteredArticles.length ? moodFilteredArticles : articlePool)[articleIndex % (moodFilteredArticles.length || articlePool.length)] || articles[0];
+  const todaysArticle = (moodFilteredArticles.length ? moodFilteredArticles : weatherArticles.length ? weatherArticles : articlePool)[articleIndex % (moodFilteredArticles.length || weatherArticles.length || articlePool.length)] || articles[0];
 
+  const exercisePool = lowTemperature
+    ? exercises.filter((e) => /گفت|تنفس|مکث|تعارض|آرام|شنیدن|مرز|احساس|ترمیم/.test(`${e.title} ${e.description || ''} ${e.category || ''}`))
+    : intimacyScore >= 4
+      ? exercises.filter((e) => /قدردانی|صمیم|نزدیک|محبت|اعتماد|قرار|شناخت/.test(`${e.title} ${e.description || ''} ${e.category || ''}`))
+      : exercises;
   const todaysExercise =
-    exercises.find((e) =>
-      priorityCategory === 'conflict'
-        ? e.id === 'ex-2'
-        : priorityCategory === 'trauma'
-        ? e.id === 'ex-7' || e.id === 'ex-5'
-        : e.id === 'ex-1'
-    ) || exercises[0];
+    exercisePool.find((e) =>
+      priorityCategory === 'conflict' ? e.id === 'ex-2' : priorityCategory === 'trauma' ? e.id === 'ex-7' || e.id === 'ex-5' : e.id === 'ex-1'
+    ) || exercisePool[0] || exercises[0];
 
   // Primary active journey
   const activeJourney =
@@ -114,13 +123,17 @@ export const HomeTab: React.FC<HomeTabProps> = ({
   const nextStage = activeJourney.stages[nextStageIndex];
   const currentWeeklyDate = weeklyDates[0];
 
+  const weatherLow = intimacyScore <= 2;
+  const weatherIcon = weatherLow ? <Cloud size={38} className="text-slate-100" /> : <Sun size={38} className="text-amber-200" />;
+  const weatherLabel = weatherLow ? 'هوای ابری، وقت مراقبت' : intimacyScore === 3 ? 'هوای نیمه‌آفتابی، یک قدم کوچک' : 'هوای آفتابی، وقت حفظ گرما';
+  const heroClass = weatherLow ? 'bg-linear-to-br from-[#64748B] via-[#94A3B8] to-[#7C8DA6]' : 'bg-linear-to-br from-[#818CF8] via-[#A78BFA] to-[#60A5FA]';
   return (
     <div className="pt-1 px-4 max-w-md mx-auto space-y-6">
       <PageIntroAccordion kind="home" />
       {/* Hero Weather/Climate Card */}
-      <div className="relative overflow-hidden rounded-[30px] p-6 bg-linear-to-br from-[#818CF8] via-[#A78BFA] to-[#60A5FA] text-white shadow-soft-elevated">
-        {/* Glowing Sun / Heart Orb */}
-        <div className="absolute top-4 left-6 w-20 h-20 rounded-full bg-linear-to-tr from-amber-400 to-amber-200 blur-xs shadow-[0_0_40px_rgba(251,191,36,0.8)] opacity-90" />
+      <div className={`relative overflow-hidden rounded-[30px] p-6 ${heroClass} text-white shadow-soft-elevated`}>
+        {/* Weather orb */}
+        <div className={`absolute top-4 left-6 flex h-20 w-20 items-center justify-center rounded-full ${weatherLow ? 'bg-slate-500/45 shadow-[0_0_40px_oklch(62%_0.03_250_/_0.3)]' : 'bg-linear-to-tr from-amber-400 to-amber-200 shadow-[0_0_40px_rgba(251,191,36,0.8)]'} opacity-90`}>{weatherIcon}</div>
         {/* Frosted Cloud Element */}
         <div className="absolute -bottom-6 -left-6 w-36 h-24 rounded-full bg-white/30 backdrop-blur-md" />
         <div className="absolute -bottom-4 left-16 w-28 h-20 rounded-full bg-white/20 backdrop-blur-sm" />
@@ -136,18 +149,18 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </div>
 
           <div>
-            <h2 className="text-xl sm:text-2xl font-black tracking-tight">
-              {completedArticles.length || completedExercises.length ? 'رابطه با قدم‌های کوچک جلو می‌رود' : 'امروز نقطه شروع شماست'}
+            <div className="mb-1 flex items-center gap-2"><span className="text-2xl">{weatherLow ? '☁️' : '☀️'}</span><span className="text-xs font-black opacity-90">{weatherLow ? 'اقلیم نیازمند توجه' : 'اقلیم رو به گرمی'}</span></div><h2 className="text-xl sm:text-2xl font-black tracking-tight">
+              {weatherLow ? 'امروز با رابطه مهربان‌تر باش' : completedArticles.length || completedExercises.length ? 'رابطه با قدم‌های کوچک جلو می‌رود' : 'امروز نقطه شروع شماست'}
             </h2>
             <p className="text-xs sm:text-sm font-medium opacity-90 mt-1 max-w-[240px] leading-relaxed">
-              {completedArticles.length || completedExercises.length ? `تا حالا ${toPersianDigits(completedArticles.length + completedExercises.length)} فعالیت ثبت کرده‌اید. پیشنهاد امروز را ادامه دهید.` : 'یک چک‌این کوتاه ثبت کنید تا پیشنهادها بر اساس حال واقعی شما شکل بگیرند.'}
+              {weatherLow ? 'پیشنهادهای امروز برای ترمیم، شنیدن و کم‌کردن فشار چیده شده‌اند.' : completedArticles.length || completedExercises.length ? `تا حالا ${toPersianDigits(completedArticles.length + completedExercises.length)} فعالیت ثبت کرده‌اید. پیشنهاد امروز را ادامه دهید.` : 'یک چک‌این کوتاه ثبت کنید تا پیشنهادها بر اساس حال واقعی شما شکل بگیرند.'}
             </p>
           </div>
 
           <div className="pt-2 flex items-center gap-2">
             <div className="flex items-center gap-1 text-[11px] font-bold px-3 py-1.5 rounded-full bg-white/25 backdrop-blur-md">
               <Sun size={13} className="text-amber-300" />
-              <span>{completedArticles.length + completedExercises.length ? `${toPersianDigits(completedArticles.length + completedExercises.length)} فعالیت انجام‌شده` : 'بدون داده قبلی'}</span>
+              <span>{weatherLabel}</span>
             </div>
             <button
               onClick={() => onNavigateToTab('couple')}
@@ -158,6 +171,8 @@ export const HomeTab: React.FC<HomeTabProps> = ({
           </div>
         </div>
       </div>
+
+      <QuoteOfTheDay temperature={intimacyScore} />
 
       {preferences.gender === 'female' && <CycleCareCard cycleState={cycleState} onOpenSOS={onOpenSOS} onNavigateToTab={onNavigateToTab} onOpenArticle={onOpenArticle} onOpenExercise={onOpenExercise} articles={articles} exercises={exercises} />}
 
@@ -434,7 +449,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
       >
         <div className="flex items-center justify-between">
           <span className="text-[11px] font-bold text-sky-600 dark:text-sky-400 bg-sky-50 dark:bg-sky-950/70 px-2.5 py-0.5 rounded-full">
-            تحلیل علمی امروز
+            {lowTemperature ? 'تحلیل ترمیمی امروز' : intimacyScore >= 4 ? 'تحلیل رشد رابطه امروز' : 'تحلیل علمی امروز'}
           </span>
           <span className="text-[10px] text-slate-400 flex items-center gap-1">
             <Clock size={11} />
@@ -463,7 +478,7 @@ export const HomeTab: React.FC<HomeTabProps> = ({
         </div>
 
         <div className="pt-1 flex items-center justify-between text-xs font-bold text-indigo-600 dark:text-indigo-400">
-          <span>مطالعه خلاصه بالینی</span>
+          <span>{lowTemperature ? 'برای حال ابری رابطه' : intimacyScore >= 4 ? 'برای حفظ گرمای رابطه' : 'مطالعه خلاصه بالینی'}</span>
           <ArrowLeft size={14} className="group-hover:-translate-x-1 transition-transform" />
         </div>
       </div>

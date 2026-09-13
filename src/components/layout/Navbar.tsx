@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AppIcon } from '../common/AppIcon';
-import { Bell, BellHeart, BellRing, ChevronLeft, HeartPulse, Menu, ShieldAlert, Sparkles } from 'lucide-react';
+import { Bell, BellRing, ChevronLeft, Heart, HeartPulse, Menu, ShieldAlert, Sparkles } from 'lucide-react';
 
 type NotificationTarget = 'home'|'couple'|'cycle';
 interface NavbarNotification { id:string; title:string; body:string; tone:'calm'|'warm'|'attention'; target:NotificationTarget; }
@@ -10,7 +10,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onOpenSOS, onOpenMenu, notificat
   const panelRef=useRef<HTMLDivElement>(null);
   useEffect(()=>{if(!showNotifications)return;const close=(event:PointerEvent)=>{if(panelRef.current&&!panelRef.current.contains(event.target as Node))setShowNotifications(false)};document.addEventListener('pointerdown',close);return()=>document.removeEventListener('pointerdown',close)},[showNotifications]);
   const go=(target:NotificationTarget)=>{setShowNotifications(false);onNotificationNavigate(target)};
-  const iconFor=(item:NavbarNotification,index:number)=>index < 2 ? <BellHeart size={17}/> : item.tone==='attention'?<HeartPulse size={17}/>:<Sparkles size={17}/>;
+  const iconFor=(item:NavbarNotification,index:number)=>index < 2 ? <span className="relative inline-flex"><Bell size={17}/><Heart size={9} className="absolute -bottom-1 -left-1 fill-current"/></span> : item.tone==='attention'?<HeartPulse size={17}/>:<Sparkles size={17}/>;
   const styleFor=(item:NavbarNotification,index:number)=>index < 2 ? 'bg-[oklch(93%_0.065_345)] text-[oklch(52%_0.17_345)]' : item.tone==='attention'?'bg-[oklch(93%_0.05_20)] text-[oklch(48%_0.16_20)]':'bg-[oklch(93%_0.045_155)] text-[oklch(44%_0.11_155)]';
   return <header className="yar-header" dir="rtl"><div ref={panelRef} className="yar-header-card relative">
     <div className="flex min-w-0 items-center gap-2"><button onClick={onOpenMenu} aria-label="باز کردن منو" className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-slate-200/70 bg-slate-100/90 text-slate-600 transition-transform active:scale-95 dark:border-slate-700/60 dark:bg-slate-800/80 dark:text-slate-300"><Menu size={21}/></button><button onClick={onOpenMenu} className="flex min-w-0 items-center gap-2 rounded-2xl text-right transition-transform active:scale-95"><div className="relative shrink-0"><AppIcon size={35} rounded/><span className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-400 dark:border-slate-900"/></div><span className="text-base font-black text-slate-900 dark:text-white">یار</span></button></div>

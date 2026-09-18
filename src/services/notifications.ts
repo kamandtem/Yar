@@ -21,7 +21,7 @@ export async function scheduleDailyQuotes() {
   if (!Capacitor.isNativePlatform()) return false;
   const permission = await LocalNotifications.checkPermissions();
   if (permission.display !== 'granted') return false;
-  if (Capacitor.getPlatform() === 'android') await LocalNotifications.createChannel({ id: CHANNEL_ID, name: 'دو جمله روزانه یار', description: 'دو یادآوری کوتاه برای توجه و گفت‌وگوی بهتر', importance: 4, visibility: 1, vibration: true });
+  if (Capacitor.getPlatform() === 'android') await LocalNotifications.createChannel({ id: CHANNEL_ID, name: 'تلنگر روزانه یار', description: 'یک یادآوری کوتاه برای توجه و گفت‌وگوی بهتر', importance: 4, visibility: 1, vibration: true });
   const now = new Date();
   const notifications: LocalNotificationSchema[] = [];
   for (let offset = 0; offset < SCHEDULE_DAYS; offset += 1) {
@@ -29,8 +29,8 @@ export async function scheduleDailyQuotes() {
     const pair = getDailyQuotePair(day);
     const morningAt = atTime(day, 10, 0), eveningAt = atTime(day, 20, 30);
     const morningId = notificationId(day, 0), eveningId = notificationId(day, 1);
-    if (morningAt > now) notifications.push({ id: morningId, title: 'جمله صبح | تلنگر روز', body: pair.morning, schedule: { at: morningAt }, channelId: CHANNEL_ID, extra: { target: 'home', kind: 'morning-quote' } });
-    if (eveningAt > now) notifications.push({ id: eveningId, title: 'جمله شب | تلنگر روز', body: pair.evening, schedule: { at: eveningAt }, channelId: CHANNEL_ID, extra: { target: 'home', kind: 'evening-quote' } });
+    if (morningAt > now) notifications.push({ id: morningId, title: 'تلنگر یار', body: pair.morning, schedule: { at: morningAt }, channelId: CHANNEL_ID, extra: { target: 'home', kind: 'daily-quote' } });
+    if (eveningAt > now) notifications.push({ id: eveningId, title: 'تلنگر یار', body: pair.evening, schedule: { at: eveningAt }, channelId: CHANNEL_ID, extra: { target: 'home', kind: 'daily-quote' } });
   }
   const pending = await LocalNotifications.getPending();
   const existing = pending.notifications.filter(item => item.id >= ID_BASE && item.id < 1000000).map(item => ({ id: item.id }));

@@ -33,3 +33,22 @@ android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
 برای انتشار عمومی، امضای release را با keystore واقعی خودتان به workflow اضافه کنید. این نسخه عمداً APK دیباگ می‌سازد تا بدون secret اضافی در GitHub Actions کار کند.
+
+## گرفتن نسخه Release امضاشده
+
+فایل workflow با نام `Build Yar Release APK` برای ساخت APK امضاشده اضافه شده است.
+
+در GitHub، این چهار Secret را در مسیر `Settings → Secrets and variables → Actions` بسازید:
+
+```text
+YAR_KEYSTORE_BASE64
+YAR_KEYSTORE_PASSWORD
+YAR_KEY_PASSWORD
+YAR_KEY_ALIAS
+```
+
+مقدار این چهار Secret در فایل جداگانه‌ای که همراه پروژه تحویل شده قرار دارد.
+
+بعد از ساخت Secretها، از مسیر `Actions → Build Yar Release APK → Run workflow` اجرا کنید.
+
+برای انتشار نسخه جدید، keystore را عوض نکنید؛ از همان keystore نسخه اول برای همه نسخه‌های بعدی استفاده کنید.

@@ -14,6 +14,7 @@ import {
   Sun,
   PhoneCall,
   Sparkles,
+  Brain,
   ChevronLeft
 } from 'lucide-react';
 import { ActiveTab } from '../../types';
@@ -61,6 +62,7 @@ export const SideDrawerMenu: React.FC<SideDrawerMenuProps> = ({
     { tab: 'home', label: 'خانه و پیشنهادهای امروز', icon: <Home size={18} /> },
     { tab: 'library', label: 'کتابخانه', icon: <BookOpen size={18} />, badge: '۲ کتاب' },
     { tab: 'library-old', label: 'نکات زندگی', icon: <Sparkles size={18} />, badge: '۵۰+ مقاله' },
+    { tab: 'schemas', label: 'الگوهای رابطه و طرحواره‌ها', icon: <Brain size={18} />, badge: '۱۸ الگو' },
     { tab: 'journeys', label: 'مسیرها', icon: <Compass size={18} /> },
     { tab: 'exercises', label: 'تمرین‌ها', icon: <Dumbbell size={18} /> },
     { tab: 'couple', label: 'فضای دونفره', icon: <HeartHandshake size={18} /> },

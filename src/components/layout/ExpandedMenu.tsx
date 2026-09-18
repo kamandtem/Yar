@@ -1,6 +1,6 @@
 import React,{useEffect} from 'react';
 import {AnimatePresence,motion} from 'motion/react';
-import {Activity,BookOpen,ChevronLeft,Compass,HeartHandshake,Home,Instagram,MessageCircle,MessageCircleHeart,Moon,MoonStar,Settings,ShieldAlert,Sparkles,Sun,X} from 'lucide-react';
+import {Activity,BookOpen,Brain,ChevronLeft,Compass,HeartHandshake,Home,Instagram,MessageCircle,MessageCircleHeart,Moon,MoonStar,Settings,ShieldAlert,Sparkles,Sun,X} from 'lucide-react';
 import {ActiveTab} from '../../types';
 import {AppIcon} from '../common/AppIcon';
 interface Props{isOpen:boolean;onClose:()=>void;activeTab:ActiveTab;onSelectTab:(tab:ActiveTab)=>void;darkMode:boolean;onToggleDarkMode:()=>void;streakCount:number;userName?:string;onOpenSOS:()=>void;}
@@ -8,6 +8,7 @@ const ITEMS:{tab:ActiveTab;label:string;caption:string;icon:React.ReactNode}[]=[
  {tab:'home',label:'خانه',caption:'پیشنهادهای امروز',icon:<Home size={20}/>},
  {tab:'library',label:'کتابخانه',caption:'کتاب‌ها، فصل‌ها و مطالعه آرام',icon:<BookOpen size={20}/>},
  {tab:'library-old',label:'نکات زندگی',caption:'مقالات و نکته‌های کاربردی رابطه',icon:<Sparkles size={20}/>},
+ {tab:'schemas',label:'الگوهای رابطه',caption:'۱۸ طرحواره و راه‌های سالم‌تر پاسخ‌دادن',icon:<Brain size={20}/>},
  {tab:'journeys',label:'مسیرها',caption:'یادگیری قدم‌به‌قدم',icon:<Compass size={20}/>},
  {tab:'exercises',label:'تمرین‌ها',caption:'تمرین‌های رابطه و آرام‌سازی',icon:<Sparkles size={20}/>},
  {tab:'couple',label:'فضای دونفره',caption:'چک‌این، خاطره و قرار',icon:<HeartHandshake size={20}/>},

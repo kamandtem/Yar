@@ -28,6 +28,7 @@ import { ProfileTab } from './components/profile/ProfileTab';
 import { ArticlesTimelineTab } from './components/library/ArticlesTimelineTab';
 import { BookLibraryTab } from './components/library/BookLibraryTab';
 import { LibraryTab } from './components/library/LibraryTab';
+import { SchemasTab } from './components/schemas/SchemasTab';
 
 // Modals
 import { OnboardingFlow } from './components/onboarding/OnboardingFlow';
@@ -64,6 +65,7 @@ export default function App() {
   const [showExitDialog, setShowExitDialog] = useState(false);
   const [showNotificationPrompt, setShowNotificationPrompt] = useState(false);
   const [showClimateGuide, setShowClimateGuide] = useState(false);
+  const [activeSchemaId, setActiveSchemaId] = useState<string | null>(null);
 
   // Active modal targets
   const [activeArticle, setActiveArticle] = useState<Article | null>(null);
@@ -179,8 +181,8 @@ export default function App() {
 
   // Back button: first press goes one level back; a second press within the
   // short window asks whether the user wants to exit the app.
-  const navigationRef = useRef({ activeArticle, activeExercise, activeJourney, activePerspective, isSOSOpen, isMenuExpanded, isDrawerOpen, onboardingStep, isOnboardingOpen, activeTab });
-  navigationRef.current = { activeArticle, activeExercise, activeJourney, activePerspective, isSOSOpen, isMenuExpanded, isDrawerOpen, onboardingStep, isOnboardingOpen, activeTab };
+  const navigationRef = useRef({ activeArticle, activeExercise, activeJourney, activePerspective, activeSchemaId, isSOSOpen, isMenuExpanded, isDrawerOpen, onboardingStep, isOnboardingOpen, activeTab });
+  navigationRef.current = { activeArticle, activeExercise, activeJourney, activePerspective, activeSchemaId, isSOSOpen, isMenuExpanded, isDrawerOpen, onboardingStep, isOnboardingOpen, activeTab };
   useEffect(() => {
     window.history.pushState({ yar: true }, '', window.location.href);
     let lastBackAt = 0;
@@ -200,6 +202,7 @@ export default function App() {
       if (n.activeExercise) { setActiveExercise(null); pushBackState(); return; }
       if (n.activeJourney) { setActiveJourney(null); pushBackState(); return; }
       if (n.activePerspective) { setActivePerspective(null); pushBackState(); return; }
+      if (n.activeSchemaId) { setActiveSchemaId(null); pushBackState(); return; }
       if (n.isSOSOpen) { setIsSOSOpen(false); pushBackState(); return; }
       if (n.isMenuExpanded) { setIsMenuExpanded(false); pushBackState(); return; }
       if (n.isDrawerOpen) { setIsDrawerOpen(false); pushBackState(); return; }
@@ -360,6 +363,20 @@ export default function App() {
             completedArticles={completedArticles}
             onOpenArticle={(art) => setActiveArticle(art)}
             onToggleFavorite={handleToggleFavorite}
+          />
+        )}
+
+        {activeTab === 'schemas' && (
+          <SchemasTab
+            selectedId={activeSchemaId}
+            onSelect={(id) => {
+              setActiveSchemaId(id);
+              window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            }}
+            onBack={() => {
+              setActiveSchemaId(null);
+              window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+            }}
           />
         )}
 

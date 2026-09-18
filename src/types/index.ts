@@ -222,4 +222,4 @@ export interface MediaItem {
   badge: string;
 }
 
-export type ActiveTab = 'home' | 'journeys' | 'exercises' | 'couple' | 'library' | 'library-old' | 'cycle' | 'profile';
+export type ActiveTab = 'home' | 'journeys' | 'exercises' | 'couple' | 'library' | 'library-old' | 'schemas' | 'cycle' | 'profile' | 'profile-old';

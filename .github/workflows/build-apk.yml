@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-    group: build-release-${{ github.ref }}
+  group: "build-release-${{ github.ref }}"
   cancel-in-progress: true
 
 jobs:
